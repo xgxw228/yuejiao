@@ -1,0 +1,60 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><title>深色驾驶舱 · Data Ops</title><style>
+*{box-sizing:border-box}body{margin:0;font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;font-size:13px;-webkit-font-smoothing:antialiased;color:var(--tx)}
+.top{height:58px;display:flex;align-items:center;gap:12px;padding:0 22px;background:var(--top);border-bottom:1px solid var(--bd)}
+.logo{width:27px;height:27px;background:var(--ac);color:#fff;display:grid;place-items:center;font-weight:800;border-radius:6px;font-size:13px}
+.top h1{font-size:14px;margin:0;font-weight:700}.crumb{color:var(--mut);font-size:10px;font-family:ui-monospace,monospace;letter-spacing:.1em}
+.sp{flex:1}.who{font-size:11px;color:var(--mut)}.top a{font-size:11px;color:var(--mut);border:1px solid var(--bd);padding:5px 11px;border-radius:6px;text-decoration:none}
+.wrap{display:grid;grid-template-columns:200px 1fr;min-height:calc(100vh - 58px)}
+.side{background:var(--side);border-right:1px solid var(--bd);padding:14px 9px}
+.st{font-family:ui-monospace,monospace;font-size:9px;letter-spacing:.15em;color:var(--mut);padding:0 11px 9px}
+.side a{display:flex;align-items:center;gap:10px;padding:9px 11px;border-radius:6px;color:var(--tx);text-decoration:none;font-size:12.5px;margin-bottom:2px}
+.side a.on{background:var(--soft);color:var(--ac);font-weight:700}.side a span{width:14px;text-align:center;opacity:.7}
+.main{padding:22px 26px 36px;min-width:0}
+.mh{display:flex;align-items:baseline;gap:11px;margin-bottom:16px}.mh h2{font-size:20px;margin:0;font-weight:750}.mh .sub{font-size:11px;color:var(--mut)}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.kc{padding:16px 18px;border-radius:10px;min-height:104px;position:relative;overflow:hidden}
+.kc.hero{background:var(--hero);color:#fff;box-shadow:var(--shadow)}
+.kc.plain{background:var(--card);border:1px solid var(--bd)}
+.kv{font-family:ui-monospace,monospace;font-size:32px;font-weight:700;line-height:1}
+.kk{font-size:12px;margin-top:8px;font-weight:600;opacity:.92}
+.kt{font-size:9.5px;font-family:ui-monospace,monospace;margin-top:7px;opacity:.75;letter-spacing:.05em}
+.kc.red .kv{color:var(--red)}.kc.hero .kv{color:#fff}
+.sh{display:flex;align-items:center;gap:10px;margin:20px 0 10px}.sh b{font-size:12.5px;font-weight:700}.sh .ln{flex:1;height:1px;background:var(--bd)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.grid3{display:grid;grid-template-columns:1.1fr .95fr .95fr;gap:12px}
+.panel{background:var(--card);border:1px solid var(--bd);border-radius:10px;padding:16px 18px}
+.panel h3{margin:0;font-size:12.5px;font-weight:700}.panel .hint{font-size:10px;color:var(--mut);margin-top:3px}
+.donut-row{display:flex;align-items:center;gap:14px;margin-top:10px}
+.lg{display:flex;align-items:center;gap:7px;font-size:11px;margin:6px 0}.lg i{width:8px;height:8px;border-radius:2px;flex:none}.lg span{color:var(--mut)}.lg b{margin-left:auto;font-family:ui-monospace,monospace}
+.bh{display:grid;grid-template-columns:56px 1fr 28px;gap:9px;align-items:center;font-size:11px;margin-top:11px}
+.bh .bl{color:var(--mut)}.bh .bt{height:8px;background:var(--track);border-radius:99px;overflow:hidden}.bh .bt i{display:block;height:100%;border-radius:99px}.bh b{text-align:right;font-family:ui-monospace,monospace;font-weight:600}
+.bv{display:flex;align-items:flex-end;gap:9px;height:120px;margin-top:14px}
+.bvc{flex:1;display:flex;flex-direction:column;align-items:center;height:100%}
+.bvtrack{flex:1;width:100%;display:flex;align-items:flex-end;background:var(--track);border-radius:5px;overflow:hidden}
+.bvtrack i{width:100%;background:var(--ac);border-radius:5px 5px 0 0}
+.bvc span{font-size:9.5px;color:var(--mut);margin-top:6px}.bvc b{font-size:10px;font-family:ui-monospace,monospace;margin-top:2px}
+.ar{display:grid;grid-template-columns:38px 42px 1fr 44px;gap:10px;align-items:center;padding:11px 0;border-bottom:1px solid var(--bd);font-size:11.5px}
+.ar:last-child{border-bottom:0}.aid{font-family:ui-monospace,monospace;color:var(--mut)}
+.risk{font-size:10px;padding:2px 7px;border-radius:4px;font-weight:700;text-align:center}
+.risk.h{background:var(--red-bg);color:var(--red-tx)}.risk.m{background:var(--amber-bg);color:var(--amber-tx)}
+.amsg{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.ago{color:var(--ac);text-align:right;font-size:10.5px}
+.ring-mini{display:flex;align-items:center;gap:10px;margin-top:10px}
+.ring-mini .rv{font-family:ui-monospace,monospace;font-size:20px;font-weight:700}
+:root{--bg:#0b1020;--top:#101830;--side:#0e1628;--card:#121c33;--tx:#e8eefb;--mut:#8593b3;--bd:#253356;--ac:#4ea8ff;--soft:#16264a;--track:#1c2947;--hero:linear-gradient(120deg,#3b82f6,#06b6d4);--shadow:0 8px 26px rgba(14,165,233,.25);--red:#ff6b7d;--red-bg:#3a1e2b;--red-tx:#ff9aaa;--amber-bg:#3a2f12;--amber-tx:#ffc861;}body{background:radial-gradient(1000px 420px at 82% -10%,rgba(78,168,255,.12),transparent),var(--bg)} .kv{text-shadow:0 0 18px rgba(78,168,255,.35)}</style></head><body>
+<div class="top"><div class="logo">粤</div><h1>粤教服务 · 数据后台</h1><span class="crumb">DATA / 概览</span><div class="sp"></div><span class="who">王主任 · 管理员</span><a>返回工作台</a></div>
+<div class="wrap"><aside class="side"><div class="st">WORKSPACE</div><a class="on"><span>◎</span>概览</a><a class=""><span>◇</span>客户线索</a><a class=""><span>△</span>心理预警</a><a class=""><span>▣</span>行政服务</a><a class=""><span>✉</span>反馈工单</a><a class=""><span>▥</span>学生成绩</a><a class=""><span>≡</span>对话记录</a><a class=""><span>◉</span>讲座活动</a></aside>
+<main class="main"><div class="mh"><h2>数据总览</h2><span class="sub">2026-11-18 · 周三 · 实时</span></div><div class="kpis"><div class="kc hero blue"><div class="kv">12</div><div class="kk">客户线索</div><div class="kt">今日 +12</div></div><div class="kc plain plain"><div class="kv">4</div><div class="kk">跟进中</div><div class="kt">转化中</div></div><div class="kc plain plain"><div class="kv">73</div><div class="kk">今日对话</div><div class="kt">AI 协同</div></div><div class="kc plain red"><div class="kv">4</div><div class="kk">未处理预警</div><div class="kt">3 高风险</div></div></div>
+<div class="sh"><b>核心分析</b><span class="ln"></span></div>
+<div class="grid3">
+ <div class="panel"><h3>线索状态构成</h3><div class="hint">共 12 条 · 环形占比</div>
+  <div class="donut-row"><svg viewBox="0 0 128 128" width="128" height="128"><circle cx="64.0" cy="64.0" r="55.5" fill="none" stroke="var(--track)" stroke-width="17"/><circle cx="64.0" cy="64.0" r="55.5" fill="none" stroke="#3b82f6" stroke-width="17" stroke-dasharray="143.29866022852795 348.71678454846705" stroke-dashoffset="0" transform="rotate(-90 64.0 64.0)"/><circle cx="64.0" cy="64.0" r="55.5" fill="none" stroke="#f59e0b" stroke-width="17" stroke-dasharray="114.23892818282235 348.71678454846705" stroke-dashoffset="-145.29866022852795" transform="rotate(-90 64.0 64.0)"/><circle cx="64.0" cy="64.0" r="55.5" fill="none" stroke="#10b981" stroke-width="17" stroke-dasharray="27.059732045705587 348.71678454846705" stroke-dashoffset="-261.53758841135027" transform="rotate(-90 64.0 64.0)"/><circle cx="64.0" cy="64.0" r="55.5" fill="none" stroke="#94a3b8" stroke-width="17" stroke-dasharray="56.119464091411174 348.71678454846705" stroke-dashoffset="-290.59732045705584" transform="rotate(-90 64.0 64.0)"/><text x="64.0" y="62.0" text-anchor="middle" font-size="26" font-weight="700" font-family="ui-monospace,monospace" fill="var(--tx)">12</text><text x="64.0" y="80.0" text-anchor="middle" font-size="10" fill="var(--mut)">总线索</text></svg><div><div class="lg"><i style="background:#3b82f6"></i><span>新增意向</span><b>5</b></div><div class="lg"><i style="background:#f59e0b"></i><span>跟进中</span><b>4</b></div><div class="lg"><i style="background:#10b981"></i><span>已签约</span><b>1</b></div><div class="lg"><i style="background:#94a3b8"></i><span>已流失</span><b>2</b></div></div></div></div>
+ <div class="panel"><h3>成绩分段</h3><div class="hint">27 条成绩记录</div><div class="bh"><span class="bl"><60</span><span class="bt"><i style="width:45%;background:var(--ac)"></i></span><b>5</b></div><div class="bh"><span class="bl">60-69</span><span class="bt"><i style="width:18%;background:var(--ac)"></i></span><b>2</b></div><div class="bh"><span class="bl">70-79</span><span class="bt"><i style="width:55%;background:var(--ac)"></i></span><b>6</b></div><div class="bh"><span class="bl">80-89</span><span class="bt"><i style="width:100%;background:var(--ac)"></i></span><b>11</b></div><div class="bh"><span class="bl">90+</span><span class="bt"><i style="width:27%;background:var(--ac)"></i></span><b>3</b></div></div>
+ <div class="panel"><h3>智能体使用</h3><div class="hint">今日 73 次对话</div>
+  <div class="donut-row"><svg viewBox="0 0 112 112" width="112" height="112"><circle cx="56.0" cy="56.0" r="48.5" fill="none" stroke="var(--track)" stroke-width="15"/><circle cx="56.0" cy="56.0" r="48.5" fill="none" stroke="#6366f1" stroke-width="15" stroke-dasharray="248.46670197113144 304.7344873982099" stroke-dashoffset="0" transform="rotate(-90 56.0 56.0)"/><circle cx="56.0" cy="56.0" r="48.5" fill="none" stroke="#22d3ee" stroke-width="15" stroke-dasharray="52.26778542707848 304.7344873982099" stroke-dashoffset="-250.46670197113144" transform="rotate(-90 56.0 56.0)"/><text x="56.0" y="54.0" text-anchor="middle" font-size="26" font-weight="700" font-family="ui-monospace,monospace" fill="var(--tx)">73</text><text x="56.0" y="72.0" text-anchor="middle" font-size="10" fill="var(--mut)">对话</text></svg><div><div class="lg"><i style="background:#6366f1"></i><span>学生侧</span><b>60</b></div><div class="lg"><i style="background:#22d3ee"></i><span>员工侧</span><b>13</b></div></div></div></div>
+</div>
+<div class="sh"><b>需要关注</b><span class="ln"></span></div>
+<div class="grid2">
+ <div class="panel"><h3>未处理心理预警</h3><div class="hint">3 条高风险 · 建议今日介入</div><div class="ar"><span class="aid">#2</span><span class="risk h">高</span><span class="amsg">情绪评估命中「活不下去」，连续表达强烈压力</span><span class="ago">查看 →</span></div><div class="ar"><span class="aid">#3</span><span class="risk h">高</span><span class="amsg">情绪评估命中「活不下去」，需立即介入</span><span class="ago">查看 →</span></div><div class="ar"><span class="aid">#4</span><span class="risk h">高</span><span class="amsg">语义判定触发，边界测试语境</span><span class="ago">查看 →</span></div><div class="ar"><span class="aid">#1</span><span class="risk m">中</span><span class="amsg">连续两周失眠、不想上课，很少参加活动</span><span class="ago">查看 →</span></div></div>
+ <div class="panel"><h3>讲座报名进度</h3><div class="hint">即将开始的 5 场活动</div>
+  <div class="bh"><span class="bl" style="width:auto">新加坡留学分享会</span><span class="bt"><i style="width:63%;background:var(--ac)"></i></span><b>19</b></div><div class="bh"><span class="bl" style="width:auto">德国双元制说明会</span><span class="bt"><i style="width:100%;background:var(--ac)"></i></span><b>20</b></div><div class="bh"><span class="bl" style="width:auto">香港升学规划沙龙</span><span class="bt"><i style="width:44%;background:var(--ac)"></i></span><b>11</b></div><div class="bh"><span class="bl" style="width:auto">新加坡公立大学解</span><span class="bt"><i style="width:47%;background:var(--ac)"></i></span><b>47</b></div><div class="bh"><span class="bl" style="width:auto">中德项目家长见面</span><span class="bt"><i style="width:55%;background:var(--ac)"></i></span><b>22</b></div></div>
+</div></main></div></body></html>

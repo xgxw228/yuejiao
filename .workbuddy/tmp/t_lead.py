@@ -1,0 +1,18 @@
+import sys, os, time
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from cdpkit import Browser, open_page
+b = Browser()
+open_page(b, "http://127.0.0.1:8000/login?ld=1", 1080, 700)
+time.sleep(0.8); b.js("localStorage.clear()")
+open_page(b, "http://127.0.0.1:8000/login?ld=2", 1080, 700)
+time.sleep(1.2)
+print("role cards:", b.js("document.querySelectorAll('.role-card').length"))
+print("labels:", b.js("Array.from(document.querySelectorAll('.role-name')).map(e=>e.textContent).join(' | ')"))
+print("guest btn:", b.js("!!document.getElementById('guest')"))
+b.shot("roles4.png")
+b.js("document.getElementById('csFab').click()")
+time.sleep(0.3)
+b.js("document.getElementById('csInput').value='好的，陈女士，13912345678'; document.getElementById('csForm').requestSubmit();")
+time.sleep(2.5)
+print("reply:", b.js("document.querySelector('#csBody .cs-msg:last-child').textContent"))
+b.shot("lead_reply.png")

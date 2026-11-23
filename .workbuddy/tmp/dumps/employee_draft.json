@@ -1,0 +1,1520 @@
+{
+ "id": "3d457887-56d7-4c2a-b26c-5e5c6272a61d",
+ "graph": {
+  "nodes": [
+   {
+    "id": "start",
+    "type": "custom",
+    "data": {
+     "variables": [
+      {
+       "variable": "user_id",
+       "label": "员工ID",
+       "description": "",
+       "type": "number",
+       "required": false,
+       "hide": false,
+       "max_length": null,
+       "options": []
+      },
+      {
+       "variable": "employee_name",
+       "label": "员工姓名",
+       "description": "",
+       "type": "text-input",
+       "required": false,
+       "hide": false,
+       "max_length": 48,
+       "options": []
+      }
+     ],
+     "type": "start",
+     "title": "用户输入",
+     "desc": "",
+     "selected": false,
+     "default_value": [
+      {
+       "key": "user_id",
+       "type": "number",
+       "value": 3
+      },
+      {
+       "key": "employee_name",
+       "type": "string",
+       "value": "李老师"
+      }
+     ]
+    },
+    "position": {
+     "x": 80,
+     "y": 420
+    },
+    "positionAbsolute": {
+     "x": 80,
+     "y": 420
+    },
+    "targetPosition": "left",
+    "sourcePosition": "right",
+    "width": 242,
+    "height": 100,
+    "selected": false
+   },
+   {
+    "id": "classifier",
+    "type": "custom",
+    "data": {
+     "type": "question-classifier",
+     "title": "意图分类",
+     "desc": "",
+     "query_variable_selector": [
+      "start",
+      "sys.query"
+     ],
+     "model": {
+      "provider": "langgenius/tongyi/tongyi",
+      "name": "qwen-plus",
+      "mode": "chat",
+      "completion_params": {
+       "temperature": 0.0,
+       "max_tokens": 800
+      }
+     },
+     "classes": [
+      {
+       "id": "c_lead_query",
+       "name": "客户查询：查客户档案、跟进历史，例如「帮我查一下许同学的跟进记录」"
+      },
+      {
+       "id": "c_lead_create",
+       "name": "客户录入：录入新的意向客户、新建销售线索，含姓名和背景信息"
+      },
+      {
+       "id": "c_lead_status",
+       "name": "客户状态流转：把某个客户改成已签约、跟进中或已流失"
+      },
+      {
+       "id": "c_daily_report",
+       "name": "日报：写今天的工作日报、记录做了什么"
+      },
+      {
+       "id": "c_score_entry",
+       "name": "成绩录入：给某个学生录入某门课的成绩"
+      },
+      {
+       "id": "c_handbook",
+       "name": "公司制度与新人指引：组织架构、报销流程、公司介绍、常见问题，以及不属于上面任何一类的问题"
+      }
+     ],
+     "instruction": "",
+     "instructions": "",
+     "vision": {
+      "enabled": false
+     },
+     "selected": false
+    },
+    "position": {
+     "x": 400,
+     "y": 200
+    },
+    "positionAbsolute": {
+     "x": 400,
+     "y": 200
+    },
+    "targetPosition": "left",
+    "sourcePosition": "right",
+    "width": 242,
+    "height": 100,
+    "selected": false
+   },
+   {
+    "id": "lead_query_http",
+    "type": "custom",
+    "data": {
+     "type": "http-request",
+     "title": "客户档案查询",
+     "desc": "",
+     "method": "post",
+     "url": "http://host.docker.internal:8000/api/agent/nl2sql",
+     "authorization": {
+      "type": "no-auth",
+      "config": null
+     },
+     "headers": "Content-Type:application/json",
+     "params": "",
+     "body": {
+      "type": "json",
+      "data": [
+       {
+        "key": "",
+        "type": "text",
+        "value": "{\"query\":\"{{#sys.query#}}\"}"
+       }
+      ]
+     },
+     "timeout": {
+      "connect": 10,
+      "read": 30,
+      "write": 10
+     },
+     "retry_config": {
+      "retry_enabled": true,
+      "max_retries": 2,
+      "retry_interval": 500
+     },
+     "ssl_verify": true,
+     "variables": [],
+     "selected": false,
+     "error_strategy": "default-value",
+     "default_value": [
+      {
+       "key": "body",
+       "type": "string",
+       "value": "{\"code\": -1, \"msg\": \"没有查到匹配的客户档案，请确认客户姓名是否正确。\"}"
+      },
+      {
+       "key": "status_code",
+       "type": "number",
+       "value": 400
+      }
+     ]
+    },
+    "position": {
+     "x": 780,
+     "y": 60
+    },
+    "positionAbsolute": {
+     "x": 780,
+     "y": 60
+    },
+    "targetPosition": "left",
+    "sourcePosition": "right",
+    "width": 242,
+    "height": 100,
+    "selected": false
+   },
+   {
+    "id": "lead_query_llm",
+    "type": "custom",
+    "data": {
+     "type": "llm",
+     "title": "客户档案播报",
+     "desc": "",
+     "model": {
+      "provider": "langgenius/tongyi/tongyi",
+      "name": "qwen-plus",
+      "mode": "chat",
+      "completion_params": {
+       "temperature": 0.3,
+       "max_tokens": 2000
+      }
+     },
+     "prompt_template": [
+      {
+       "role": "system",
+       "text": "你是「粤教服务」的企业内部业务助手，服务对象是留学顾问和班主任，负责 CRM、日报、成绩和制度查询。\n员工要查客户档案，你要把档案说清楚。\n【铁律】\n1. 业务数据只能来自「工具返回」里的 data 字段，不许自己编造姓名、时间、分数、单号、名额。\n2. 工具返回 code 不为 0，或出现 detail / msg 里带\"未找到\"\"不存在\"\"已满\"\"非法\"等字眼时，如实转述原因，并给出一个下一步建议。\n3. 用中文口语回答，不要输出 JSON、不要暴露接口路径、不要提\"工具\"\"节点\"\"API\"这些词。\n4. 回答控制在 4 句话以内，需要罗列信息时用简短列表。",
+       "id": "38ce8ff7-c920-4c2f-bb83-362b7c4838dd"
+      },
+      {
+       "role": "user",
+       "text": "员工说：{{#sys.query#}}\n\n工具返回：{{#lead_query_http.body#}}\n\n请依次说明：客户姓名、联系方式、背景、当前状态、最近一次跟进记录。",
+       "id": "0208b378-b3b7-4eb0-b2a5-de0b4dec1f28"
+      }
+     ],
+     "context": {
+      "enabled": false,
+      "variable_selector": []
+     },
+     "vision": {
+      "enabled": false
+     },
+     "memory": null,
+     "reasoning_format": "separated",
+     "selected": false
+    },
+    "position": {
+     "x": 1120,
+     "y": 60
+    },
+    "positionAbsolute": {
+     "x": 1120,
+     "y": 60
+    },
+    "targetPosition": "left",
+    "sourcePosition": "right",
+    "width": 242,
+    "height": 100,
+    "selected": false
+   },
+   {
+    "id": "lead_query_ans",
+    "type": "custom",
+    "data": {
+     "type": "answer",
+     "title": "客户查询回复",
+     "desc": "",
+     "answer": "{{#lead_query_llm.text#}}",
+     "variables": [],
+     "selected": false
+    },
+    "position": {
+     "x": 1460,
+     "y": 60
+    },
+    "positionAbsolute": {
+     "x": 1460,
+     "y": 60
+    },
+    "targetPosition": "left",
+    "sourcePosition": "right",
+    "width": 242,
+    "height": 100,
+    "selected": false
+   },
+   {
+    "id": "lead_create_extract",
+    "type": "custom",
+    "data": {
+     "type": "llm",
+     "title": "抽取客户信息",
+     "desc": "",
+     "model": {
+      "provider": "langgenius/tongyi/tongyi",
+      "name": "qwen-plus",
+      "mode": "chat",
+      "completion_params": {
+       "temperature": 0.3,
+       "max_tokens": 2000
+      }
+     },
+     "prompt_template": [
+      {
+       "role": "system",
+       "text": "你是一个信息抽取器。把员工的话转成客户档案 JSON，只输出 JSON，不要任何解释、不要 markdown 代码块。\n员工ID固定为 {{#start.user_id#}}。\n输出格式：\n{\"customer_name\":\"客户姓名\",\"contact_info\":\"手机号，没有就填空字符串\",\"background_info\":\"年龄、学历、意向等背景\",\"follow_up_history\":\"本次沟通记录\",\"owner_employee_id\":\"{{#start.user_id#}}\"}\n客户姓名抽不出来时填「未提供」。",
+       "id": "6911f17a-c2f3-4ba6-99cf-63d6c284056a"
+      },
+      {
+       "role": "user",
+       "text": "员工说：{{#sys.query#}}",
+       "id": "d8f1fecc-4d82-4a23-be8d-22aa95922c9b"
+      }
+     ],
+     "context": {
+      "enabled": false,
+      "variable_selector": []
+     },
+     "vision": {
+      "enabled": false
+     },
+     "memory": null,
+     "reasoning_format": "separated",
+     "selected": false
+    },
+    "position": {
+     "x": 780,
+     "y": 300
+    },
+    "positionAbsolute": {
+     "x": 780,
+     "y": 300
+    },
+    "targetPosition": "left",
+    "sourcePosition": "right",
+    "width": 242,
+    "height": 100,
+    "selected": false
+   },
+   {
+    "id": "lead_create_http",
+    "type": "custom",
+    "data": {
+     "type": "http-request",
+     "title": "写入客户档案",
+     "desc": "",
+     "method": "post",
+     "url": "http://host.docker.internal:8000/api/agent/lead-create",
+     "authorization": {
+      "type": "no-auth",
+      "config": null
+     },
+     "headers": "Content-Type:application/json",
+     "params": "",
+     "body": {
+      "type": "json",
+      "data": [
+       {
+        "key": "",
+        "type": "text",
+        "value": "{{#lead_create_extract.text#}}"
+       }
+      ]
+     },
+     "timeout": {
+      "connect": 10,
+      "read": 30,
+      "write": 10
+     },
+     "retry_config": {
+      "retry_enabled": true,
+      "max_retries": 2,
+      "retry_interval": 500
+     },
+     "ssl_verify": true,
+     "variables": [],
+     "selected": false
+    },
+    "position": {
+     "x": 1120,
+     "y": 300
+    },
+    "positionAbsolute": {
+     "x": 1120,
+     "y": 300
+    },
+    "targetPosition": "left",
+    "sourcePosition": "right",
+    "width": 242,
+    "height": 100,
+    "selected": false
+   },
+   {
+    "id": "lead_create_llm",
+    "type": "custom",
+    "data": {
+     "type": "llm",
+     "title": "录入回执",
+     "desc": "",
+     "model": {
+      "provider": "langgenius/tongyi/tongyi",
+      "name": "qwen-plus",
+      "mode": "chat",
+      "completion_params": {
+       "temperature": 0.3,
+       "max_tokens": 2000
+      }
+     },
+     "prompt_template": [
+      {
+       "role": "system",
+       "text": "你是「粤教服务」的企业内部业务助手，服务对象是留学顾问和班主任，负责 CRM、日报、成绩和制度查询。\n客户刚录入系统，你要给员工确认。\n【铁律】\n1. 业务数据只能来自「工具返回」里的 data 字段，不许自己编造姓名、时间、分数、单号、名额。\n2. 工具返回 code 不为 0，或出现 detail / msg 里带\"未找到\"\"不存在\"\"已满\"\"非法\"等字眼时，如实转述原因，并给出一个下一步建议。\n3. 用中文口语回答，不要输出 JSON、不要暴露接口路径、不要提\"工具\"\"节点\"\"API\"这些词。\n4. 回答控制在 4 句话以内，需要罗列信息时用简短列表。",
+       "id": "ea3366a1-fcf9-4954-9cd2-808778d88a99"
+      },
+      {
+       "role": "user",
+       "text": "员工说：{{#sys.query#}}\n\n工具返回：{{#lead_create_http.body#}}\n\n请确认已录入的客户姓名、背景和当前状态（新增意向），并提示他记得补跟进记录。",
+       "id": "1a8515af-ac52-4522-9641-b2d29abbed42"
+      }
+     ],
+     "context": {
+      "enabled": false,
+      "variable_selector": []
+     },
+     "vision": {
+      "enabled": false
+     },
+     "memory": null,
+     "reasoning_format": "separated",
+     "selected": false
+    },
+    "position": {
+     "x": 1460,
+     "y": 300
+    },
+    "positionAbsolute": {
+     "x": 1460,
+     "y": 300
+    },
+    "targetPosition": "left",
+    "sourcePosition": "right",
+    "width": 242,
+    "height": 100,
+    "selected": false
+   },
+   {
+    "id": "lead_create_ans",
+    "type": "custom",
+    "data": {
+     "type": "answer",
+     "title": "客户录入回复",
+     "desc": "",
+     "answer": "{{#lead_create_llm.text#}}",
+     "variables": [],
+     "selected": false
+    },
+    "position": {
+     "x": 1800,
+     "y": 300
+    },
+    "positionAbsolute": {
+     "x": 1800,
+     "y": 300
+    },
+    "targetPosition": "left",
+    "sourcePosition": "right",
+    "width": 242,
+    "height": 100,
+    "selected": false
+   },
+   {
+    "id": "lead_status_extract",
+    "type": "custom",
+    "data": {
+     "type": "llm",
+     "title": "抽取流转参数",
+     "desc": "",
+     "model": {
+      "provider": "langgenius/tongyi/tongyi",
+      "name": "qwen-plus",
+      "mode": "chat",
+      "completion_params": {
+       "temperature": 0.3,
+       "max_tokens": 2000
+      }
+     },
+     "prompt_template": [
+      {
+       "role": "system",
+       "text": "你是一个信息抽取器。提取客户姓名和目标状态，只输出 JSON，不要解释、不要代码块。\nstatus 只能是 新增意向 / 跟进中 / 已签约 / 已流失 之一。\n输出格式：{\"customer_name\":\"客户姓名\",\"status\":\"目标状态\"}",
+       "id": "162918cb-556c-4cdd-8dd3-ea1b3f0899f8"
+      },
+      {
+       "role": "user",
+       "text": "员工说：{{#sys.query#}}",
+       "id": "d6922fe9-1c49-4d19-b5ae-9cfed111a232"
+      }
+     ],
+     "context": {
+      "enabled": false,
+      "variable_selector": []
+     },
+     "vision": {
+      "enabled": false
+     },
+     "memory": null,
+     "reasoning_format": "separated",
+     "selected": false
+    },
+    "position": {
+     "x": 780,
+     "y": 540
+    },
+    "positionAbsolute": {
+     "x": 780,
+     "y": 540
+    },
+    "targetPosition": "left",
+    "sourcePosition": "right",
+    "width": 242,
+    "height": 100,
+    "selected": false
+   },
+   {
+    "id": "lead_status_http",
+    "type": "custom",
+    "data": {
+     "type": "http-request",
+     "title": "更新客户状态",
+     "desc": "",
+     "method": "put",
+     "url": "http://host.docker.internal:8000/api/agent/lead-status-by-name",
+     "authorization": {
+      "type": "no-auth",
+      "config": null
+     },
+     "headers": "Content-Type:application/json",
+     "params": "",
+     "body": {
+      "type": "json",
+      "data": [
+       {
+        "key": "",
+        "type": "text",
+        "value": "{{#lead_status_extract.text#}}"
+       }
+      ]
+     },
+     "timeout": {
+      "connect": 10,
+      "read": 30,
+      "write": 10
+     },
+     "retry_config": {
+      "retry_enabled": true,
+      "max_retries": 2,
+      "retry_interval": 500
+     },
+     "ssl_verify": true,
+     "variables": [],
+     "selected": false,
+     "error_strategy": "default-value",
+     "default_value": [
+      {
+       "key": "body",
+       "type": "string",
+       "value": "{\"code\": -1, \"msg\": \"状态更新失败：可能客户姓名不唯一或状态值不合法，请补充更完整的姓名。\"}"
+      },
+      {
+       "key": "status_code",
+       "type": "number",
+       "value": 400
+      }
+     ]
+    },
+    "position": {
+     "x": 1120,
+     "y": 540
+    },
+    "positionAbsolute": {
+     "x": 1120,
+     "y": 540
+    },
+    "targetPosition": "left",
+    "sourcePosition": "right",
+    "width": 242,
+    "height": 100,
+    "selected": false
+   },
+   {
+    "id": "lead_status_llm",
+    "type": "custom",
+    "data": {
+     "type": "llm",
+     "title": "流转回执",
+     "desc": "",
+     "model": {
+      "provider": "langgenius/tongyi/tongyi",
+      "name": "qwen-plus",
+      "mode": "chat",
+      "completion_params": {
+       "temperature": 0.3,
+       "max_tokens": 2000
+      }
+     },
+     "prompt_template": [
+      {
+       "role": "system",
+       "text": "你是「粤教服务」的企业内部业务助手，服务对象是留学顾问和班主任，负责 CRM、日报、成绩和制度查询。\n客户状态刚被更新，你要向员工确认结果。\n【铁律】\n1. 业务数据只能来自「工具返回」里的 data 字段，不许自己编造姓名、时间、分数、单号、名额。\n2. 工具返回 code 不为 0，或出现 detail / msg 里带\"未找到\"\"不存在\"\"已满\"\"非法\"等字眼时，如实转述原因，并给出一个下一步建议。\n3. 用中文口语回答，不要输出 JSON、不要暴露接口路径、不要提\"工具\"\"节点\"\"API\"这些词。\n4. 回答控制在 4 句话以内，需要罗列信息时用简短列表。",
+       "id": "fce03822-83e8-4cb7-9d29-a9405c720722"
+      },
+      {
+       "role": "user",
+       "text": "员工说：{{#sys.query#}}\n\n工具返回：{{#lead_status_http.body#}}\n\n请说明：哪个客户、从什么状态变成了什么状态。",
+       "id": "e9fdc4c1-34ac-431a-a0eb-cc2de0c17288"
+      }
+     ],
+     "context": {
+      "enabled": false,
+      "variable_selector": []
+     },
+     "vision": {
+      "enabled": false
+     },
+     "memory": null,
+     "reasoning_format": "separated",
+     "selected": false
+    },
+    "position": {
+     "x": 1460,
+     "y": 540
+    },
+    "positionAbsolute": {
+     "x": 1460,
+     "y": 540
+    },
+    "targetPosition": "left",
+    "sourcePosition": "right",
+    "width": 242,
+    "height": 100,
+    "selected": false
+   },
+   {
+    "id": "lead_status_ans",
+    "type": "custom",
+    "data": {
+     "type": "answer",
+     "title": "状态流转回复",
+     "desc": "",
+     "answer": "{{#lead_status_llm.text#}}",
+     "variables": [],
+     "selected": false
+    },
+    "position": {
+     "x": 1800,
+     "y": 540
+    },
+    "positionAbsolute": {
+     "x": 1800,
+     "y": 540
+    },
+    "targetPosition": "left",
+    "sourcePosition": "right",
+    "width": 242,
+    "height": 100,
+    "selected": false
+   },
+   {
+    "id": "report_http",
+    "type": "custom",
+    "data": {
+     "type": "http-request",
+     "title": "保存日报",
+     "desc": "",
+     "method": "post",
+     "url": "http://host.docker.internal:8000/api/agent/report-create",
+     "authorization": {
+      "type": "no-auth",
+      "config": null
+     },
+     "headers": "Content-Type:application/json",
+     "params": "",
+     "body": {
+      "type": "json",
+      "data": [
+       {
+        "key": "",
+        "type": "text",
+        "value": "{\"employee_id\":\"{{#start.user_id#}}\",\"content\":\"{{#sys.query#}}\"}"
+       }
+      ]
+     },
+     "timeout": {
+      "connect": 10,
+      "read": 30,
+      "write": 10
+     },
+     "retry_config": {
+      "retry_enabled": true,
+      "max_retries": 2,
+      "retry_interval": 500
+     },
+     "ssl_verify": true,
+     "variables": [],
+     "selected": false
+    },
+    "position": {
+     "x": 780,
+     "y": 780
+    },
+    "positionAbsolute": {
+     "x": 780,
+     "y": 780
+    },
+    "targetPosition": "left",
+    "sourcePosition": "right",
+    "width": 242,
+    "height": 100,
+    "selected": false
+   },
+   {
+    "id": "report_llm",
+    "type": "custom",
+    "data": {
+     "type": "llm",
+     "title": "日报回执",
+     "desc": "",
+     "model": {
+      "provider": "langgenius/tongyi/tongyi",
+      "name": "qwen-plus",
+      "mode": "chat",
+      "completion_params": {
+       "temperature": 0.3,
+       "max_tokens": 2000
+      }
+     },
+     "prompt_template": [
+      {
+       "role": "system",
+       "text": "你是「粤教服务」的企业内部业务助手，服务对象是留学顾问和班主任，负责 CRM、日报、成绩和制度查询。\n员工刚提交日报，你要做结构化复述。\n【铁律】\n1. 业务数据只能来自「工具返回」里的 data 字段，不许自己编造姓名、时间、分数、单号、名额。\n2. 工具返回 code 不为 0，或出现 detail / msg 里带\"未找到\"\"不存在\"\"已满\"\"非法\"等字眼时，如实转述原因，并给出一个下一步建议。\n3. 用中文口语回答，不要输出 JSON、不要暴露接口路径、不要提\"工具\"\"节点\"\"API\"这些词。\n4. 回答控制在 4 句话以内，需要罗列信息时用简短列表。",
+       "id": "a978580f-d3a5-4295-8249-5966734f9cb5"
+      },
+      {
+       "role": "user",
+       "text": "员工说：{{#sys.query#}}\n\n工具返回：{{#report_http.body#}}\n\n请把日报内容整理成三条要点复述给他，不要篡改事实。",
+       "id": "2a5fe0e9-6ccb-4061-8891-b70ca22432ee"
+      }
+     ],
+     "context": {
+      "enabled": false,
+      "variable_selector": []
+     },
+     "vision": {
+      "enabled": false
+     },
+     "memory": null,
+     "reasoning_format": "separated",
+     "selected": false
+    },
+    "position": {
+     "x": 1120,
+     "y": 780
+    },
+    "positionAbsolute": {
+     "x": 1120,
+     "y": 780
+    },
+    "targetPosition": "left",
+    "sourcePosition": "right",
+    "width": 242,
+    "height": 100,
+    "selected": false
+   },
+   {
+    "id": "report_ans",
+    "type": "custom",
+    "data": {
+     "type": "answer",
+     "title": "日报回复",
+     "desc": "",
+     "answer": "{{#report_llm.text#}}",
+     "variables": [],
+     "selected": false
+    },
+    "position": {
+     "x": 1460,
+     "y": 780
+    },
+    "positionAbsolute": {
+     "x": 1460,
+     "y": 780
+    },
+    "targetPosition": "left",
+    "sourcePosition": "right",
+    "width": 242,
+    "height": 100,
+    "selected": false
+   },
+   {
+    "id": "score_extract",
+    "type": "custom",
+    "data": {
+     "type": "llm",
+     "title": "抽取成绩参数",
+     "desc": "",
+     "model": {
+      "provider": "langgenius/tongyi/tongyi",
+      "name": "qwen-plus",
+      "mode": "chat",
+      "completion_params": {
+       "temperature": 0.3,
+       "max_tokens": 2000
+      }
+     },
+     "prompt_template": [
+      {
+       "role": "system",
+       "text": "你是一个信息抽取器。提取学生姓名、课程名、分数，只输出 JSON，不要解释、不要代码块。\n输出格式：{\"student_name\":\"学生姓名\",\"course_name\":\"课程名\",\"score\":分数数字,\"semester\":\"学期，没有就填空字符串\"}",
+       "id": "a8a255bc-8a3f-477a-8234-c01ee0906355"
+      },
+      {
+       "role": "user",
+       "text": "员工说：{{#sys.query#}}",
+       "id": "93270f68-1152-48fa-9914-fcdb3f3e8931"
+      }
+     ],
+     "context": {
+      "enabled": false,
+      "variable_selector": []
+     },
+     "vision": {
+      "enabled": false
+     },
+     "memory": null,
+     "reasoning_format": "separated",
+     "selected": false
+    },
+    "position": {
+     "x": 780,
+     "y": 1020
+    },
+    "positionAbsolute": {
+     "x": 780,
+     "y": 1020
+    },
+    "targetPosition": "left",
+    "sourcePosition": "right",
+    "width": 242,
+    "height": 100,
+    "selected": false
+   },
+   {
+    "id": "score_entry_http",
+    "type": "custom",
+    "data": {
+     "type": "http-request",
+     "title": "写入成绩",
+     "desc": "",
+     "method": "post",
+     "url": "http://host.docker.internal:8000/api/agent/score-create-by-name",
+     "authorization": {
+      "type": "no-auth",
+      "config": null
+     },
+     "headers": "Content-Type:application/json",
+     "params": "",
+     "body": {
+      "type": "json",
+      "data": [
+       {
+        "key": "",
+        "type": "text",
+        "value": "{{#score_extract.text#}}"
+       }
+      ]
+     },
+     "timeout": {
+      "connect": 10,
+      "read": 30,
+      "write": 10
+     },
+     "retry_config": {
+      "retry_enabled": true,
+      "max_retries": 2,
+      "retry_interval": 500
+     },
+     "ssl_verify": true,
+     "variables": [],
+     "selected": false,
+     "error_strategy": "default-value",
+     "default_value": [
+      {
+       "key": "body",
+       "type": "string",
+       "value": "{\"code\": -1, \"msg\": \"成绩录入失败：可能学生不存在或分数超出 0~150，请核对后重试。\"}"
+      },
+      {
+       "key": "status_code",
+       "type": "number",
+       "value": 400
+      }
+     ]
+    },
+    "position": {
+     "x": 1120,
+     "y": 1020
+    },
+    "positionAbsolute": {
+     "x": 1120,
+     "y": 1020
+    },
+    "targetPosition": "left",
+    "sourcePosition": "right",
+    "width": 242,
+    "height": 100,
+    "selected": false
+   },
+   {
+    "id": "score_entry_llm",
+    "type": "custom",
+    "data": {
+     "type": "llm",
+     "title": "录入回执",
+     "desc": "",
+     "model": {
+      "provider": "langgenius/tongyi/tongyi",
+      "name": "qwen-plus",
+      "mode": "chat",
+      "completion_params": {
+       "temperature": 0.3,
+       "max_tokens": 2000
+      }
+     },
+     "prompt_template": [
+      {
+       "role": "system",
+       "text": "你是「粤教服务」的企业内部业务助手，服务对象是留学顾问和班主任，负责 CRM、日报、成绩和制度查询。\n成绩刚录入系统，你要确认结果。\n【铁律】\n1. 业务数据只能来自「工具返回」里的 data 字段，不许自己编造姓名、时间、分数、单号、名额。\n2. 工具返回 code 不为 0，或出现 detail / msg 里带\"未找到\"\"不存在\"\"已满\"\"非法\"等字眼时，如实转述原因，并给出一个下一步建议。\n3. 用中文口语回答，不要输出 JSON、不要暴露接口路径、不要提\"工具\"\"节点\"\"API\"这些词。\n4. 回答控制在 4 句话以内，需要罗列信息时用简短列表。",
+       "id": "673df7ea-bfa6-4ebf-af9b-e9c29066da83"
+      },
+      {
+       "role": "user",
+       "text": "员工说：{{#sys.query#}}\n\n工具返回：{{#score_entry_http.body#}}\n\n请确认：学生、课程、分数三项信息已写入。",
+       "id": "97b952e4-7a2d-4b6b-b7e5-336901ea5790"
+      }
+     ],
+     "context": {
+      "enabled": false,
+      "variable_selector": []
+     },
+     "vision": {
+      "enabled": false
+     },
+     "memory": null,
+     "reasoning_format": "separated",
+     "selected": false
+    },
+    "position": {
+     "x": 1460,
+     "y": 1020
+    },
+    "positionAbsolute": {
+     "x": 1460,
+     "y": 1020
+    },
+    "targetPosition": "left",
+    "sourcePosition": "right",
+    "width": 242,
+    "height": 100,
+    "selected": false
+   },
+   {
+    "id": "score_entry_ans",
+    "type": "custom",
+    "data": {
+     "type": "answer",
+     "title": "成绩录入回复",
+     "desc": "",
+     "answer": "{{#score_entry_llm.text#}}",
+     "variables": [],
+     "selected": false
+    },
+    "position": {
+     "x": 1800,
+     "y": 1020
+    },
+    "positionAbsolute": {
+     "x": 1800,
+     "y": 1020
+    },
+    "targetPosition": "left",
+    "sourcePosition": "right",
+    "width": 242,
+    "height": 100,
+    "selected": false
+   },
+   {
+    "id": "handbook_kb",
+    "type": "custom",
+    "data": {
+     "type": "knowledge-retrieval",
+     "title": "知识检索",
+     "desc": "",
+     "query_variable_selector": [
+      "start",
+      "sys.query"
+     ],
+     "dataset_ids": [
+      "fdd91978-5c55-4e1d-85d0-45b16f9f72ea"
+     ],
+     "retrieval_mode": "multiple",
+     "multiple_retrieval_config": {
+      "top_k": 8,
+      "score_threshold": null,
+      "score_threshold_enabled": false,
+      "reranking_mode": "reranking_model",
+      "reranking_enable": false,
+      "reranking_model": {
+       "provider": "langgenius/tongyi/tongyi",
+       "model": "qwen3-vl-rerank"
+      }
+     },
+     "selected": false
+    },
+    "position": {
+     "x": 780,
+     "y": 1260
+    },
+    "positionAbsolute": {
+     "x": 780,
+     "y": 1260
+    },
+    "targetPosition": "left",
+    "sourcePosition": "right",
+    "width": 242,
+    "height": 100,
+    "selected": false
+   },
+   {
+    "id": "handbook_llm",
+    "type": "custom",
+    "data": {
+     "type": "llm",
+     "title": "制度问答",
+     "desc": "",
+     "model": {
+      "provider": "langgenius/tongyi/tongyi",
+      "name": "qwen-plus",
+      "mode": "chat",
+      "completion_params": {
+       "temperature": 0.3,
+       "max_tokens": 2000
+      }
+     },
+     "prompt_template": [
+      {
+       "role": "system",
+       "text": "你是「粤教服务」的内部行政助手，回答报销、请假制度、组织架构、新人入职等问题。\n只依据检索到的资料回答；资料没有的就说「这个我不确定，建议问一下行政同事」。\n回答用中文，控制在 5 句话以内，必要时分条列出。",
+       "id": "f4b2ac6c-7546-4b18-ad9e-d641c5bcf024"
+      },
+      {
+       "role": "user",
+       "text": "员工问：{{#sys.query#}}\n\n参考资料：{{#context#}}",
+       "id": "f62108c4-0f80-4229-ab25-bad07a3531a6"
+      }
+     ],
+     "context": {
+      "enabled": true,
+      "variable_selector": [
+       "handbook_kb",
+       "result"
+      ]
+     },
+     "vision": {
+      "enabled": false
+     },
+     "memory": null,
+     "reasoning_format": "separated",
+     "selected": false
+    },
+    "position": {
+     "x": 1120,
+     "y": 1260
+    },
+    "positionAbsolute": {
+     "x": 1120,
+     "y": 1260
+    },
+    "targetPosition": "left",
+    "sourcePosition": "right",
+    "width": 242,
+    "height": 100,
+    "selected": false
+   },
+   {
+    "id": "handbook_ans",
+    "type": "custom",
+    "data": {
+     "type": "answer",
+     "title": "制度回复",
+     "desc": "",
+     "answer": "{{#handbook_llm.text#}}",
+     "variables": [],
+     "selected": false
+    },
+    "position": {
+     "x": 1460,
+     "y": 1260
+    },
+    "positionAbsolute": {
+     "x": 1460,
+     "y": 1260
+    },
+    "targetPosition": "left",
+    "sourcePosition": "right",
+    "width": 242,
+    "height": 100,
+    "selected": false
+   }
+  ],
+  "edges": [
+   {
+    "id": "start-source-classifier-target",
+    "type": "custom",
+    "source": "start",
+    "sourceHandle": "source",
+    "target": "classifier",
+    "targetHandle": "target",
+    "data": {
+     "sourceType": "start",
+     "targetType": "question-classifier",
+     "isInIteration": false,
+     "isInLoop": false
+    },
+    "zIndex": 0
+   },
+   {
+    "id": "classifier-c_lead_query-lead_query_http-target",
+    "type": "custom",
+    "source": "classifier",
+    "sourceHandle": "c_lead_query",
+    "target": "lead_query_http",
+    "targetHandle": "target",
+    "data": {
+     "sourceType": "question-classifier",
+     "targetType": "http-request",
+     "isInIteration": false,
+     "isInLoop": false
+    },
+    "zIndex": 0
+   },
+   {
+    "id": "lead_query_http-source-lead_query_llm-target",
+    "type": "custom",
+    "source": "lead_query_http",
+    "sourceHandle": "source",
+    "target": "lead_query_llm",
+    "targetHandle": "target",
+    "data": {
+     "sourceType": "http-request",
+     "targetType": "llm",
+     "isInIteration": false,
+     "isInLoop": false
+    },
+    "zIndex": 0
+   },
+   {
+    "id": "lead_query_llm-source-lead_query_ans-target",
+    "type": "custom",
+    "source": "lead_query_llm",
+    "sourceHandle": "source",
+    "target": "lead_query_ans",
+    "targetHandle": "target",
+    "data": {
+     "sourceType": "llm",
+     "targetType": "answer",
+     "isInIteration": false,
+     "isInLoop": false
+    },
+    "zIndex": 0
+   },
+   {
+    "id": "classifier-c_lead_create-lead_create_extract-target",
+    "type": "custom",
+    "source": "classifier",
+    "sourceHandle": "c_lead_create",
+    "target": "lead_create_extract",
+    "targetHandle": "target",
+    "data": {
+     "sourceType": "question-classifier",
+     "targetType": "llm",
+     "isInIteration": false,
+     "isInLoop": false
+    },
+    "zIndex": 0
+   },
+   {
+    "id": "lead_create_extract-source-lead_create_http-target",
+    "type": "custom",
+    "source": "lead_create_extract",
+    "sourceHandle": "source",
+    "target": "lead_create_http",
+    "targetHandle": "target",
+    "data": {
+     "sourceType": "llm",
+     "targetType": "http-request",
+     "isInIteration": false,
+     "isInLoop": false
+    },
+    "zIndex": 0
+   },
+   {
+    "id": "lead_create_http-source-lead_create_llm-target",
+    "type": "custom",
+    "source": "lead_create_http",
+    "sourceHandle": "source",
+    "target": "lead_create_llm",
+    "targetHandle": "target",
+    "data": {
+     "sourceType": "http-request",
+     "targetType": "llm",
+     "isInIteration": false,
+     "isInLoop": false
+    },
+    "zIndex": 0
+   },
+   {
+    "id": "lead_create_llm-source-lead_create_ans-target",
+    "type": "custom",
+    "source": "lead_create_llm",
+    "sourceHandle": "source",
+    "target": "lead_create_ans",
+    "targetHandle": "target",
+    "data": {
+     "sourceType": "llm",
+     "targetType": "answer",
+     "isInIteration": false,
+     "isInLoop": false
+    },
+    "zIndex": 0
+   },
+   {
+    "id": "classifier-c_lead_status-lead_status_extract-target",
+    "type": "custom",
+    "source": "classifier",
+    "sourceHandle": "c_lead_status",
+    "target": "lead_status_extract",
+    "targetHandle": "target",
+    "data": {
+     "sourceType": "question-classifier",
+     "targetType": "llm",
+     "isInIteration": false,
+     "isInLoop": false
+    },
+    "zIndex": 0
+   },
+   {
+    "id": "lead_status_extract-source-lead_status_http-target",
+    "type": "custom",
+    "source": "lead_status_extract",
+    "sourceHandle": "source",
+    "target": "lead_status_http",
+    "targetHandle": "target",
+    "data": {
+     "sourceType": "llm",
+     "targetType": "http-request",
+     "isInIteration": false,
+     "isInLoop": false
+    },
+    "zIndex": 0
+   },
+   {
+    "id": "lead_status_http-source-lead_status_llm-target",
+    "type": "custom",
+    "source": "lead_status_http",
+    "sourceHandle": "source",
+    "target": "lead_status_llm",
+    "targetHandle": "target",
+    "data": {
+     "sourceType": "http-request",
+     "targetType": "llm",
+     "isInIteration": false,
+     "isInLoop": false
+    },
+    "zIndex": 0
+   },
+   {
+    "id": "lead_status_llm-source-lead_status_ans-target",
+    "type": "custom",
+    "source": "lead_status_llm",
+    "sourceHandle": "source",
+    "target": "lead_status_ans",
+    "targetHandle": "target",
+    "data": {
+     "sourceType": "llm",
+     "targetType": "answer",
+     "isInIteration": false,
+     "isInLoop": false
+    },
+    "zIndex": 0
+   },
+   {
+    "id": "classifier-c_daily_report-report_http-target",
+    "type": "custom",
+    "source": "classifier",
+    "sourceHandle": "c_daily_report",
+    "target": "report_http",
+    "targetHandle": "target",
+    "data": {
+     "sourceType": "question-classifier",
+     "targetType": "http-request",
+     "isInIteration": false,
+     "isInLoop": false
+    },
+    "zIndex": 0
+   },
+   {
+    "id": "report_http-source-report_llm-target",
+    "type": "custom",
+    "source": "report_http",
+    "sourceHandle": "source",
+    "target": "report_llm",
+    "targetHandle": "target",
+    "data": {
+     "sourceType": "http-request",
+     "targetType": "llm",
+     "isInIteration": false,
+     "isInLoop": false
+    },
+    "zIndex": 0
+   },
+   {
+    "id": "report_llm-source-report_ans-target",
+    "type": "custom",
+    "source": "report_llm",
+    "sourceHandle": "source",
+    "target": "report_ans",
+    "targetHandle": "target",
+    "data": {
+     "sourceType": "llm",
+     "targetType": "answer",
+     "isInIteration": false,
+     "isInLoop": false
+    },
+    "zIndex": 0
+   },
+   {
+    "id": "classifier-c_score_entry-score_extract-target",
+    "type": "custom",
+    "source": "classifier",
+    "sourceHandle": "c_score_entry",
+    "target": "score_extract",
+    "targetHandle": "target",
+    "data": {
+     "sourceType": "question-classifier",
+     "targetType": "llm",
+     "isInIteration": false,
+     "isInLoop": false
+    },
+    "zIndex": 0
+   },
+   {
+    "id": "score_extract-source-score_entry_http-target",
+    "type": "custom",
+    "source": "score_extract",
+    "sourceHandle": "source",
+    "target": "score_entry_http",
+    "targetHandle": "target",
+    "data": {
+     "sourceType": "llm",
+     "targetType": "http-request",
+     "isInIteration": false,
+     "isInLoop": false
+    },
+    "zIndex": 0
+   },
+   {
+    "id": "score_entry_http-source-score_entry_llm-target",
+    "type": "custom",
+    "source": "score_entry_http",
+    "sourceHandle": "source",
+    "target": "score_entry_llm",
+    "targetHandle": "target",
+    "data": {
+     "sourceType": "http-request",
+     "targetType": "llm",
+     "isInIteration": false,
+     "isInLoop": false
+    },
+    "zIndex": 0
+   },
+   {
+    "id": "score_entry_llm-source-score_entry_ans-target",
+    "type": "custom",
+    "source": "score_entry_llm",
+    "sourceHandle": "source",
+    "target": "score_entry_ans",
+    "targetHandle": "target",
+    "data": {
+     "sourceType": "llm",
+     "targetType": "answer",
+     "isInIteration": false,
+     "isInLoop": false
+    },
+    "zIndex": 0
+   },
+   {
+    "id": "classifier-c_handbook-handbook_kb-target",
+    "type": "custom",
+    "source": "classifier",
+    "sourceHandle": "c_handbook",
+    "target": "handbook_kb",
+    "targetHandle": "target",
+    "data": {
+     "sourceType": "question-classifier",
+     "targetType": "knowledge-retrieval",
+     "isInIteration": false,
+     "isInLoop": false
+    },
+    "zIndex": 0
+   },
+   {
+    "id": "handbook_kb-source-handbook_llm-target",
+    "type": "custom",
+    "source": "handbook_kb",
+    "sourceHandle": "source",
+    "target": "handbook_llm",
+    "targetHandle": "target",
+    "data": {
+     "sourceType": "knowledge-retrieval",
+     "targetType": "llm",
+     "isInIteration": false,
+     "isInLoop": false
+    },
+    "zIndex": 0
+   },
+   {
+    "id": "handbook_llm-source-handbook_ans-target",
+    "type": "custom",
+    "source": "handbook_llm",
+    "sourceHandle": "source",
+    "target": "handbook_ans",
+    "targetHandle": "target",
+    "data": {
+     "sourceType": "llm",
+     "targetType": "answer",
+     "isInIteration": false,
+     "isInLoop": false
+    },
+    "zIndex": 0
+   }
+  ],
+  "viewport": {
+   "x": 0,
+   "y": 0,
+   "zoom": 0.6
+  }
+ },
+ "features": {
+  "opening_statement": "",
+  "suggested_questions": [],
+  "suggested_questions_after_answer": {
+   "enabled": false
+  },
+  "text_to_speech": {
+   "enabled": false,
+   "voice": "",
+   "language": ""
+  },
+  "speech_to_text": {
+   "enabled": false
+  },
+  "retriever_resource": {
+   "enabled": true
+  },
+  "sensitive_word_avoidance": {
+   "enabled": false
+  },
+  "file_upload": {
+   "image": {
+    "enabled": false,
+    "number_limits": 3,
+    "transfer_methods": [
+     "local_file",
+     "remote_url"
+    ]
+   },
+   "enabled": false,
+   "allowed_file_types": [
+    "image"
+   ],
+   "allowed_file_extensions": [
+    ".JPG",
+    ".JPEG",
+    ".PNG",
+    ".GIF",
+    ".WEBP",
+    ".SVG"
+   ],
+   "allowed_file_upload_methods": [
+    "local_file",
+    "remote_url"
+   ],
+   "number_limits": 3,
+   "fileUploadConfig": {
+    "file_size_limit": 15,
+    "batch_count_limit": 5,
+    "image_file_size_limit": 10,
+    "video_file_size_limit": 100,
+    "audio_file_size_limit": 50,
+    "workflow_file_upload_limit": 10
+   }
+  }
+ },
+ "hash": "460fcb1970a5a9a6fc58c9c30fb3fa2190bccef0bfe0ef6c1c4758acebb91213",
+ "version": "draft",
+ "marked_name": "",
+ "marked_comment": "",
+ "created_by": {
+  "id": "048ea528-b688-4916-b3de-a63ee15cc03e",
+  "name": "游戏测评助手",
+  "email": "723217924@qq.com"
+ },
+ "created_at": 1794916494,
+ "updated_by": {
+  "id": "048ea528-b688-4916-b3de-a63ee15cc03e",
+  "name": "游戏测评助手",
+  "email": "723217924@qq.com"
+ },
+ "updated_at": 1794924401,
+ "tool_published": false,
+ "environment_variables": [],
+ "conversation_variables": [],
+ "rag_pipeline_variables": []
+}

@@ -1,0 +1,23 @@
+import sys, os, time
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from cdpkit import Browser, open_page
+b = Browser()
+open_page(b, "http://127.0.0.1:8000/login?la=1", 1280, 760)
+time.sleep(0.8); b.js("localStorage.clear()")
+open_page(b, "http://127.0.0.1:8000/login?la=2", 1280, 760)
+time.sleep(1.0)
+b.js("document.querySelectorAll('#roleCards .role-card')[0].click()")
+time.sleep(0.3)
+b.js("document.getElementById('form').requestSubmit()")
+time.sleep(3.0)
+print("url:", b.js("location.pathname"))
+b.js("document.getElementById('nav-leads').click()")
+time.sleep(2.0)
+print("leads:", b.js("document.querySelectorAll('#lead-box .lead').length"))
+print("filters:", b.js("document.getElementById('lead-filters').innerText.replace(/\n/g,' ')"))
+b.shot("admin_leads.png")
+# 写一条跟进
+b.js("document.querySelector('#lead-box .lead .lead-note').value='已电话沟通，家长约周六到校'; document.querySelector('#lead-box .lead .lead-save').click();")
+time.sleep(2.0)
+print("after save his:", b.js("(document.querySelector('#lead-box .lead .lead-his pre')||{}).textContent"))
+b.shot("admin_leads_saved.png")

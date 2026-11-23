@@ -1,0 +1,15 @@
+import sys, os, time
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from cdpkit import Browser, open_page
+b = Browser()
+open_page(b, "http://127.0.0.1:8000/login?v=3", 1080, 608)
+time.sleep(1)
+b.js("document.getElementById('roleCards').children[0].click()")
+time.sleep(0.3)
+print("filled:", b.js("document.getElementById('username').value+'/'+document.getElementById('password').value"))
+b.js("document.getElementById('form').requestSubmit()")
+time.sleep(2.0)
+print("url:", b.js("location.pathname"))
+print("token:", b.js("(localStorage.getItem('yj_token')||'').slice(0,12)"))
+print("h1:", b.js("document.getElementById('hello')?document.getElementById('hello').textContent:'-'" ))
+b.shot("ck3_admin_after_login.png")

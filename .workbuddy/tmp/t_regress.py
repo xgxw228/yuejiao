@@ -1,0 +1,18 @@
+import sys, os, time
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from cdpkit import Browser, open_page
+b = Browser()
+open_page(b, "http://127.0.0.1:8000/login?r=1", 1180, 760)
+time.sleep(0.8); b.js("localStorage.clear()")
+open_page(b, "http://127.0.0.1:8000/login?r=2", 1180, 760)
+time.sleep(1.0)
+b.js("document.querySelectorAll('#roleCards .role-card')[1].click()")
+time.sleep(0.3)
+b.js("document.getElementById('form').requestSubmit()")
+time.sleep(3.0)
+print("url:", b.js("location.pathname"))
+b.js("document.querySelector('.empty-chips .chip').click()")
+time.sleep(10)
+print("msgs:", b.js("document.querySelectorAll('.msg').length"))
+print("last bubble:", b.js("(document.querySelectorAll('.msg .bubble')[document.querySelectorAll('.msg .bubble').length-1]||{}).textContent?.slice(0,60)"))
+b.shot("regress_chat.png")

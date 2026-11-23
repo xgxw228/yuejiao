@@ -1,0 +1,17 @@
+import sys, os, time
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from cdpkit import Browser, open_page
+b = Browser()
+open_page(b, "http://127.0.0.1:8000/login?v=5", 1080, 720)
+time.sleep(0.6)
+b.js("localStorage.clear()")
+open_page(b, "http://127.0.0.1:8000/login?v=6", 1080, 720)
+time.sleep(1.2)
+print("card x:", b.js("document.querySelector('.hero-right .card').getBoundingClientRect().x"))
+b.shot("final_login_1080.png")
+b.js("document.getElementById('roleCards').children[0].click()")
+time.sleep(0.3)
+b.js("document.getElementById('form').requestSubmit()")
+time.sleep(2.5)
+print("url:", b.js("location.pathname"))
+b.shot("final_admin_after.png")

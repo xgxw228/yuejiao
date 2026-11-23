@@ -1,0 +1,2226 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate" />
+<meta http-equiv="Pragma" content="no-cache" />
+<meta http-equiv="Expires" content="0" />
+<title>粤教服务 · 留学服务智能助手</title>
+<link rel="preload" as="image" href="assets/hero-campus.jpg" />
+<style>
+  :root {
+    --ink: #0d1520;
+    --ink-2: #2b3442;
+    --line: rgba(13, 21, 32, .13);
+    --line-soft: rgba(13, 21, 32, .07);
+    --dim: rgba(13, 21, 32, .58);
+    --faint: rgba(13, 21, 32, .38);
+    /* 与主应用 index.html 的 --accent 完全同色，进站不跳色 */
+    --blue: #2563eb;
+    --blue-dark: #1d4ed8;
+    --blue-weak: #eef3ff;
+    --red: #e5484d;
+    --paper: #ffffff;
+    --paper-2: #f4f6f9;
+    --mono: ui-monospace, "SF Mono", Consolas, "Courier New", monospace;
+  }
+
+  * { box-sizing: border-box; }
+
+  html {
+    scroll-behavior: smooth;
+    scroll-padding-top: 84px;
+  }
+  html, body { margin: 0; }
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+      "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+    font-size: 14px;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+  button, input { font-family: inherit; }
+  button { cursor: pointer; }
+  a { color: inherit; }
+
+  /* ---------------- 吸顶导航 ---------------- */
+  .nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 60;
+    height: 72px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    padding: 0 56px;
+    background: rgba(255, 255, 255, .86);
+    -webkit-backdrop-filter: blur(14px) saturate(1.3);
+    backdrop-filter: blur(14px) saturate(1.3);
+    border-bottom: 1px solid transparent;
+    transition: background .28s ease, border-color .28s ease;
+  }
+  .nav.solid {
+    background: rgba(255, 255, 255, .95);
+    border-bottom-color: var(--line);
+  }
+  .brand { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+  .mark {
+    width: 36px; height: 36px;
+    border: 1px solid var(--ink);
+    display: grid; place-items: center;
+    font-size: 16px; font-weight: 700;
+    position: relative;
+    flex: 0 0 auto;
+  }
+  .mark::after { content: ""; position: absolute; inset: 3px; border: 1px solid rgba(13,21,32,.16); }
+  .bt b { display: block; font-size: 14.5px; font-weight: 700; letter-spacing: .06em; }
+  .bt span {
+    display: block; margin-top: 3px;
+    font-family: var(--mono); font-size: 8px;
+    letter-spacing: .2em; color: var(--faint);
+  }
+  .nav-links { display: flex; align-items: center; gap: 28px; }
+  .nav-links a {
+    text-decoration: none;
+    font-size: 12.5px;
+    color: var(--ink-2);
+    padding: 6px 0;
+    position: relative;
+    transition: color .18s;
+  }
+  .nav-links a::after {
+    content: ""; position: absolute; left: 0; right: 100%; bottom: 0;
+    height: 1px; background: var(--blue); transition: right .24s ease;
+  }
+  .nav-links a:hover { color: var(--blue); }
+  .nav-links a:hover::after { right: 0; }
+  .nav-right { display: flex; align-items: center; gap: 18px; }
+  .nav-status {
+    display: flex; align-items: center; gap: 7px;
+    font-family: var(--mono); font-size: 8.5px;
+    letter-spacing: .16em; color: var(--faint);
+  }
+  .dot { width: 5px; height: 5px; background: var(--blue); display: inline-block; }
+  .nav-cta {
+    display: inline-flex; align-items: center; gap: 8px;
+    height: 36px; padding: 0 18px;
+    background: var(--ink); color: #fff;
+    font-size: 12px; letter-spacing: .06em;
+    text-decoration: none;
+    transition: background .18s;
+  }
+  .nav-cta:hover { background: var(--blue); }
+
+  /* ---------------- 首屏：左文案 / 右登录卡 · 实景铺底 ---------------- */
+  .hero {
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 452px);
+    align-items: center;
+    gap: clamp(28px, 4vw, 76px);
+    min-height: 100vh;
+    min-height: 100svh;
+    padding: 104px 56px 56px;
+    background: #eef2f5;
+    overflow: hidden;
+  }
+  /* 整幅实景铺底 */
+  .hero-bg { position: absolute; inset: 0; z-index: 0; }
+  .hero-bg img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    object-position: 64% 58%;
+    display: block;
+  }
+  /* 左侧白色柔化保证文案可读，右侧保留照片，不整体压暗 */
+  .hero-bg::after {
+    content: ""; position: absolute; inset: 0; pointer-events: none;
+    background:
+      linear-gradient(90deg,
+        rgba(255,255,255,.98) 0%, rgba(255,255,255,.90) 22%,
+        rgba(255,255,255,.42) 38%, rgba(255,255,255,.06) 58%,
+        rgba(255,255,255,0) 72%),
+      linear-gradient(180deg,
+        rgba(255,255,255,.82) 0%, rgba(255,255,255,.12) 14%,
+        rgba(255,255,255,0) 26%);
+  }
+  .hero-left, .hero-right { position: relative; z-index: 1; }
+  .hero-left {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    max-width: 560px;
+  }
+  .hero-right { display: flex; justify-content: flex-end; }
+  .hero-right .card {
+    width: 100%; max-width: 452px;
+    background: rgba(255,255,255,.97);
+    -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
+    box-shadow: 0 34px 80px rgba(13, 21, 32, .16);
+  }
+  .eyebrow {
+    display: flex; align-items: center; gap: 11px;
+    font-family: var(--mono); font-size: 9px;
+    letter-spacing: .26em; color: var(--dim);
+    margin-bottom: 20px;
+  }
+  .eyebrow .num { color: #fff; background: var(--ink); padding: 3px 7px; letter-spacing: .1em; }
+  .eyebrow i { flex: 0 1 84px; height: 1px; background: var(--line); display: block; }
+
+  h1 {
+    margin: 0;
+    font-size: clamp(32px, 3.3vw, 46px);
+    font-weight: 800;
+    line-height: 1.06;
+    letter-spacing: -.022em;
+  }
+  h1 .hl { color: var(--blue); }
+
+  .hero-sub {
+    margin: 16px 0 0;
+    font-size: 13px;
+    line-height: 1.92;
+    color: var(--ink-2);
+    max-width: 430px;
+  }
+
+  /* 图注与滚动提示：压在首屏左下角，和右下角的登录卡形成对角 */
+  .hero-foot {
+    position: absolute; left: 56px; bottom: 44px; z-index: 1;
+    display: flex; align-items: center; gap: 26px;
+    font-family: var(--mono); font-size: 8.5px;
+    letter-spacing: .2em; color: var(--dim);
+  }
+  .scroll-hint { display: flex; align-items: center; gap: 9px; }
+  .scroll-hint i { display: block; width: 30px; height: 1px; background: rgba(13,21,32,.32); }
+  .scroll-hint b { animation: nudge 2.2s ease-in-out infinite; font-weight: 400; }
+  @keyframes nudge {
+    0%, 100% { transform: translateY(0); opacity: .5; }
+    50% { transform: translateY(3px); opacity: 1; }
+  }
+
+  /* ---------------- 首屏下方数据条 ---------------- */
+  .statbar {
+    border-bottom: 1px solid var(--line);
+    padding: 0 56px;
+  }
+  .statbar-inner { display: grid; grid-template-columns: repeat(3, 1fr); }
+  .stat {
+    padding: 26px 0 24px 26px;
+    border-right: 1px solid var(--line-soft);
+  }
+  .stat:first-child { padding-left: 0; }
+  .stat:last-child { border-right: none; }
+  .stat .k {
+    display: block;
+    font-family: var(--mono); font-size: 8.5px;
+    letter-spacing: .22em; color: var(--faint);
+    margin-bottom: 9px;
+  }
+  .stat .v { font-size: 26px; font-weight: 700; letter-spacing: -.01em; line-height: 1; }
+  .stat .v small { font-size: 12px; font-weight: 500; color: var(--dim); margin-left: 5px; letter-spacing: 0; }
+
+  /* ---------------- 通用区块 ---------------- */
+  .sec { padding: 104px 56px; }
+  .sec.tint {
+    background:
+      radial-gradient(760px 420px at 86% 0%, rgba(37,99,235,.05), transparent 62%),
+      var(--paper-2);
+    border-top: 1px solid var(--line-soft);
+    border-bottom: 1px solid var(--line-soft);
+  }
+  .sec-head {
+    display: grid;
+    grid-template-columns: minmax(0, 1.05fr) minmax(0, .95fr);
+    gap: 60px;
+    align-items: end;
+    padding-bottom: 40px;
+    border-bottom: 1px solid var(--line);
+  }
+  .sec-kicker {
+    display: flex; align-items: center; gap: 11px;
+    font-family: var(--mono); font-size: 9px;
+    letter-spacing: .26em; color: var(--dim);
+    margin-bottom: 18px;
+  }
+  .sec-kicker .num { color: #fff; background: var(--ink); padding: 3px 7px; letter-spacing: .1em; }
+  .sec-kicker i { flex: 0 1 60px; height: 1px; background: var(--line); display: block; }
+  h2 {
+    margin: 0;
+    font-size: clamp(28px, 3.1vw, 44px);
+    font-weight: 800;
+    line-height: 1.16;
+    letter-spacing: -.015em;
+  }
+  h2 .hl { color: var(--blue); }
+  .sec-lead {
+    margin: 0;
+    font-size: 13px;
+    line-height: 1.95;
+    color: var(--dim);
+    max-width: 460px;
+  }
+
+  /* ---------------- 服务三卡 ---------------- */
+  .cards { display: grid; grid-template-columns: repeat(3, 1fr); }
+  .card-item {
+    padding: 34px 34px 30px 0;
+    border-right: 1px solid var(--line-soft);
+    position: relative;
+  }
+  .card-item:last-child { border-right: none; padding-right: 0; }
+  .card-item + .card-item { padding-left: 34px; }
+  .card-item .no { font-family: var(--mono); font-size: 9px; letter-spacing: .2em; color: var(--faint); }
+  .card-item h3 { margin: 16px 0 0; font-size: 19px; font-weight: 700; letter-spacing: .01em; }
+  .card-item p { margin: 12px 0 0; font-size: 12.5px; line-height: 1.9; color: var(--dim); min-height: 72px; }
+  .card-item ul { margin: 18px 0 0; padding: 0; list-style: none; display: flex; flex-wrap: wrap; gap: 7px; }
+  .card-item li {
+    font-family: var(--mono); font-size: 8.5px;
+    letter-spacing: .12em; color: var(--ink-2);
+    border: 1px solid var(--line);
+    padding: 5px 9px;
+  }
+  .card-item::before {
+    content: ""; position: absolute; top: 0; left: 0; right: 0;
+    height: 2px; background: var(--blue);
+    transform: scaleX(0); transform-origin: left;
+    transition: transform .32s cubic-bezier(.16,1,.3,1);
+  }
+  .card-item:hover::before { transform: scaleX(1); }
+
+  /* ---------------- 目的地图卡 ---------------- */
+  .dest-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2px;
+    margin-top: 44px;
+  }
+  .dest {
+    position: relative;
+    display: block;
+    overflow: hidden;
+    aspect-ratio: 16 / 10;
+    min-height: 250px;
+    min-width: 0;
+    color: #fff;
+    text-decoration: none;
+    background: #202833;
+  }
+  .dest img {
+    position: absolute; inset: 0;
+    width: 100%; height: 100%;
+    object-fit: cover;
+    transition: transform .8s cubic-bezier(.16,1,.3,1);
+  }
+  .dest::after {
+    content: ""; position: absolute; inset: 0;
+    background: linear-gradient(0deg, rgba(8,14,24,.84) 0%, rgba(8,14,24,.30) 40%, rgba(8,14,24,0) 66%);
+  }
+  .dest:hover img { transform: scale(1.045); }
+  .dest-in {
+    position: absolute; left: 0; right: 0; bottom: 0;
+    z-index: 2;
+    padding: 26px 30px 28px;
+  }
+  .dest-no {
+    position: absolute; top: 22px; left: 30px; z-index: 2;
+    font-family: var(--mono); font-size: 9px;
+    letter-spacing: .2em; color: rgba(255,255,255,.72);
+  }
+  .dest .tag {
+    font-family: var(--mono); font-size: 8.5px;
+    letter-spacing: .2em; color: rgba(255,255,255,.66);
+  }
+  .dest h3 { margin: 9px 0 0; font-size: 21px; font-weight: 700; letter-spacing: .01em; }
+  .dest p { margin: 9px 0 0; font-size: 12px; line-height: 1.8; color: rgba(255,255,255,.78); max-width: 420px; }
+  .dest .cnt {
+    position: absolute; top: 20px; right: 30px; z-index: 2;
+    font-family: var(--mono); font-size: 8.5px;
+    letter-spacing: .14em; color: rgba(255,255,255,.62);
+    white-space: nowrap; text-align: right;
+  }
+  .dest .cnt b { display: block; font-size: 15px; letter-spacing: .02em; color: #fff; margin-bottom: 4px; font-family: inherit; }
+  .dest-more {
+    display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+    margin-top: 26px; padding-top: 20px;
+    border-top: 1px solid var(--line);
+  }
+  .dest-more .h {
+    font-family: var(--mono); font-size: 8.5px;
+    letter-spacing: .2em; color: var(--faint);
+    margin-right: 6px;
+  }
+  .chip {
+    font-size: 11.5px; color: var(--ink-2);
+    border: 1px solid var(--line);
+    padding: 5px 11px;
+    transition: border-color .16s, color .16s;
+  }
+  .chip:hover { border-color: var(--ink); color: var(--ink); }
+
+  /* ---------------- 战绩（深色实景带） ---------------- */
+  .record {
+    position: relative;
+    overflow: hidden;
+    color: #fff;
+    padding: 100px 56px 88px;
+    background: #10161f;
+  }
+  .record img {
+    position: absolute; inset: 0;
+    width: 100%; height: 100%;
+    object-fit: cover; object-position: center 58%;
+  }
+  .record::after {
+    content: ""; position: absolute; inset: 0;
+    background: linear-gradient(96deg, rgba(7,12,20,.93) 0%, rgba(7,12,20,.78) 46%, rgba(7,12,20,.5) 100%);
+  }
+  .record-in { position: relative; z-index: 2; }
+  .record .sec-kicker { color: rgba(255,255,255,.62); }
+  .record .sec-kicker .num { background: #fff; color: var(--ink); }
+  .record .sec-kicker i { background: rgba(255,255,255,.28); }
+  .record h2 .hl { color: #8fb2ff; }
+  .record .sec-lead { color: rgba(255,255,255,.66); }
+  .record-stats {
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    margin-top: 54px;
+    border-top: 1px solid rgba(255,255,255,.22);
+  }
+  .rstat { padding: 28px 26px 0 0; border-right: 1px solid rgba(255,255,255,.14); }
+  .rstat:last-child { border-right: none; }
+  .rstat .v {
+    font-size: clamp(34px, 3.7vw, 54px);
+    font-weight: 800; line-height: 1;
+    letter-spacing: -.02em; font-variant-numeric: tabular-nums;
+  }
+  .rstat .v small { font-size: 15px; font-weight: 600; margin-left: 3px; color: rgba(255,255,255,.72); }
+  .rstat .k {
+    display: block; margin-top: 13px;
+    font-family: var(--mono); font-size: 8.5px;
+    letter-spacing: .18em; color: rgba(255,255,255,.7);
+  }
+  .record .note {
+    margin: 30px 0 0; padding-top: 16px; text-align: right;
+    border-top: 1px solid rgba(255,255,255,.12);
+    font-family: var(--mono); font-size: 8px;
+    letter-spacing: .18em; color: rgba(255,255,255,.42);
+  }
+
+  /* ---------------- 学员故事 ---------------- */
+  .stories {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 1px; background: var(--line);
+    border: 1px solid var(--line);
+    margin-top: 44px;
+  }
+  .story { background: #fff; padding: 30px 30px 26px; display: flex; flex-direction: column; }
+  .story .q {
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 34px; line-height: .8; color: var(--blue);
+    height: 20px;
+  }
+  .story p { margin: 12px 0 0; font-size: 13px; line-height: 1.95; color: var(--ink-2); }
+  .story .who {
+    margin-top: auto; padding-top: 20px;
+    border-top: 1px solid var(--line-soft);
+    display: flex; align-items: baseline; justify-content: space-between; gap: 12px;
+  }
+  .story .who b { font-size: 12.5px; font-weight: 650; }
+  .story .who span {
+    font-family: var(--mono); font-size: 8.5px;
+    letter-spacing: .12em; color: var(--faint);
+    white-space: nowrap;
+  }
+  .story .no {
+    font-family: var(--mono); font-size: 8.5px;
+    letter-spacing: .2em; color: var(--faint);
+    margin-bottom: 18px;
+  }
+  .stories-note {
+    margin: 18px 0 0;
+    font-family: var(--mono); font-size: 8px;
+    letter-spacing: .16em; color: var(--faint);
+  }
+
+  /* ---------------- 三类智能体 ---------------- */
+  .agents {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 1px; background: var(--line);
+    margin-top: 44px; border: 1px solid var(--line);
+  }
+  .agent { background: #fff; padding: 30px 28px 32px; display: flex; flex-direction: column; }
+  .agent-top { display: flex; align-items: baseline; justify-content: space-between; }
+  .agent .no { font-family: var(--mono); font-size: 9px; letter-spacing: .2em; color: var(--faint); }
+  .agent .for { font-family: var(--mono); font-size: 8.5px; letter-spacing: .14em; color: var(--blue); }
+  .agent h3 { margin: 16px 0 0; font-size: 17px; font-weight: 700; }
+  .agent .cap { margin: 14px 0 0; padding: 0; list-style: none; }
+  .agent .cap li {
+    font-size: 12px; color: var(--dim);
+    padding: 8px 0; border-top: 1px solid var(--line-soft);
+    display: flex; gap: 8px;
+  }
+  .agent .cap li span:first-child { color: var(--faint); font-family: var(--mono); font-size: 9px; padding-top: 2px; }
+  .agent .eg { margin-top: auto; padding-top: 18px; font-size: 11.5px; line-height: 1.7; color: var(--ink-2); }
+  .agent .eg b {
+    display: block; font-family: var(--mono); font-size: 8px;
+    letter-spacing: .18em; color: var(--faint); margin-bottom: 6px; font-weight: 400;
+  }
+
+  /* ---------------- 身份表 ---------------- */
+  .roles-table { margin-top: 40px; border-top: 1px solid var(--ink); }
+  .role-row {
+    display: grid;
+    grid-template-columns: 260px 1fr 200px;
+    gap: 24px;
+    align-items: center;
+    padding: 20px 0;
+    border-bottom: 1px solid var(--line);
+    transition: background .18s;
+  }
+  .role-row.head {
+    padding: 10px 0;
+    border-bottom-color: var(--line-soft);
+    font-family: var(--mono); font-size: 8.5px;
+    letter-spacing: .2em; color: var(--faint);
+  }
+  .role-row:not(.head):hover { background: rgba(37,99,235,.035); }
+  .rr-name { font-size: 14px; font-weight: 650; }
+  .rr-name em {
+    display: block; font-style: normal; font-size: 9.5px;
+    font-family: var(--mono); letter-spacing: .14em;
+    color: var(--faint); margin-top: 5px; font-weight: 400;
+  }
+  .rr-can { font-size: 12.5px; color: var(--dim); line-height: 1.7; }
+  .rr-scope {
+    font-family: var(--mono); font-size: 9px;
+    letter-spacing: .1em; color: var(--ink-2);
+    border-left: 1px solid var(--line); padding-left: 18px;
+  }
+
+  /* ---------------- 流程 ---------------- */
+  .flow { display: grid; grid-template-columns: repeat(4, 1fr); margin-top: 46px; }
+  .step { padding-right: 26px; position: relative; }
+  .step::before {
+    content: ""; position: absolute; top: 11px; left: 0; right: 26px;
+    height: 1px; background: var(--line);
+  }
+  .step .no {
+    position: relative; z-index: 1;
+    display: inline-block; background: #fff;
+    padding-left: 15px; padding-right: 12px;
+    font-family: var(--mono); font-size: 9px;
+    letter-spacing: .2em; color: var(--blue);
+  }
+  .step h3 { margin: 22px 0 0; font-size: 15px; font-weight: 700; }
+  .step p { margin: 9px 0 0; font-size: 12px; line-height: 1.85; color: var(--dim); }
+
+  /* ---------------- 结尾转化带 ---------------- */
+  .cta-band {
+    position: relative;
+    overflow: hidden;
+    padding: 118px 56px;
+    text-align: center;
+    color: #fff;
+    background: #10161f;
+  }
+  .cta-band img {
+    position: absolute; inset: 0;
+    width: 100%; height: 100%;
+    object-fit: cover; object-position: 70% 70%;
+  }
+  .cta-band::after {
+    content: ""; position: absolute; inset: 0;
+    background:
+      linear-gradient(180deg, rgba(7,12,20,.58) 0%, rgba(7,12,20,.4) 42%, rgba(7,12,20,.78) 100%),
+      radial-gradient(760px 330px at 50% 47%, rgba(7,12,20,.72), rgba(7,12,20,0) 72%);
+  }
+  .cta-in { position: relative; z-index: 2; }
+  .cta-band h2 { font-size: clamp(30px, 3.5vw, 50px); }
+  .cta-band h2 .hl { color: #8fb2ff; }
+  .cta-band p {
+    margin: 18px auto 0;
+    font-size: 13px; line-height: 1.9;
+    color: rgba(255,255,255,.7);
+    max-width: 520px;
+  }
+  .cta-row { display: flex; align-items: center; justify-content: center; gap: 12px; margin-top: 34px; flex-wrap: wrap; }
+  .btn-primary {
+    display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+    height: 48px; padding: 0 30px;
+    background: var(--blue); color: #fff;
+    font-size: 13px; font-weight: 700; letter-spacing: .14em;
+    text-decoration: none; border: none;
+    transition: background .18s, transform .1s, color .18s;
+  }
+  .btn-primary:hover { background: var(--blue-dark); }
+  .btn-primary:active { transform: translateY(1px); }
+  .btn-primary.inv { background: #fff; color: var(--ink); }
+  .btn-primary.inv:hover { background: #e8eefc; color: var(--ink); }
+  .btn-line {
+    display: inline-flex; align-items: center; gap: 9px;
+    height: 48px; padding: 0 24px;
+    border: 1px solid rgba(13,21,32,.28);
+    background: rgba(255,255,255,.6);
+    color: var(--ink); font-size: 12.5px; letter-spacing: .06em;
+    text-decoration: none;
+    transition: border-color .18s, background .18s, color .18s;
+  }
+  .btn-line:hover { border-color: var(--ink); background: #fff; }
+  .btn-line.inv { border-color: rgba(255,255,255,.42); background: rgba(255,255,255,.06); color: #fff; }
+  .btn-line.inv:hover { border-color: #fff; background: rgba(255,255,255,.12); }
+  .btn-line svg { opacity: .75; }
+
+  /* ---------------- 登录卡 ---------------- */
+  .card {
+    background: #fff;
+    border: 1px solid var(--line);
+    padding: 28px 32px 24px;
+    box-shadow: 0 24px 60px rgba(13, 21, 32, .06);
+  }
+  .panel-head {
+    display: flex; justify-content: space-between; align-items: baseline;
+    font-family: var(--mono); font-size: 9px;
+    letter-spacing: .22em; color: var(--faint);
+    padding-bottom: 11px;
+    border-bottom: 1px solid var(--line);
+  }
+  .panel-head b { color: var(--blue); font-weight: 400; letter-spacing: .06em; font-family: inherit; }
+
+  .field { margin-top: 16px; }
+  .field label {
+    display: block;
+    font-family: var(--mono); font-size: 9px;
+    letter-spacing: .2em; color: var(--faint);
+    margin-bottom: 5px;
+  }
+  .field-row {
+    display: flex; align-items: center; gap: 8px;
+    border-bottom: 1px solid var(--line);
+    transition: border-color .16s;
+  }
+  .field input {
+    flex: 1; min-width: 0;
+    height: 34px;
+    border: none; background: transparent; outline: none;
+    font-size: 13px; color: var(--ink);
+    letter-spacing: .02em;
+  }
+  .field input::placeholder { color: rgba(13, 21, 32, .3); }
+  .field-row:focus-within { border-bottom-color: var(--ink); }
+  .field.err label { color: var(--red); }
+  .field.err .field-row { border-bottom-color: var(--red); }
+
+  .eye {
+    flex: 0 0 auto; border: none; background: none;
+    padding: 3px; color: rgba(13, 21, 32, .3);
+    display: grid; place-items: center;
+  }
+  .eye:hover { color: var(--dim); }
+
+  .btn {
+    width: 100%; height: 44px; margin-top: 22px;
+    border: none; background: var(--blue); color: #fff;
+    font-size: 12px; font-weight: 700; letter-spacing: .24em;
+    transition: background .16s, transform .1s;
+  }
+  .btn:hover { background: var(--blue-dark); }
+  .btn:active { transform: translateY(1px); }
+  .btn:disabled { background: #b9cbef; cursor: not-allowed; }
+
+  .ghost {
+    width: 100%; height: 38px; margin-top: 8px;
+    background: transparent; border: 1px solid var(--line);
+    color: var(--dim);
+    font-family: var(--mono); font-size: 9.5px;
+    letter-spacing: .2em;
+    transition: all .16s;
+  }
+  .ghost:hover { border-color: var(--ink); color: var(--ink); }
+
+  .msg { min-height: 16px; margin-top: 8px; font-size: 11.5px; line-height: 1.55; color: var(--red); }
+  .msg.ok { color: #0f7b45; }
+
+  .divider {
+    display: flex; align-items: center; gap: 10px;
+    margin: 8px 0 9px;
+    font-family: var(--mono); font-size: 8.5px;
+    letter-spacing: .18em; color: var(--faint);
+  }
+  .divider::before, .divider::after { content: ""; flex: 1; height: 1px; background: var(--line-soft); }
+
+  .roles {
+    display: grid; grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1px; background: var(--line-soft);
+    border: 1px solid var(--line-soft);
+    max-height: 332px; overflow-y: auto;
+    scrollbar-width: thin;
+  }
+  .roles::-webkit-scrollbar { width: 6px; }
+  .roles::-webkit-scrollbar-thumb { background: #d8e0ef; border-radius: 6px; }
+  .role-group {
+    grid-column: 1 / -1;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 4px 9px; background: #f7f9fd;
+    font-family: var(--mono); font-size: 8px;
+    letter-spacing: .16em; color: var(--faint);
+  }
+  .role-group b { font-weight: 600; color: var(--ink-2); letter-spacing: .12em; }
+  .role-card {
+    display: block; width: 100%; min-width: 0;
+    padding: 6px 8px;
+    border: none; background: #fff; text-align: left;
+    transition: background .14s, box-shadow .14s;
+  }
+  .role-card:hover { background: #f5f8ff; }
+  .role-card.on { background: var(--blue-weak); box-shadow: inset 0 0 0 1px var(--blue); }
+  .role-card.off { opacity: .5; }
+  .role-card.off .role-name { text-decoration: line-through; }
+  /* 管理员只有一个：独占一行，别在右边留一块空白 */
+  .role-card.solo { grid-column: 1 / -1; }
+  /* 角色图标是 emoji，ZWJ 组合在部分环境会渲染成方块，统一不显示 */
+  .role-icon { display: none; }
+  .role-name { display: block; font-size: 11px; font-weight: 600; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .role-name em {
+    font-style: normal; font-weight: 500; font-size: 9px;
+    color: var(--faint); margin-left: 5px; letter-spacing: .02em;
+  }
+  .role-desc {
+    display: block; margin-top: 2px;
+    font-size: 9px; color: var(--faint); line-height: 1.4;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .roles-note {
+    margin-top: 6px; font-size: 9.5px; line-height: 1.5; color: var(--faint);
+  }
+
+  .fine {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 10px; margin-top: 14px;
+    font-size: 10px; color: var(--faint);
+  }
+  .fine a { color: var(--blue); text-decoration: none; cursor: pointer; }
+  .fine a:hover { text-decoration: underline; }
+
+  /* ---------------- 页脚 ---------------- */
+  .foot { border-top: 1px solid var(--line); padding: 46px 56px 30px; background: #fff; }
+  .foot-grid {
+    display: grid; grid-template-columns: 1.4fr 1fr 1fr;
+    gap: 40px; padding-bottom: 34px;
+  }
+  .foot-brand b { font-size: 15px; font-weight: 700; letter-spacing: .06em; }
+  .foot-brand p { margin: 12px 0 0; font-size: 12px; line-height: 1.85; color: var(--faint); max-width: 300px; }
+  .foot-col .h {
+    font-family: var(--mono); font-size: 8.5px;
+    letter-spacing: .2em; color: var(--faint); margin-bottom: 14px;
+  }
+  .foot-col p, .foot-col a {
+    display: block; font-size: 12px; color: var(--ink-2);
+    text-decoration: none; line-height: 2;
+  }
+  .foot-col a:hover { color: var(--blue); }
+  .foot-bot {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 12px; padding-top: 18px;
+    border-top: 1px solid var(--line-soft);
+    font-family: var(--mono); font-size: 8.5px;
+    letter-spacing: .16em; color: var(--faint);
+  }
+
+  /* ---------------- 滚动进场 ---------------- */
+  .rv {
+    opacity: 0; transform: translateY(18px);
+    transition: opacity .7s cubic-bezier(.16,1,.3,1), transform .7s cubic-bezier(.16,1,.3,1);
+  }
+  .rv.in { opacity: 1; transform: none; }
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    .rv { opacity: 1; transform: none; transition: none; }
+    .scroll-hint b { animation: none; }
+  }
+
+  /* ---------------- 提示条 ---------------- */
+  .toast {
+    position: fixed; left: 50%; bottom: 34px;
+    transform: translate(-50%, 12px);
+    background: var(--ink); color: #fff;
+    font-size: 12px; padding: 10px 18px;
+    opacity: 0; pointer-events: none;
+    transition: opacity .2s, transform .2s;
+    max-width: 84vw; z-index: 80;
+  }
+  .toast.on { opacity: 1; transform: translate(-50%, 0); }
+  .toast.err { background: #b42318; }
+
+  .shake { animation: shake .32s; }
+  @keyframes shake {
+    25% { transform: translateX(-4px); }
+    50% { transform: translateX(4px); }
+    75% { transform: translateX(-2px); }
+  }
+
+  /* ---------------- 响应式 ---------------- */
+  @media (max-width: 1240px) {
+    .nav { padding: 0 34px; }
+    .nav-links { gap: 20px; }
+    .hero { grid-template-columns: minmax(0, 1fr) minmax(0, 420px); padding: 96px 34px 46px; }
+    .hero-foot { left: 34px; bottom: 30px; }
+    .statbar { padding: 0 34px; }
+    .sec { padding: 82px 34px; }
+    .dest-in { padding: 22px 24px 24px; }
+    .dest-no { left: 24px; }
+    .dest .cnt { top: 18px; right: 24px; }
+    .record { padding: 82px 34px 72px; }
+    .cta-band { padding: 92px 34px; }
+    .foot { padding: 40px 34px 26px; }
+    .foot-grid { grid-template-columns: 1.2fr 1fr 1fr; gap: 26px; }
+    .role-row { grid-template-columns: 210px 1fr 168px; gap: 18px; }
+  }
+
+  @media (max-width: 1080px) {
+    .hero { grid-template-columns: minmax(0, 1fr) minmax(0, 392px); }
+    .nav-status { display: none; }
+  }
+
+  @media (max-width: 980px) {
+    html { scroll-padding-top: 72px; }
+    .nav { height: 64px; padding: 0 22px; }
+    .nav-links { display: none; }
+    /* 窄屏：上图下文，实景当顶部横幅，登录卡在下 */
+    .hero { display: block; min-height: 0; padding: 64px 22px 34px; }
+    .hero-bg {
+      position: relative;
+      height: 32svh; min-height: 200px;
+      margin: 0 -22px 26px;
+    }
+    .hero-bg img { object-position: 58% 58%; }
+    .hero-bg::after {
+      background: linear-gradient(180deg, rgba(255,255,255,.5) 0%, rgba(255,255,255,0) 42%);
+    }
+    .hero-left { max-width: none; }
+    .hero-sub { max-width: none; }
+    .hero-foot { display: none; }
+    .hero-right { justify-content: flex-start; }
+    .hero-right .card { max-width: 460px; }
+    .statbar { padding: 0 22px; }
+    .statbar-inner { grid-template-columns: 1fr 1fr; }
+    .stat { padding: 20px 16px 20px 0; border-right: none; border-bottom: 1px solid var(--line-soft); }
+    .stat:last-child { grid-column: span 2; border-bottom: none; }
+    .stat .v { font-size: 22px; }
+    .sec { padding: 64px 22px; }
+    .sec-head { grid-template-columns: 1fr; gap: 22px; padding-bottom: 28px; }
+    .cards { grid-template-columns: 1fr; }
+    .card-item { padding: 26px 0; border-right: none; border-bottom: 1px solid var(--line-soft); }
+    .card-item + .card-item { padding-left: 0; }
+    .card-item:last-child { border-bottom: none; }
+    .card-item p { min-height: 0; }
+    .dest-grid { grid-template-columns: 1fr; margin-top: 30px; }
+    .dest { min-height: 0; aspect-ratio: 4 / 3; }
+    .agents { grid-template-columns: 1fr; margin-top: 30px; }
+    .record { padding: 64px 22px 56px; }
+    .record-stats { grid-template-columns: 1fr 1fr; margin-top: 34px; }
+    .rstat { padding: 22px 18px 0 0; }
+    .rstat:nth-child(2n) { border-right: none; }
+    .rstat:nth-child(n+3) { padding-top: 26px; }
+    .stories { grid-template-columns: 1fr; margin-top: 30px; }
+    .role-row { grid-template-columns: 1fr; gap: 8px; padding: 18px 0; }
+    .role-row.head { display: none; }
+    .rr-scope { border-left: none; padding-left: 0; }
+    .flow { grid-template-columns: 1fr 1fr; gap: 30px 20px; margin-top: 32px; }
+    .step::before { display: none; }
+    .step .no { padding-right: 0; }
+    .cta-band { padding: 72px 22px; }
+    .card { padding: 24px 20px 22px; }
+    .foot { padding: 34px 22px 22px; }
+    .foot-grid { grid-template-columns: 1fr; gap: 26px; }
+    .foot-bot { flex-direction: column; align-items: flex-start; gap: 8px; }
+  }
+
+  /* 矮屏：登录卡是首屏唯一主角，标题压缩、说明收起，保证一屏能登 */
+  @media (max-height: 880px) and (min-width: 981px) {
+    .hero { padding-top: 88px; padding-bottom: 40px; }
+    .eyebrow { margin-bottom: 14px; }
+    h1 { font-size: clamp(27px, 2.5vw, 34px); line-height: 1.1; }
+    .hero-sub { display: none; }
+    .hero-foot { margin-top: 22px; }
+    .card { padding: 22px 26px 20px; }
+    .panel-head { padding-bottom: 9px; }
+    .field { margin-top: 13px; }
+    .btn { margin-top: 18px; height: 42px; }
+    .ghost { height: 36px; margin-top: 6px; }
+    .msg { min-height: 14px; margin-top: 6px; }
+    .divider { margin: 6px 0 8px; }
+    .role-card { padding: 5px 7px; }
+    .role-desc { display: none; }
+    .roles { max-height: 168px; }
+    .fine { margin-top: 12px; }
+  }
+
+  /* 极矮屏（笔记本 1080×608 这类）：只留登录卡，一切让位给「能登进去」 */
+  @media (max-height: 700px) and (min-width: 981px) {
+    .hero { padding-top: 76px; padding-bottom: 24px; }
+    .eyebrow { display: none; }
+    h1 { font-size: 24px; line-height: 1.14; }
+    .card { padding: 18px 22px 16px; box-shadow: 0 24px 60px rgba(13,21,32,.18); }
+    .panel-head { padding-bottom: 8px; }
+    .field { margin-top: 11px; }
+    .field label { margin-bottom: 3px; }
+    .field input { height: 30px; }
+    .btn { margin-top: 16px; height: 40px; }
+    .ghost { height: 32px; margin-top: 6px; }
+    .msg { min-height: 12px; margin-top: 4px; }
+    .divider { margin: 4px 0 7px; }
+    .roles { grid-template-columns: 1fr 1fr; }
+    .role-card { padding: 6px 8px; }
+    .role-name { font-size: 11px; }
+    .fine { margin-top: 10px; }
+  }
+  /* ---------------- 在线客服：右下角气泡 + 侧边抽屉 ----------------
+     只回答公开咨询（项目 / 院校 / 费用 / 流程），个人进度引导登录。 */
+  .cs-fab {
+    position: fixed; right: 22px; bottom: 22px; z-index: 60;
+    display: inline-flex; align-items: center; gap: 10px;
+    height: 46px; padding: 0 18px 0 15px;
+    background: var(--ink); color: #fff;
+    border: 1px solid var(--ink);
+    font-size: 13px; letter-spacing: .02em;
+    box-shadow: 0 16px 34px rgba(13, 21, 32, .22);
+    transition: transform .18s, box-shadow .18s, background .18s;
+  }
+  .cs-fab:hover { background: #16202e; transform: translateY(-2px); box-shadow: 0 20px 40px rgba(13, 21, 32, .28); }
+  .cs-fab .cs-live { width: 6px; height: 6px; background: #34d399; box-shadow: 0 0 0 3px rgba(52, 211, 153, .2); }
+  .cs-fab .k { font-family: var(--mono); font-size: 9px; letter-spacing: .2em; color: rgba(255, 255, 255, .5); }
+
+  .cs-panel {
+    position: fixed; right: 22px; bottom: 80px; z-index: 61;
+    width: 384px; height: min(556px, calc(100svh - 106px));
+    display: none; flex-direction: column;
+    background: #fff; border: 1px solid var(--line);
+    box-shadow: 0 32px 72px rgba(13, 21, 32, .22);
+  }
+  .cs-panel.on { display: flex; animation: csUp .2s ease both; }
+  @keyframes csUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+
+  .cs-head { display: flex; align-items: center; gap: 11px; padding: 13px 14px; border-bottom: 1px solid var(--line-soft); }
+  .cs-ava { width: 30px; height: 30px; display: grid; place-items: center; background: var(--ink); color: #fff; font-size: 13px; font-weight: 700; }
+  .cs-who { flex: 1 1 auto; min-width: 0; }
+  .cs-who b { display: block; font-size: 13px; }
+  .cs-who span { display: block; font-family: var(--mono); font-size: 9px; letter-spacing: .14em; color: var(--faint); margin-top: 3px; }
+  .cs-x { width: 26px; height: 26px; border: 1px solid var(--line); background: #fff; color: var(--dim); font-size: 15px; line-height: 1; }
+  .cs-x:hover { border-color: var(--ink); color: var(--ink); }
+
+  .cs-note { padding: 8px 14px; background: var(--paper-2); font-size: 11px; line-height: 1.6; color: var(--dim); border-bottom: 1px solid var(--line-soft); }
+
+  .cs-body { flex: 1 1 auto; overflow-y: auto; padding: 16px 14px 6px; }
+  .cs-body::-webkit-scrollbar { width: 6px; }
+  .cs-body::-webkit-scrollbar-thumb { background: rgba(13, 21, 32, .14); }
+
+  .cs-msg { max-width: 88%; padding: 10px 12px; font-size: 13px; line-height: 1.75; margin-bottom: 10px; white-space: pre-wrap; word-break: break-word; }
+  .cs-msg.bot { background: var(--paper-2); color: var(--ink-2); }
+  .cs-msg.me { margin-left: auto; background: var(--blue); color: #fff; }
+  .cs-msg.typing { color: var(--faint); }
+
+  .cs-chips { display: flex; flex-wrap: wrap; gap: 6px; margin: 4px 0 12px; }
+  .cs-chip { border: 1px solid var(--line); background: #fff; color: var(--ink-2); font-size: 12px; padding: 6px 10px; line-height: 1.4; text-align: left; transition: border-color .14s, color .14s, background .14s; }
+  .cs-chip:hover { border-color: var(--blue); color: var(--blue); background: var(--blue-weak); }
+
+  .cs-form { display: flex; gap: 8px; padding: 10px 14px 0; border-top: 1px solid var(--line-soft); }
+  .cs-form textarea {
+    flex: 1 1 auto; resize: none; height: 40px; max-height: 92px;
+    padding: 9px 10px; border: 1px solid var(--line); outline: none;
+    font-size: 13px; line-height: 1.5; color: var(--ink);
+  }
+  .cs-form textarea:focus { border-color: var(--blue); }
+  .cs-form button { height: 40px; padding: 0 16px; border: 0; background: var(--ink); color: #fff; font-size: 13px; }
+  .cs-form button:disabled { background: rgba(13, 21, 32, .35); cursor: default; }
+
+  .cs-foot { display: flex; align-items: center; gap: 7px; padding: 8px 14px 11px; font-size: 11px; color: var(--faint); }
+  .cs-foot a { color: var(--blue); text-decoration: none; }
+  .cs-foot a:hover { text-decoration: underline; }
+
+  @media (max-width: 640px) {
+    .roles { grid-template-columns: repeat(2, minmax(0, 1fr)); max-height: 228px; }
+    .cs-fab { right: 14px; bottom: 14px; height: 44px; padding: 0 14px 0 12px; }
+    .cs-fab .k { display: none; }
+    .cs-fab[aria-expanded="true"] { display: none; }
+    .cs-panel { left: 12px; right: 12px; width: auto; bottom: 14px; height: min(74svh, 560px); }
+  }
+</style>
+</head>
+<body>
+
+<!-- ============ 吸顶导航 ============ -->
+<header class="nav" id="nav">
+  <a class="brand" href="#login">
+    <span class="mark">粤</span>
+    <span class="bt">
+      <b>粤教服务</b>
+      <span>YUEJIAO SERVICE · STUDY ABROAD OS</span>
+    </span>
+  </a>
+  <nav class="nav-links">
+    <a href="#dest">目的地</a>
+    <a href="#service">服务</a>
+    <a href="#record">战绩</a>
+    <a href="#agents">三类智能体</a>
+    <a href="#roles">四类身份</a>
+  </nav>
+  <div class="nav-right">
+    <span class="nav-status"><i class="dot"></i>系统正常运行</span>
+    <a class="nav-cta" href="#login">进入系统</a>
+  </div>
+</header>
+
+<!-- ============ 首屏：左文案 / 右登录卡 · 实景铺底 ============ -->
+<section class="hero" id="login">
+  <div class="hero-bg" aria-hidden="true">
+    <picture>
+      <source media="(max-width: 980px)" srcset="assets/hero-campus-portrait.jpg" />
+      <img src="assets/hero-campus.jpg" alt="" />
+    </picture>
+  </div>
+
+  <div class="hero-left">
+    <div class="eyebrow"><span class="num">01</span><span>STUDY ABROAD SERVICE</span><i></i></div>
+    <h1>每一个留学的<br /><span class="hl">决定</span>，都有依据</h1>
+    <p class="hero-sub">
+      留学规划、课程与关怀、客户跟进，收进同一个对话入口。
+      学生问政策，顾问查数据，班主任盯成绩，管理员看全局。
+    </p>
+  </div>
+
+  <div class="hero-right">
+
+    <div class="card">
+      <div class="panel-head"><span>ACCOUNT ACCESS</span><b>／ 账号登录</b></div>
+
+      <form id="form" autocomplete="on">
+        <div class="field" id="user-wrap">
+          <label for="username">USERNAME · 用户名</label>
+          <div class="field-row">
+            <input id="username" name="username" placeholder="请输入用户名" autocomplete="username" spellcheck="false" />
+          </div>
+        </div>
+
+        <div class="field" id="pwd-wrap">
+          <label for="password">PASSWORD · 密码</label>
+          <div class="field-row">
+            <input id="password" name="password" type="password" placeholder="请输入密码" autocomplete="current-password" />
+            <button class="eye" type="button" id="eye" title="显示/隐藏密码" aria-label="显示密码">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                <path d="M1.6 8s2.3-4.1 6.4-4.1S14.4 8 14.4 8 12.1 12.1 8 12.1 1.6 8 1.6 8Z"
+                  stroke="currentColor" stroke-width="1.2"/>
+                <circle cx="8" cy="8" r="1.9" stroke="currentColor" stroke-width="1.2"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <button class="btn" id="submit" type="submit">进入系统</button>
+
+        <div class="msg" id="msg"></div>
+
+        <div class="divider">演示账号 · 点击填入</div>
+        <div class="roles" id="roleCards"></div>
+        <div class="roles-note" id="rolesNote">每个身份都有多个账号：换一位老师或学员登录，能看到的就只有他自己名下那部分。</div>
+
+        <div class="fine">
+          <span>演示环境 · 密码统一 123456</span>
+          <a id="register">没有账号？联系顾问</a>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="hero-foot">
+    <div class="hero-fig">FIG.01 / 合作院校 · 教学区</div>
+    <div class="scroll-hint"><span>SCROLL</span><i></i><b>↓</b></div>
+  </div>
+</section>
+
+<!-- ============ 数据条 ============ -->
+<div class="statbar">
+  <div class="statbar-inner">
+    <div class="stat rv">
+      <span class="k">STUDENTS</span>
+      <span class="v">1,286<small>人在服</small></span>
+    </div>
+    <div class="stat rv">
+      <span class="k">PARTNERS</span>
+      <span class="v">47<small>所合作院校</small></span>
+    </div>
+    <div class="stat rv">
+      <span class="k">AGENTS</span>
+      <span class="v">3<small>类智能体</small></span>
+    </div>
+  </div>
+</div>
+
+<!-- ============ 服务 ============ -->
+<section class="sec" id="service">
+  <div class="sec-head rv">
+    <div>
+      <div class="sec-kicker"><span class="num">02</span><span>SERVICES</span><i></i></div>
+      <h2>一件留学事务，<br />不该散落在<span class="hl">五个系统</span>里</h2>
+    </div>
+    <p class="sec-lead">
+      咨询、选校、申请、签证，入学后的课程、请假与心理关怀——学生和顾问在同一个对话里推进，
+      结果落在同一张表里，不用来回导出导入。
+    </p>
+  </div>
+
+  <div class="cards">
+    <article class="card-item rv">
+      <div class="no">01 / PLANNING</div>
+      <h3>留学规划</h3>
+      <p>按背景匹配院校与专业，把学费、语言要求、申请窗口一次说清，学生不用在十几个网页之间对照。</p>
+      <ul><li>院校库</li><li>专业对比</li><li>时间线</li></ul>
+    </article>
+    <article class="card-item rv">
+      <div class="no">02 / CARE</div>
+      <h3>课程与关怀</h3>
+      <p>成绩、出勤、请假、心理预警集中呈现。班主任看到的是自己班上的异常，而不是全校报表。</p>
+      <ul><li>成绩</li><li>请假</li><li>预警</li></ul>
+    </article>
+    <article class="card-item rv">
+      <div class="no">03 / CRM</div>
+      <h3>客户跟进</h3>
+      <p>线索自动分配、跟进有记录、活动报名与工单在同一条时间线上，客服不用来回切表核对。</p>
+      <ul><li>线索</li><li>活动</li><li>工单</li></ul>
+    </article>
+  </div>
+</section>
+
+<!-- ============ 目的地 ============ -->
+<section class="sec tint" id="dest">
+  <div class="sec-head rv">
+    <div>
+      <div class="sec-kicker"><span class="num">03</span><span>DESTINATIONS</span><i></i></div>
+      <h2>从北纬 53° 到南纬 34°，<br />都有<span class="hl">接得住的人</span></h2>
+    </div>
+    <p class="sec-lead">
+      四地办公室、当地校友与在读学生共同维护一张信息网：院校政策、录取偏好、住宿与落地细节，
+      变动 48 小时内同步进对话里。
+    </p>
+  </div>
+
+  <div class="dest-grid">
+    <a class="dest rv" href="#dest">
+      <img src="assets/dest-uk.jpg" alt="英国院校河畔学院" loading="lazy" />
+      <span class="dest-no">01</span>
+      <div class="cnt"><b>214</b>累计送出</div>
+      <div class="dest-in">
+        <div>
+          <div class="tag">UNITED KINGDOM · 英国</div>
+          <h3>牛津 / 剑桥 / 伦敦</h3>
+          <p>G5 与罗素集团 12 所逐校拆解，导师制、学院制、笔试与面试节奏都对得上。</p>
+        </div>
+      </div>
+    </a>
+
+    <a class="dest rv" href="#dest">
+      <img src="assets/dest-us.jpg" alt="美国常春藤校园秋景" loading="lazy" />
+      <span class="dest-no">02</span>
+      <div class="cnt"><b>176</b>累计送出</div>
+      <div class="dest-in">
+        <div>
+          <div class="tag">UNITED STATES · 美国</div>
+          <h3>波士顿 / 纽约 / 加州</h3>
+          <p>选校清单按专业排名、就业去向与预算三张表对齐，早申与常规轮分开排期。</p>
+        </div>
+      </div>
+    </a>
+
+    <a class="dest rv" href="#dest">
+      <img src="assets/dest-au.jpg" alt="悉尼港湾与校园" loading="lazy" />
+      <span class="dest-no">03</span>
+      <div class="cnt"><b>132</b>累计送出</div>
+      <div class="dest-in">
+        <div>
+          <div class="tag">AUSTRALIA · 澳洲</div>
+          <h3>悉尼 / 墨尔本 / 布里斯班</h3>
+          <p>八大名校直申，毕业工签、州担保与移民打分提前一年排期，不临时抱佛脚。</p>
+        </div>
+      </div>
+    </a>
+
+    <a class="dest rv" href="#dest">
+      <img src="assets/dest-sg.jpg" alt="新加坡现代校园" loading="lazy" />
+      <span class="dest-no">04</span>
+      <div class="cnt"><b>89</b>累计送出</div>
+      <div class="dest-in">
+        <div>
+          <div class="tag">SINGAPORE · 新加坡</div>
+          <h3>新加坡 / 亚洲枢纽</h3>
+          <p>公立大学直申与 6+6 联合培养双通道，学费、住宿与实习机会一次算清。</p>
+        </div>
+      </div>
+    </a>
+  </div>
+
+  <div class="dest-more rv">
+    <span class="h">2026 秋季新增</span>
+    <span class="chip">加拿大</span>
+    <span class="chip">中国香港</span>
+    <span class="chip">日本</span>
+    <span class="chip">德国</span>
+    <span class="chip">荷兰</span>
+    <span class="chip">爱尔兰</span>
+  </div>
+</section>
+
+<!-- ============ 战绩 ============ -->
+<section class="record" id="record">
+  <img src="assets/library.jpg" alt="大学图书馆阅览室" loading="lazy" />
+  <div class="record-in">
+    <div class="sec-kicker"><span class="num">04</span><span>TRACK RECORD</span><i></i></div>
+    <h2>把「有学上」，<br />做成<span class="hl">可复现的流程</span></h2>
+    <p class="sec-lead" style="margin-top:18px">
+      2025–2026 申请季，四地团队共处理 2,400 余份申请材料，
+      从选校到签证，每一步都有记录、有负责人、有截止提醒。
+    </p>
+
+    <div class="record-stats">
+      <div class="rstat rv">
+        <div class="v">1,240<small>+</small></div>
+        <span class="k">OFFERS · 本季录取</span>
+      </div>
+      <div class="rstat rv">
+        <div class="v">98.7<small>%</small></div>
+        <span class="k">VISA · 签证一次通过</span>
+      </div>
+      <div class="rstat rv">
+        <div class="v">32<small>所</small></div>
+        <span class="k">QS TOP 100 · 合作院校</span>
+      </div>
+      <div class="rstat rv">
+        <div class="v">4.9<small>/5</small></div>
+        <span class="k">SATISFACTION · 学员评分</span>
+      </div>
+    </div>
+
+    <p class="note">数据口径 2025–2026 申请季 · SAMPLE DATA</p>
+  </div>
+</section>
+
+<!-- ============ 三类智能体 ============ -->
+<section class="sec" id="agents">
+  <div class="sec-head rv">
+    <div>
+      <div class="sec-kicker"><span class="num">05</span><span>AGENTS</span><i></i></div>
+      <h2>三类智能体，<br />各说各的<span class="hl">专业话</span></h2>
+    </div>
+    <p class="sec-lead">
+      不是把同一个机器人换个皮肤。都叫「小粤同学」，但三类场景各有自己的工具集、话术和权限边界，
+      互不串数据，也不会拿客服话术回答学生的问题。
+    </p>
+  </div>
+
+  <div class="agents">
+    <article class="agent rv">
+      <div class="agent-top"><span class="no">01</span><span class="for">FOR STUDENTS</span></div>
+      <h3>小粤同学 · 留学生事务</h3>
+      <ul class="cap">
+        <li><span>—</span><span>签证与入学政策问答</span></li>
+        <li><span>—</span><span>本人成绩、课程、出勤查询</span></li>
+        <li><span>—</span><span>请假申请与进度跟踪</span></li>
+        <li><span>—</span><span>情绪倾诉与转人工</span></li>
+      </ul>
+      <div class="eg"><b>EXAMPLE</b>“我的签证材料还差什么？”</div>
+    </article>
+
+    <article class="agent rv">
+      <div class="agent-top"><span class="no">02</span><span class="for">FOR STAFF</span></div>
+      <h3>小粤同学 · 员工业务</h3>
+      <ul class="cap">
+        <li><span>—</span><span>客户档案与跟进记录</span></li>
+        <li><span>—</span><span>录入 / 修改学生成绩</span></li>
+        <li><span>—</span><span>请假审批、预警认领</span></li>
+        <li><span>—</span><span>日报与周报自动成文</span></li>
+      </ul>
+      <div class="eg"><b>EXAMPLE</b>“我班上还有谁不及格？”</div>
+    </article>
+
+    <article class="agent rv">
+      <div class="agent-top"><span class="no">03</span><span class="for">FOR SERVICE</span></div>
+      <h3>小粤同学 · 客服与活动</h3>
+      <ul class="cap">
+        <li><span>—</span><span>项目推荐与费用对比</span></li>
+        <li><span>—</span><span>活动发布、报名与名单</span></li>
+        <li><span>—</span><span>留资登记与负责人分配</span></li>
+        <li><span>—</span><span>工单创建与状态流转</span></li>
+      </ul>
+      <div class="eg"><b>EXAMPLE</b>“新加坡 6+6 项目怎么报名？”</div>
+    </article>
+  </div>
+</section>
+
+<!-- ============ 四类身份 ============ -->
+<section class="sec tint" id="roles">
+  <div class="sec-head rv">
+    <div>
+      <div class="sec-kicker"><span class="num">06</span><span>IDENTITY</span><i></i></div>
+      <h2>四类身份，<br />一套<span class="hl">账号体系</span></h2>
+    </div>
+    <p class="sec-lead">
+      同一个入口，看到的东西由身份决定。每位班主任只带自己那几名学生，
+      请假与成绩都按这条师生关系隔离；越权查询会被直接拒绝并说明原因，
+      而不是悄悄返回一份空数据。
+    </p>
+  </div>
+
+  <div class="roles-table rv">
+    <div class="role-row head">
+      <span>身份 / ROLE</span>
+      <span>可以做什么</span>
+      <span>数据范围</span>
+    </div>
+    <div class="role-row">
+      <div class="rr-name">管理员 · 王主任<em>ADMIN</em></div>
+      <div class="rr-can">全部 Agent、全校概览、账户管理（开户 / 停用 / 启用 / 删除）；成绩与日志只读</div>
+      <div class="rr-scope">全校</div>
+    </div>
+    <div class="role-row">
+      <div class="rr-name">班主任 · 李老师<em>HOMEROOM TEACHER</em></div>
+      <div class="rr-can">员工助手、名下学生请假审批、成绩录入与修改</div>
+      <div class="rr-scope">本人名下学生</div>
+    </div>
+    <div class="role-row">
+      <div class="rr-name">顾问 · 陈顾问<em>CONSULTANT</em></div>
+      <div class="rr-can">CRM 客户档案、跟进记录、线索状态流转</div>
+      <div class="rr-scope">本人负责的客户</div>
+    </div>
+    <div class="role-row">
+      <div class="rr-name">学员 · 张三<em>STUDENT</em></div>
+      <div class="rr-can">请假、成绩、情绪记录、售后与转人工</div>
+      <div class="rr-scope">仅本人</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 怎么用 ============ -->
+<section class="sec" id="flow">
+  <div class="sec-head rv">
+    <div>
+      <div class="sec-kicker"><span class="num">07</span><span>HOW IT WORKS</span><i></i></div>
+      <h2>一句话问出来，<br />系统自己<span class="hl">找到依据</span></h2>
+    </div>
+    <p class="sec-lead">
+      不用记菜单、不用学 SQL。口语提问会被翻译成一次结构化查询，
+      原始语句一并附上，报表和结论都对得上。
+    </p>
+  </div>
+
+  <div class="flow">
+    <div class="step rv"><span class="no">01</span><h3>问</h3><p>口语描述需求，代词和上下文都认得，「那李四呢」也接得住。</p></div>
+    <div class="step rv"><span class="no">02</span><h3>查</h3><p>自动翻成查询语句并执行，结果和 SQL 一起返回，可复核。</p></div>
+    <div class="step rv"><span class="no">03</span><h3>办</h3><p>请假、录成绩、报名等写操作按身份落库，越权直接拒绝。</p></div>
+    <div class="step rv"><span class="no">04</span><h3>记</h3><p>每轮对话写入日志，谁在什么时候问了什么，都可回溯。</p></div>
+  </div>
+</section>
+
+<!-- ============ 学员故事 ============ -->
+<section class="sec tint" id="stories">
+  <div class="sec-head rv">
+    <div>
+      <div class="sec-kicker"><span class="num">08</span><span>STORIES</span><i></i></div>
+      <h2>他们的第一句话，<br />通常都是<span class="hl">「我能不能」</span></h2>
+    </div>
+    <p class="sec-lead">
+      一千多个学生的起点都差不多：成绩不算顶尖，时间不算宽裕，心里没底。
+      下面是三段真实路径的摘要。
+    </p>
+  </div>
+
+  <div class="stories">
+    <article class="story rv">
+      <div class="no">STORY 01</div>
+      <div class="q">“</div>
+      <p>我本科是双非，顾问把我三年的课程描述逐条翻成英文教学大纲，UCL 那边直接认了学分，没让我多读一年。</p>
+      <div class="who"><b>林同学</b><span>UCL · 教育学 · 2025</span></div>
+    </article>
+    <article class="story rv">
+      <div class="no">STORY 02</div>
+      <div class="q">“</div>
+      <p>签证被 check 了两次，第三次面签前，班主任陪我一条一条过材料清单，连银行流水的日期都核对过。</p>
+      <div class="who"><b>陈同学</b><span>NYU · 计算机 · 2024</span></div>
+    </article>
+    <article class="story rv">
+      <div class="no">STORY 03</div>
+      <div class="q">“</div>
+      <p>落地第一周发烧，智能管家帮我请了假、约了校医，第二天还主动问了一句好点没有。</p>
+      <div class="who"><b>王同学</b><span>悉尼大学 · 商科 · 2025</span></div>
+    </article>
+  </div>
+
+  <p class="stories-note">以上为演示环境示例内容 · SAMPLE STORIES</p>
+</section>
+
+<!-- ============ 结尾转化带 ============ -->
+<section class="cta-band">
+  <img src="assets/hero-campus.jpg" alt="" aria-hidden="true" loading="lazy" />
+  <div class="cta-in">
+    <h2>下一步，<br />从<span class="hl">一句话</span>开始</h2>
+    <p>不确定方向？先在右下角问问在线顾问，问完再决定要不要进系统。</p>
+    <div class="cta-row">
+      <a class="btn-primary inv" href="#login">进入系统</a>
+      <button class="btn-line inv" type="button" id="ctaConsult">
+        <svg width="13" height="13" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+          <path d="M8 1.8v9.4M4.6 8.2 8 11.6l3.4-3.4M2.4 13.4h11.2"
+            stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        在线咨询
+      </button>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 页脚 ============ -->
+<footer class="foot">
+  <div class="foot-grid">
+    <div class="foot-brand">
+      <b>粤教服务</b>
+      <p>留学服务智能助手 · 把咨询、课程、关怀与客户跟进收进同一个对话入口。</p>
+    </div>
+    <div class="foot-col">
+      <div class="h">PRODUCT</div>
+      <a href="#service">服务范围</a>
+      <a href="#dest">院校与目的地</a>
+      <a href="#record">录取战绩</a>
+      <a href="#agents">三类智能体</a>
+      <a href="#roles">身份与权限</a>
+    </div>
+    <div class="foot-col">
+      <div class="h">ACCESS</div>
+      <a href="#login">账号登录</a>
+      <a href="#login">注册家长账号</a>
+      <a href="#flow">使用方式</a>
+      <p>演示环境 · 数据可重置</p>
+    </div>
+  </div>
+  <div class="foot-bot">
+    <span>粤教服务 · STUDY ABROAD SERVICE</span>
+    <span>三类智能体 · 四类身份 · V 2.0 / DEMO</span>
+    <span>© 2026</span>
+  </div>
+</footer>
+
+<div class="toast" id="toast"></div>
+
+<!-- 在线客服：只答公开咨询，个人数据引导登录 -->
+<button class="cs-fab" id="csFab" type="button" aria-expanded="false" aria-controls="csPanel">
+  <i class="cs-live"></i>在线咨询<span class="k">CONSULT</span>
+</button>
+
+<section class="cs-panel" id="csPanel" role="dialog" aria-label="在线咨询">
+  <header class="cs-head">
+    <span class="cs-ava">粤</span>
+    <div class="cs-who">
+      <b>小粤同学</b>
+      <span>在线咨询 · 项目 / 费用 / 流程</span>
+    </div>
+    <button class="cs-x" id="csClose" type="button" aria-label="收起">×</button>
+  </header>
+  <div class="cs-note">只答项目 · 费用 · 流程；个人进度、成绩需登录后查看。</div>
+  <div class="cs-body" id="csBody">
+    <div class="cs-msg bot">你好，我是小粤同学。告诉我学员的年龄、学历和方向，我帮你看看有哪些项目合适；费用、申请条件、开班时间也可以直接问。</div>
+    <div class="cs-chips" id="csChips"></div>
+  </div>
+  <form class="cs-form" id="csForm">
+    <textarea id="csInput" rows="1" maxlength="300" placeholder="说说学员年龄、学历和方向"></textarea>
+    <button type="submit" id="csSend">发送</button>
+  </form>
+  <div class="cs-foot">
+    <a href="#login" id="csLogin">登录后查看我的进度 →</a>
+    <span>·</span><span>020-37628058</span>
+  </div>
+</section>
+
+<script>
+(function () {
+  "use strict";
+
+  var TOKEN_KEY = "yj_token";
+  var USER_KEY = "yj_user";
+  var NEXT = new URLSearchParams(location.search).get("next") || "/demo/";
+  var FORCE_LOGOUT = new URLSearchParams(location.search).has("logout");
+
+  var el = {
+    form: document.getElementById("form"),
+    username: document.getElementById("username"),
+    password: document.getElementById("password"),
+    userWrap: document.getElementById("user-wrap"),
+    pwdWrap: document.getElementById("pwd-wrap"),
+    eye: document.getElementById("eye"),
+    submit: document.getElementById("submit"),
+    msg: document.getElementById("msg"),
+    roles: document.getElementById("roleCards"),
+    rolesNote: document.getElementById("rolesNote"),
+    register: document.getElementById("register"),
+    toast: document.getElementById("toast"),
+    nav: document.getElementById("nav"),
+  };
+
+  var toastTimer = null;
+  function toast(text, isErr) {
+    el.toast.textContent = text;
+    el.toast.classList.toggle("err", !!isErr);
+    el.toast.classList.add("on");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { el.toast.classList.remove("on"); }, 2800);
+  }
+
+  function setMsg(text, ok) {
+    el.msg.textContent = text || "";
+    el.msg.classList.toggle("ok", !!ok);
+  }
+
+  /* ---------- 已登录直接进控制台 ---------- */
+  if (!FORCE_LOGOUT) {
+    var saved = localStorage.getItem(TOKEN_KEY);
+    if (saved) {
+      fetch("/api/auth/me", { headers: { Authorization: "Bearer " + saved } })
+        .then(function (r) { return r.json().then(function (d) { return r.ok ? d.data : null; }); })
+        .then(function (user) {
+          if (user) location.replace(NEXT);
+          else localStorage.removeItem(TOKEN_KEY);
+        })
+        .catch(function () {});
+    }
+  } else {
+    localStorage.removeItem(TOKEN_KEY);
+    localStorage.removeItem(USER_KEY);
+  }
+
+  /* ---------- 吸顶导航：滚过首屏加白底 ---------- */
+  function onScroll() {
+    el.nav.classList.toggle("solid", window.scrollY > 40);
+  }
+  window.addEventListener("scroll", onScroll, { passive: true });
+  onScroll();
+
+  /* ---------- 滚动进场 ---------- */
+  var rvs = document.querySelectorAll(".rv");
+  if ("IntersectionObserver" in window) {
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (en) {
+        if (en.isIntersecting) {
+          en.target.classList.add("in");
+          io.unobserve(en.target);
+        }
+      });
+    }, { threshold: 0.14, rootMargin: "0px 0px -8% 0px" });
+    Array.prototype.forEach.call(rvs, function (n) { io.observe(n); });
+  } else {
+    Array.prototype.forEach.call(rvs, function (n) { n.classList.add("in"); });
+  }
+
+  /* ---------- 演示账号：按身份分组，同身份多账号 ---------- */
+  var cards = [];
+  var order = ["admin", "teacher", "activity_teacher", "student", "staff"];
+
+  function renderRoles(list) {
+    cards = list.slice().sort(function (a, b) {
+      var d = order.indexOf(a.key) - order.indexOf(b.key);
+      return d !== 0 ? d : String(a.username).localeCompare(String(b.username));
+    });
+    var html = "";
+    order.forEach(function (key) {
+      var group = cards.filter(function (r) { return r.key === key; });
+      if (!group.length) return;
+      html += '<div class="role-group"><b>' + group[0].label + "</b><span>" + group.length + " 个账号</span></div>";
+      group.forEach(function (r) {
+        var sub = r.group && r.group !== r.desc ? r.group + " · " + r.desc : r.desc;
+        html += '<button type="button" class="role-card' + (group.length === 1 ? " solo" : "") +
+          (r.disabled ? " off" : "") +
+          '" data-account="' + r.username + '" title="' +
+          r.label + " · " + r.name + " · " + r.username + "／" + r.password +
+          (r.disabled ? "（已停用，登录会被拒绝）" : "") + '">' +
+          '<span class="role-name">' + r.name + "<em>" + r.username + "</em></span>" +
+          '<span class="role-desc">' + sub + "</span></button>";
+      });
+    });
+    el.roles.innerHTML = html;
+    if (el.rolesNote) {
+      var base = "共 " + cards.length + " 个演示账号，密码统一 " +
+        (cards[0] ? cards[0].password : "123456") +
+        "。换一位老师或学员登录，能看到的就只有他自己名下那部分。";
+      el.rolesNote.textContent = base;
+      // 账号多到一屏放不下时才提示可滚动，放得下就别多嘴
+      setTimeout(function () {
+        if (el.roles.scrollHeight > el.roles.clientHeight + 4) {
+          el.rolesNote.textContent = base + "（账号区可上下滚动）";
+        }
+      }, 0);
+    }
+  }
+
+  function fill(role) {
+    el.username.value = role.username;
+    el.password.value = role.password;
+    clearErr();
+    setMsg("已填入：" + role.name + "（" + role.label + (role.group ? " · " + role.group : "") + "）", true);
+    Array.prototype.forEach.call(el.roles.querySelectorAll(".role-card"), function (c) {
+      c.classList.toggle("on", c.getAttribute("data-account") === role.username);
+    });
+    el.submit.focus();
+  }
+
+  el.roles.addEventListener("click", function (ev) {
+    var btn = ev.target.closest(".role-card");
+    if (!btn) return;
+    var uname = btn.getAttribute("data-account");
+    var role = cards.filter(function (r) { return r.username === uname; })[0];
+    if (role) fill(role);
+  });
+
+  function clearErr() {
+    el.userWrap.classList.remove("err");
+    el.pwdWrap.classList.remove("err");
+  }
+
+  fetch("/api/auth/roles")
+    .then(function (r) { return r.json(); })
+    .then(function (d) { if (d && d.data && d.data.length) renderRoles(d.data); })
+    .catch(function () { toast("读取演示角色失败，可手动输入账号", true); });
+
+  /* ---------- 密码显隐 ---------- */
+  el.eye.addEventListener("click", function () {
+    var show = el.password.type === "password";
+    el.password.type = show ? "text" : "password";
+    el.eye.style.color = show ? "#2563eb" : "";
+  });
+
+  /* ---------- 登录 ---------- */
+  function doLogin(username, password, silent) {
+    var u = (username || el.username.value).trim();
+    var p = password || el.password.value;
+    clearErr();
+    setMsg("");
+
+    if (!u) { el.userWrap.classList.add("err"); setMsg("请输入用户名"); el.form.classList.add("shake"); setTimeout(function () { el.form.classList.remove("shake"); }, 340); return; }
+    if (!p) { el.pwdWrap.classList.add("err"); setMsg("请输入密码"); return; }
+
+    el.submit.disabled = true;
+    el.submit.textContent = "登录中…";
+
+    fetch("/api/auth/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ username: u, password: p }),
+    })
+      .then(function (r) {
+        return r.json().then(function (d) {
+          if (!r.ok) throw new Error(d.detail || d.msg || ("HTTP " + r.status));
+          return d;
+        });
+      })
+      .then(function (d) {
+        var data = d.data || {};
+        localStorage.setItem(TOKEN_KEY, data.token);
+        localStorage.setItem(USER_KEY, JSON.stringify(data.user || {}));
+        setMsg(d.msg || "登录成功，正在进入…", true);
+        if (silent) setMsg("已按游客身份进入…", true);
+        /* 没指定 next 时：管理员直接进数据后台，其余进对话工作台 */
+        var go = NEXT;
+        if (NEXT === "/demo/" && (data.user || {}).role === "admin") go = "/admin";
+        location.replace(go);
+      })
+      .catch(function (e) {
+        el.submit.disabled = false;
+        el.submit.textContent = "进入系统";
+        setMsg(e.message || "登录失败");
+        el.form.classList.add("shake");
+        setTimeout(function () { el.form.classList.remove("shake"); }, 340);
+      });
+  }
+
+  el.form.addEventListener("submit", function (ev) {
+    ev.preventDefault();
+    doLogin();
+  });
+
+  /* ---------- 没有账号 / 还没想好：一律转到在线客服 ---------- */
+  function openConsult() {
+    var fab = document.getElementById("csFab");
+    if (fab) { if (!document.getElementById("csPanel").classList.contains("on")) fab.click(); }
+    else document.getElementById("login").scrollIntoView({ behavior: "smooth" });
+  }
+  var ctaConsult = document.getElementById("ctaConsult");
+  if (ctaConsult) ctaConsult.addEventListener("click", openConsult);
+
+  el.register.addEventListener("click", openConsult);
+
+  el.username.addEventListener("input", clearErr);
+  el.password.addEventListener("input", clearErr);
+
+  /* 首屏不抢焦点：无锚点时回到顶部 */
+  if (!location.hash) window.scrollTo(0, 0);
+})();
+</script>
+
+<script>
+/* ============ 登录页在线客服（匿名访客 · 只答公开信息） ============ */
+(function () {
+  "use strict";
+
+  var fab = document.getElementById("csFab");
+  var panel = document.getElementById("csPanel");
+  var body = document.getElementById("csBody");
+  var chipsBox = document.getElementById("csChips");
+  var form = document.getElementById("csForm");
+  var input = document.getElementById("csInput");
+  var sendBtn = document.getElementById("csSend");
+  var closeBtn = document.getElementById("csClose");
+  var loginLink = document.getElementById("csLogin");
+  if (!fab || !panel || !body) return;
+
+  var convId = "";
+  var busy = false;
+
+  var PROMPTS = [
+    "19岁高中毕业，想快点拿本科",
+    "德国双元制是什么",
+    "一年十万预算能去哪些国家",
+    "现在有哪些项目在招生"
+  ];
+
+  function buildChips() {
+    chipsBox.innerHTML = "";
+    PROMPTS.forEach(function (p) {
+      var b = document.createElement("button");
+      b.type = "button";
+      b.className = "cs-chip";
+      b.textContent = p;
+      b.addEventListener("click", function () { ask(p); });
+      chipsBox.appendChild(b);
+    });
+  }
+
+  /* 每次打开主页都从新会话开始：清掉旧对话、报名上下文与会话 ID，
+     chatEpoch 让清空前发出的旧请求回来时直接作废，不往新面板里写 */
+  var chatEpoch = 0;
+  var pending = null;              // 正在报名的那一场
+  var leadDraft = { name: "" };    // 电话格式不对时，先把说过的名字记住
+  var WELCOME = "你好，我是小粤同学。告诉我学员的年龄、学历和方向，我帮你看看有哪些项目合适；费用、申请条件、开班时间也可以直接问。";
+  function resetChat() {
+    chatEpoch++;
+    convId = "";
+    busy = false;
+    signupBusy = false;
+    pending = null;
+    leadDraft.name = "";
+    input.value = "";
+    input.style.height = "40px";
+    sendBtn.disabled = false;
+    body.innerHTML = "";
+    var w = document.createElement("div");
+    w.className = "cs-msg bot";
+    w.textContent = WELCOME;
+    body.appendChild(w);
+    buildChips();
+    chipsBox.style.display = "";
+    scrollEnd();
+  }
+  resetChat();
+
+  /* 主页每次显示（首次加载 / 前进后退缓存恢复）都重置助手记录 */
+  window.addEventListener("pageshow", function () { resetChat(); });
+
+  function scrollEnd() { body.scrollTop = body.scrollHeight; }
+
+  function bubble(role, text) {
+    var d = document.createElement("div");
+    d.className = "cs-msg " + role;
+    d.textContent = text || "";
+    body.appendChild(d);
+    scrollEnd();
+    return d;
+  }
+
+  function setOpen(v) {
+    panel.classList.toggle("on", v);
+    fab.setAttribute("aria-expanded", v ? "true" : "false");
+    if (v) setTimeout(function () { input.focus(); }, 90);
+  }
+
+  fab.addEventListener("click", function () { setOpen(!panel.classList.contains("on")); });
+  closeBtn.addEventListener("click", function () { setOpen(false); });
+  if (loginLink) loginLink.addEventListener("click", function () { setOpen(false); });
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape" && panel.classList.contains("on")) setOpen(false);
+  });
+
+  form.addEventListener("submit", function (e) { e.preventDefault(); ask(input.value); });
+
+  input.addEventListener("input", function () {
+    input.style.height = "auto";
+    input.style.height = Math.min(input.scrollHeight, 92) + "px";
+  });
+  input.addEventListener("keydown", function (e) {
+    if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); ask(input.value); }
+  });
+
+  /* 问到个人数据就不调模型，直接引导登录——避免访客以为这里能查到自己的进度 */
+  var NEED_LOGIN = /(我的|我孩子|我家孩子|孩子的|学员的|学生的)[^。？！?]{0,10}(进度|成绩|分数|请假|审批|记录|状态|材料|合同|缴费|申请到)/;
+  var LOGIN_TIP = "个人进度、成绩、请假、缴费这些要登录后才能查看——点右上角「进入系统」，或用下面的「登录后查看」。\n项目、费用、申请条件、开班时间这些是公开的，我现在就能答。";
+
+  /* 注册/开户：账号由顾问签约后统一创建，不把缴费账号甩给未签约访客 */
+  var REGISTER_INTENT = /(注册|开户|开通|创建|申请)[^。？！?]{0,8}(账户|账号|帐号)|(账户|账号|帐号)[^。？！?]{0,8}(怎么|如何|怎样|注册|开户|开通|个人|办)|个人[^。？！?]{0,4}(账户|账号|帐号)|(我想|我要|怎么|如何|怎样|能不能|可以)[^。？！?]{0,4}(注册|开户)/;
+  var REGISTER_TIP = "我们这边的系统账号是由顾问在签约确认后统一创建的，个人暂时不用自己注册，也不需要提前缴费。\n你留个姓名和手机号，我让顾问联系你、确认好项目后帮你把账号开好；急的话可以直接打 020-37628058 找顾问老师。";
+
+  /* 点「没有账号？联系顾问」：打开客服并主动给出开户引导（不重复刷同一句） */
+  var registerLink = document.getElementById("register");
+  if (registerLink) {
+    registerLink.addEventListener("click", function () {
+      setTimeout(function () {
+        if (!panel.classList.contains("on")) fab.click();
+        var msgs = body.querySelectorAll(".cs-msg.bot");
+        var last = msgs.length ? (msgs[msgs.length - 1].textContent || "") : "";
+        if (last.indexOf("系统账号是由顾问") < 0) bubble("bot", REGISTER_TIP);
+      }, 140);
+    });
+  }
+
+  /* ---------- 留资：识别到手机号就写线索，转给顾问 ---------- */
+  var lastQuery = "";
+
+  /* ---------- 活动：公开信息，客服直接答；报名走公开接口 ---------- */
+  var ACTIVITIES = [];
+  var PHONE_RE = /^1\d{10}$/;
+  var PHONE_TIP = "电话格式错误，请重新填写。\n要 11 位纯数字（1 开头），比如 13800138000。";
+
+  function loadActivities() {
+    fetch("/api/public/activities")
+      .then(function (r) { return r.json(); })
+      .then(function (d) { ACTIVITIES = (d && d.data) || []; })
+      .catch(function () {});
+  }
+  loadActivities();
+
+  /* 从一句话里抠出可能的号码（6 位以上连续数字，允许中间有空格/横线） */
+  function phoneCandidates(text) {
+    var out = [];
+    var re = /\d[\d\s\-]{4,}\d/g;
+    var m;
+    while ((m = re.exec(text)) !== null) {
+      var p = m[0].replace(/[\s\-]/g, "");
+      if (p.length >= 6) out.push(p);
+    }
+    return out;
+  }
+
+  function validPhone(text) {
+    var c = phoneCandidates(text);
+    for (var i = 0; i < c.length; i++) if (PHONE_RE.test(c[i])) return c[i];
+    return "";
+  }
+
+  function phoneish(text) {
+    return phoneCandidates(text).length > 0 || /电话|手机|号码|联系方式/.test(text);
+  }
+
+  function pickName(text) {
+    var t = text
+      .replace(/1\d{10}/g, " ")
+      .replace(/(我叫|我是|我姓|姓名|名字|叫|电话|手机号|手机|号码|联系方式|方便|可以|好的|好|您好|请|加我|微信|是)/g, " ")
+      .replace(/[^\u4e00-\u9fa5]/g, " ")
+      .trim();
+    var m = t.match(/[\u4e00-\u9fa5]{2,4}/);
+    return m ? m[0] : "";
+  }
+
+  function nameIn(text) {
+    var m = text.match(/(?:我叫|姓名是|名字是|我是)\s*([\u4e00-\u9fa5]{2,4})/);
+    return m ? m[1] : "";
+  }
+
+  var ACT_WORD = /活动|讲座|分享会|说明会|沙龙|开放日/;
+  var PLACES = ["新加坡", "德国", "香港", "澳门", "马来", "日本", "韩国", "澳洲", "英国", "美国", "加拿大"];
+
+  /* 只按地名匹配（换场次时用，"那就新加坡吧"这种不带"活动"二字也能认） */
+  function matchByPlace(text) {
+    for (var j = 0; j < ACTIVITIES.length; j++) {
+      for (var k = 0; k < PLACES.length; k++) {
+        if (text.indexOf(PLACES[k]) >= 0 && ACTIVITIES[j].title.indexOf(PLACES[k]) >= 0) {
+          return ACTIVITIES[j];
+        }
+      }
+    }
+    return null;
+  }
+
+  /* 只有「完整活动名」或「地名 + 活动字样」才当成活动，避免把普通咨询误判成报名 */
+  function matchActivity(text) {
+    for (var i = 0; i < ACTIVITIES.length; i++) {
+      if (text.indexOf(ACTIVITIES[i].title) >= 0) return ACTIVITIES[i];
+    }
+    return ACT_WORD.test(text) ? matchByPlace(text) : null;
+  }
+
+  function actListText() {
+    if (!ACTIVITIES.length) {
+      return "这两天暂时没排新的活动。留个姓名和手机号，我让顾问把最近的场次发你。";
+    }
+    var lines = ["近期活动（按时间排）："];
+    ACTIVITIES.slice(0, 5).forEach(function (a) {
+      lines.push("· " + a.title + "\n  " + a.start + " · " + a.speaker + " 主讲 · " +
+        a.location + " · " + (a.full ? "名额已满" : "余 " + a.remaining + " 个名额"));
+    });
+    lines.push("想参加哪一场？说地名或活动名就行，留个姓名和手机号我帮你占位。");
+    return lines.join("\n");
+  }
+
+  function fullMessage(a) {
+    var alts = ACTIVITIES.filter(function (x) { return !x.full && x.id !== a.id; }).slice(0, 3);
+    var msg = "「" + a.title + "」名额已经满了（" + a.signed + "/" + a.capacity + "），没法再报名。";
+    if (alts.length) {
+      msg += "\n还有这些场次有空位：\n" + alts.map(function (x) {
+        return "· " + x.title + " · " + x.start + " · 余 " + x.remaining + " 个名额";
+      }).join("\n");
+      msg += "\n想参加哪一场？说地名就行；或者留个手机号，我让顾问帮你安排。";
+    } else {
+      msg += "\n近期没有别的场次了，留个电话我让顾问给你安排下一场。";
+    }
+    return msg;
+  }
+
+  function beginActivity(a, text) {
+    var name = nameIn(text) || leadDraft.name || "";
+    if (a.full) {
+      pending = { id: null, title: "", name: name };
+      bubble("bot", fullMessage(a));
+      return;
+    }
+    pending = { id: a.id, title: a.title, name: name };
+    if (phoneish(text)) { handleSignupFlow(text); return; }
+    bubble("bot", "「" + a.title + "」\n" + a.start + " · " + a.speaker + " 主讲 · " +
+      a.location + "\n还有 " + a.remaining + " 个名额（共 " + a.capacity + " 个）。\n" +
+      (pending.name ? pending.name + "，留一下手机号就行（11 位数字）。"
+                    : "把姓名和手机号发我，我帮你占位。"));
+  }
+
+  /* 报名上下文：返回 true 表示这条消息已经被消化，不再走模型 */
+  function handleSignupFlow(text) {
+    if (!pending) return false;
+
+    // 满员后正在换场次
+    if (!pending.id) {
+      var alt = matchByPlace(text) || matchActivity(text);
+      if (alt) {
+        if (alt.full) { bubble("bot", fullMessage(alt)); return true; }
+        pending.id = alt.id;
+        pending.title = alt.title;
+        if (phoneish(text)) { handleSignupFlow(text); return true; }
+        bubble("bot", "好，改报「" + alt.title + "」（" + alt.start + " · 余 " + alt.remaining +
+          " 个名额）。" + (pending.name ? pending.name + "，留一下手机号就行。"
+                                      : "留个姓名和手机号，我帮你占位。"));
+        return true;
+      }
+      if (!phoneish(text)) {
+        bubble("bot", "想去哪一场？说地名就行，比如「新加坡」「香港」；也可以留个电话，我让顾问帮你安排。");
+        return true;
+      }
+    }
+
+    var nm = nameIn(text);
+    if (nm) pending.name = nm;
+
+    var good = validPhone(text);
+    if (good) {
+      if (!pending.id) {
+        var free = ACTIVITIES.filter(function (x) { return !x.full; })[0];
+        if (!free) {
+          pending = null;
+          bubble("bot", "近期场次都满了，留个电话我让顾问帮你安排下一场。");
+          return true;
+        }
+        pending.id = free.id;
+        pending.title = free.title;
+      }
+      if (!pending.name) {
+        // 只发了一串号码：去掉数字和提示词后若剩 2~4 个汉字，当作姓名
+        var bare = text.replace(/[\d\s\-]/g, "")
+          .replace(/[，,。.、:：]|电话|手机号|手机|号码|联系方式|是|我|叫|的/g, "")
+          .trim();
+        if (/^[\u4e00-\u9fa5]{2,4}$/.test(bare)) pending.name = bare;
+      }
+      if (!pending.name) {
+        bubble("bot", "号码记下了（" + good + "）。报名人叫什么名字？");
+        return true;
+      }
+      submitSignup(pending.id, pending.title, pending.name, good);
+      return true;
+    }
+
+    if (phoneish(text)) {
+      if (pending.name) leadDraft.name = pending.name;
+      bubble("bot", PHONE_TIP + (pending.name ? "\n" + pending.name + " 的名字我先记着，只补电话就行。" : ""));
+      return true;
+    }
+
+    if (!pending.name) {
+      var short = text.replace(/[，,。.\s]/g, "");
+      if (/^[\u4e00-\u9fa5]{2,4}$/.test(short)) {
+        pending.name = short;
+        bubble("bot", "好的" + short + "，留一下手机号（11 位数字）就报好了。");
+        return true;
+      }
+    }
+    return false;
+  }
+
+  var signupBusy = false;
+
+  function submitSignup(id, title, name, phone) {
+    if (signupBusy) return;
+    signupBusy = true;
+    var out = bubble("bot", "正在报名…");
+    out.classList.add("typing");
+    busy = true;
+    sendBtn.disabled = true;
+    fetch("/api/public/activity-signup", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ activity_id: id, name: name, phone: phone, remark: lastQuery || "" })
+    })
+      .then(function (r) {
+        return r.json().then(function (d) { return { ok: r.ok, status: r.status, d: d || {} }; });
+      })
+      .then(function (res) {
+        signupBusy = false;
+        busy = false;
+        sendBtn.disabled = false;
+        out.classList.remove("typing");
+        var d = res.d;
+        if (!res.ok) {
+          var det = d.detail;
+          if (res.status === 409 && det && typeof det === "object") {
+            var alts = det.alternatives || [];
+            var msg = "「" + (det.activity || title) + "」名额刚满，没法再报了。";
+            if (alts.length) {
+              msg += "\n还有这些场次有空位：\n" + alts.map(function (x) {
+                return "· " + x.title + " · " + x.start + " · 余 " + x.remaining + " 个名额";
+              }).join("\n");
+              msg += "\n想参加哪一场？说地名就行，姓名我先帮你留着。";
+              pending = { id: null, title: "", name: name };
+            } else {
+              msg += "\n近期没有别的场次了，我让顾问给你安排。";
+              pending = null;
+            }
+            out.textContent = msg;
+          } else {
+            var txt = typeof det === "string" ? det : ((det && det.msg) || "报名没成功");
+            out.textContent = txt + (txt.indexOf("电话") >= 0 ? "" : "。可以重新发一次姓名和电话。");
+            if (txt.indexOf("电话") >= 0) pending = { id: id, title: title, name: name };
+          }
+          scrollEnd();
+          return;
+        }
+        var ok = d.data || {};
+        var info = ACTIVITIES.filter(function (x) { return x.id === id; })[0] || {};
+        pending = null;
+        leadDraft.name = "";
+        if (ok.repeated) {
+          out.textContent = "这个号码之前已经报过「" + (ok.activity || title || info.title) +
+            "」了，不用重复报名。\n开始前顾问会再联系你确认。";
+          scrollEnd();
+          return;
+        }
+        out.textContent = "报名成功。\n活动：" + (ok.activity || title || info.title) +
+          "\n时间：" + (ok.start || info.start || "") +
+          "\n地点：" + (ok.location || info.location || "") +
+          "\n姓名：" + name + "　电话：" + phone +
+          "\n" + (ok.consultant ? ok.consultant + " 会联系你确认" : "顾问会联系你确认") +
+          "，开始前再提醒一次。";
+        scrollEnd();
+        loadActivities();
+      })
+      .catch(function () {
+        signupBusy = false;
+        busy = false;
+        sendBtn.disabled = false;
+        out.classList.remove("typing");
+        out.textContent = "网络不太顺，报名没提交上。可以直接致电 020-37628058 找顾问老师。";
+        scrollEnd();
+      });
+  }
+
+  function captureLead(text, phone) {
+    var name = leadDraft.name || pickName(text);
+    var out = bubble("bot", "正在登记联系方式…");
+    out.classList.add("typing");
+    fetch("/api/public/lead", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        phone: phone,
+        name: name,
+        intent: lastQuery || "",
+        summary: text.slice(0, 200)
+      })
+    })
+      .then(function (r) {
+        return r.json().then(function (d) {
+          if (!r.ok || !d.ok) throw new Error((d && d.detail) || "登记失败");
+          return d;
+        });
+      })
+      .then(function (d) {
+        out.classList.remove("typing");
+        leadDraft.name = "";
+        var who = d.consultant || "顾问";
+        var label = /顾问$/.test(who) ? who : ("顾问" + who);
+        var tel = d.consultant_phone || "020-37628058";
+        out.textContent = (name ? name + "（" + phone + "）" : phone) + " 已经记下了。" +
+          (d.repeated ? "你之前留过联系方式，这次也记上了。" : "已记录，正在转给负责顾问。") +
+          "\n对接顾问：" + label + "　电话：" + tel +
+          "\n" + label + "会在工作时间内按你留的号码联系你；急的话可以直接打这个电话。" +
+          "这期间想先了解哪个项目，也可以继续问我。";
+        scrollEnd();
+      })
+      .catch(function () {
+        out.classList.remove("typing");
+        out.textContent = "号码这边没登记上。" +
+          "可以直接致电 020-37628058 找顾问老师，项目问题我也能继续答。";
+        scrollEnd();
+      });
+  }
+
+  function ask(text) {
+    text = (text || "").trim();
+    if (!text || busy) return;
+
+    bubble("me", text);
+    chipsBox.style.display = "none";
+    input.value = "";
+    input.style.height = "40px";
+
+    // 报名上下文最优先：已经在填资料，先把这单处理完
+    if (handleSignupFlow(text)) return;
+
+    // 活动走本地：名额、时间要实时，且报名流程要能接住电话
+    var act = matchActivity(text);
+    if (act) { beginActivity(act, text); return; }
+    if (/报名|参加|活动|讲座|分享会|说明会|沙龙|开放日/.test(text)) {
+      bubble("bot", actListText());
+      return;
+    }
+
+    var good = validPhone(text);
+    if (good) { captureLead(text, good); return; }
+    if (phoneish(text)) {
+      var draft = pickName(text);
+      if (draft) leadDraft.name = draft;
+      bubble("bot", PHONE_TIP +
+        (leadDraft.name ? "\n" + leadDraft.name + " 的名字我先记着，只补电话就行。" : ""));
+      return;
+    }
+
+    if (NEED_LOGIN.test(text)) {
+      setTimeout(function () { bubble("bot", LOGIN_TIP); }, 220);
+      return;
+    }
+    if (REGISTER_INTENT.test(text)) {
+      setTimeout(function () { bubble("bot", REGISTER_TIP); }, 220);
+      return;
+    }
+    if (text.length >= 4) lastQuery = text;
+
+    busy = true;
+    sendBtn.disabled = true;
+    var myEpoch = chatEpoch;
+
+    var out = bubble("bot", "正在查资料…");
+    out.classList.add("typing");
+    var acc = "";
+    var errored = false;
+    var lastNode = "";
+
+    function onEvent(chunk) {
+      if (myEpoch !== chatEpoch) return; // 主页重置后旧会话的回包一律丢弃
+      var ev = "";
+      var data = "";
+      chunk.split("\n").forEach(function (line) {
+        if (line.indexOf("event:") === 0) ev = line.slice(6).trim();
+        else if (line.indexOf("data:") === 0) data += line.slice(5).trim();
+      });
+      if (!data) return;
+      var d;
+      try { d = JSON.parse(data); } catch (err) { return; }
+
+      if (ev === "delta" && d.text) {
+        if (!acc) { out.classList.remove("typing"); out.textContent = ""; }
+        acc += d.text;
+        out.textContent = acc;
+        scrollEnd();
+      } else if (ev === "node" && d.title) {
+        // 等待期间显示 Dify 正在跑哪个业务节点，避免只看到「正在查资料…」像卡死
+        if (!acc) { lastNode = d.title; out.textContent = "正在查资料…（" + d.title + "）"; scrollEnd(); }
+      } else if (ev === "done") {
+        convId = d.conversation_id || convId;
+      } else if (ev === "error") {
+        errored = true;
+        out.classList.remove("typing");
+        out.textContent = d.message || "这次没答上来，换个说法再问一次试试。";
+        scrollEnd();
+      }
+    }
+
+    function finish() {
+      if (myEpoch !== chatEpoch) return;
+      out.classList.remove("typing");
+      if (!acc && !errored) {
+        out.textContent = "这次没查到内容，换个说法再问一次，或致电 020-37628058 找顾问老师。";
+      }
+      busy = false;
+      sendBtn.disabled = false;
+      scrollEnd();
+    }
+
+    fetch("/api/chat/stream", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        agent: "customer",
+        query: text,
+        user_id: 14,
+        conversation_id: convId,
+        token: null,
+        public: true
+      })
+    })
+      .then(function (r) {
+        if (!r.ok) throw new Error("HTTP " + r.status);
+        if (!r.body || !r.body.getReader) return r.text().then(function (t) { t.split("\n\n").forEach(onEvent); });
+        var reader = r.body.getReader();
+        var dec = new TextDecoder();
+        var buf = "";
+        function pump() {
+          return reader.read().then(function (res) {
+            if (res.done) return;
+            buf += dec.decode(res.value, { stream: true });
+            var i;
+            while ((i = buf.indexOf("\n\n")) >= 0) {
+              onEvent(buf.slice(0, i));
+              buf = buf.slice(i + 2);
+            }
+            return pump();
+          });
+        }
+        return pump();
+      })
+      .catch(function () {
+        errored = true;
+        out.classList.remove("typing");
+        out.textContent = "网络有点问题，稍后再试；急着问可以直接打 020-37628058。";
+      })
+      .then(finish);
+  }
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,32 @@
+import sys, os, time
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from cdpkit import Browser, open_page
+b = Browser()
+# 学生
+open_page(b, "http://127.0.0.1:8000/login?s2=1", 1280, 800)
+time.sleep(0.7); b.js("localStorage.clear()")
+open_page(b, "http://127.0.0.1:8000/login?s2=2", 1280, 800)
+time.sleep(1.0)
+b.js("document.querySelectorAll('#roleCards .role-card')[2].click()")
+time.sleep(0.3); b.js("document.getElementById('form').requestSubmit()")
+time.sleep(2.8)
+print("student todo:", b.js("document.getElementById('todo-title').textContent"), b.js("document.querySelectorAll('#todos .todo').length"))
+print("student first:", b.js("(document.querySelector('#todos .todo')||{}).innerText"))
+print("buttons in todo:", b.js("document.querySelectorAll('#todos .todo-a').length"))
+print("log count:", b.js("document.getElementById('log-count').textContent"))
+b.shot("side_student.png")
+b.js("document.getElementById('todos .todo').click()")
+time.sleep(1.6)
+print("panel:", b.js("document.getElementById('ws-title').textContent"))
+b.shot("side_student_panel.png")
+
+# 顾问 emp007
+open_page(b, "http://127.0.0.1:8000/login?s2=3", 1280, 800)
+time.sleep(0.8); b.js("localStorage.clear()")
+open_page(b, "http://127.0.0.1:8000/login?s2=4", 1280, 800)
+time.sleep(1.0)
+b.js("document.getElementById('username').value='emp007';document.getElementById('password').value='123456';document.getElementById('form').requestSubmit();")
+time.sleep(2.8)
+print("consultant todo:", b.js("document.getElementById('todo-title').textContent"), b.js("document.querySelectorAll('#todos .todo').length"))
+print("consultant items:", b.js("Array.from(document.querySelectorAll('#todos .todo')).map(e=>e.innerText.split('\n')[0]).join(' / ')"))
+b.shot("side_staff.png")

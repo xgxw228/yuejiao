@@ -1,0 +1,1441 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>粤教服务 · 智能体中台</title>
+<style>
+  :root {
+    --bg: #f5f6f8;
+    --panel: #ffffff;
+    --line: #e5e7eb;
+    --line-soft: #eef0f3;
+    --text: #1f2430;
+    --text-soft: #6b7280;
+    --text-faint: #9aa1ac;
+    --accent: #2563eb;
+    --accent-weak: #eef3ff;
+    --danger: #dc2626;
+    --radius: 14px;
+    --shadow-sm: 0 1px 2px rgba(16, 24, 40, 0.05);
+    --shadow-md: 0 8px 24px rgba(16, 24, 40, 0.08);
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0;
+    height: 100%;
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+      "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+    font-size: 14px;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  button { font-family: inherit; }
+
+  .app {
+    display: flex;
+    height: 100%;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 16px;
+    gap: 16px;
+  }
+
+  /* ---------------- 侧边栏 ---------------- */
+  .side {
+    width: 272px;
+    flex: 0 0 272px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 4px 6px;
+  }
+  .brand-logo {
+    width: 36px; height: 36px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #1e3a8a, #2563eb);
+    display: grid; place-items: center;
+    color: #fff; font-weight: 700; font-size: 15px;
+    letter-spacing: 0.5px;
+  }
+  .brand-title { font-size: 15px; font-weight: 650; letter-spacing: 0.2px; }
+  .brand-sub { font-size: 11.5px; color: var(--text-faint); margin-top: 2px; }
+
+  .agents { display: flex; flex-direction: column; gap: 8px; }
+
+  .agent {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    padding: 12px;
+    border: 1px solid var(--line);
+    background: var(--panel);
+    border-radius: var(--radius);
+    cursor: pointer;
+    text-align: left;
+    transition: border-color .15s, box-shadow .15s, transform .15s;
+    box-shadow: var(--shadow-sm);
+  }
+  .agent:hover { border-color: #cfd6e4; transform: translateY(-1px); }
+  .agent.on {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-weak);
+  }
+  .agent-emoji { font-size: 18px; line-height: 1.2; margin-top: 1px; }
+  .agent-body { flex: 1; min-width: 0; }
+  .agent-name { display: block; font-weight: 620; font-size: 13.5px; }
+  .agent-tag { display: block; font-size: 11.5px; color: var(--text-soft); margin-top: 4px; line-height: 1.55; }
+
+  .side-block {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 12px;
+    box-shadow: var(--shadow-sm);
+  }
+  .side-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-faint);
+    letter-spacing: 0.6px;
+    text-transform: uppercase;
+    margin: 0 0 8px;
+  }
+
+  .quicks { display: flex; flex-direction: column; gap: 2px; max-height: 320px; overflow-y: auto; }
+  .quick {
+    border: none;
+    background: transparent;
+    text-align: left;
+    padding: 7px 8px;
+    border-radius: 8px;
+    font-size: 12.5px;
+    color: #3f4654;
+    cursor: pointer;
+    line-height: 1.5;
+    transition: background .12s, color .12s;
+  }
+  .quick:hover { background: #f3f5f9; color: var(--accent); }
+
+  .side-foot {
+    margin-top: auto;
+    font-size: 11.5px;
+    color: var(--text-faint);
+    line-height: 1.7;
+    padding: 0 4px;
+  }
+  .dot {
+    display: inline-block;
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: #22c55e;
+    margin-right: 5px;
+    vertical-align: 1px;
+  }
+
+  /* ---------------- 主区 ---------------- */
+  .main {
+    flex: 1;
+    min-width: 0;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    display: flex;
+    flex-direction: column;
+    box-shadow: var(--shadow-md);
+    overflow: hidden;
+  }
+
+  .head {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--line-soft);
+  }
+  .head-emoji {
+    width: 34px; height: 34px;
+    border-radius: 10px;
+    display: grid; place-items: center;
+    font-size: 17px;
+    background: var(--accent-weak);
+  }
+  .head-name { font-weight: 640; font-size: 14.5px; }
+  .head-tag { font-size: 11.5px; color: var(--text-soft); margin-top: 2px; }
+  .head-right { margin-left: auto; display: flex; align-items: center; gap: 8px; }
+
+  select, .ghost-btn {
+    height: 32px;
+    border-radius: 8px;
+    border: 1px solid var(--line);
+    background: #fff;
+    color: #374151;
+    font-size: 12.5px;
+    padding: 0 10px;
+    cursor: pointer;
+    outline: none;
+  }
+  select:hover, .ghost-btn:hover { border-color: #c7ced9; background: #fbfcfe; }
+  .ghost-btn.danger:hover { color: var(--danger); border-color: #f3c6c6; background: #fff7f7; }
+  select[hidden] { display: none; }
+
+  /* ---------------- 当前登录用户 ---------------- */
+  .me {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    height: 32px;
+    padding: 0 11px 0 4px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: #fff;
+  }
+  .me-avatar {
+    width: 24px; height: 24px;
+    border-radius: 50%;
+    display: grid; place-items: center;
+    background: linear-gradient(135deg, #1e3a8a, #2563eb);
+    color: #fff;
+    font-size: 11.5px;
+    font-weight: 600;
+  }
+  .me-info { display: flex; align-items: center; gap: 6px; line-height: 1; }
+  .me-info b { font-size: 12.5px; font-weight: 600; color: #2b3241; }
+  .me-info i {
+    font-style: normal;
+    font-size: 10.5px;
+    color: var(--accent);
+    background: var(--accent-weak);
+    border-radius: 999px;
+    padding: 2.5px 7px;
+    white-space: nowrap;
+  }
+
+  /* ---------------- 对话 ---------------- */
+  .chat {
+    flex: 1;
+    overflow-y: auto;
+    padding: 22px 24px 8px;
+    scroll-behavior: smooth;
+  }
+  .chat::-webkit-scrollbar { width: 8px; }
+  .chat::-webkit-scrollbar-thumb { background: #dfe3ea; border-radius: 8px; }
+
+  .empty {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 20px;
+  }
+  .empty-emoji { font-size: 40px; margin-bottom: 14px; }
+  .empty-title { font-size: 16px; font-weight: 620; margin-bottom: 8px; }
+  .empty-text { font-size: 13px; color: var(--text-soft); max-width: 460px; line-height: 1.8; }
+  .empty-chips {
+    display: flex; flex-wrap: wrap; gap: 8px;
+    justify-content: center; margin-top: 18px; max-width: 560px;
+  }
+  .chip {
+    border: 1px solid var(--line);
+    background: #fff;
+    border-radius: 999px;
+    padding: 7px 14px;
+    font-size: 12.5px;
+    color: #444c5c;
+    cursor: pointer;
+    transition: all .13s;
+  }
+  .chip:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-weak); }
+
+  .msg { display: flex; gap: 10px; margin-bottom: 22px; }
+  .msg.user { flex-direction: row-reverse; }
+
+  .avatar {
+    width: 30px; height: 30px;
+    flex: 0 0 30px;
+    border-radius: 9px;
+    display: grid; place-items: center;
+    font-size: 14px;
+    background: #f0f2f6;
+  }
+  .msg.user .avatar { background: #e6ecff; }
+
+  .bubble-wrap { max-width: min(76%, 720px); min-width: 0; }
+  .msg.user .bubble-wrap { display: flex; flex-direction: column; align-items: flex-end; }
+
+  .who { font-size: 11.5px; color: var(--text-faint); margin-bottom: 5px; }
+
+  .bubble {
+    padding: 11px 14px;
+    border-radius: 12px;
+    background: #fff;
+    border: 1px solid var(--line-soft);
+    line-height: 1.75;
+    font-size: 13.5px;
+    word-break: break-word;
+    box-shadow: var(--shadow-sm);
+  }
+  .msg.user .bubble {
+    background: var(--accent);
+    border-color: transparent;
+    color: #fff;
+    border-bottom-right-radius: 4px;
+  }
+  .msg.bot .bubble { border-bottom-left-radius: 4px; }
+
+  .bubble p { margin: 0 0 8px; }
+  .bubble p:last-child { margin-bottom: 0; }
+  .bubble h4 { margin: 12px 0 6px; font-size: 13.5px; }
+  .bubble h4:first-child { margin-top: 0; }
+  .bubble ul, .bubble ol { margin: 4px 0 8px; padding-left: 20px; }
+  .bubble li { margin: 2px 0; }
+  .bubble code {
+    background: #f2f4f8;
+    border-radius: 4px;
+    padding: 1px 5px;
+    font-size: 12.5px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  }
+  .bubble pre {
+    background: #f7f8fa;
+    border: 1px solid var(--line-soft);
+    border-radius: 8px;
+    padding: 10px 12px;
+    overflow-x: auto;
+    margin: 8px 0;
+  }
+  .bubble pre code { background: none; padding: 0; }
+  .bubble strong { font-weight: 640; }
+  .msg.user .bubble code { background: rgba(255,255,255,.18); color: #fff; }
+
+  .tools {
+    display: flex; flex-wrap: wrap; gap: 6px;
+    margin-bottom: 8px;
+  }
+  .tool {
+    font-size: 11px;
+    color: #445;
+    background: #f3f5f9;
+    border: 1px solid var(--line-soft);
+    border-radius: 6px;
+    padding: 2px 7px;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .tool.active { color: var(--accent); background: var(--accent-weak); border-color: #d6e2ff; }
+  .tool .mini-dot {
+    width: 5px; height: 5px; border-radius: 50%;
+    background: currentColor; opacity: .75;
+  }
+
+  .meta {
+    font-size: 11px;
+    color: var(--text-faint);
+    margin-top: 6px;
+    display: flex; gap: 12px; flex-wrap: wrap;
+  }
+
+  .cursor::after {
+    content: "";
+    display: inline-block;
+    width: 6px; height: 14px;
+    background: var(--accent);
+    vertical-align: -2px;
+    margin-left: 2px;
+    animation: blink 1s steps(2, start) infinite;
+  }
+  @keyframes blink { to { visibility: hidden; } }
+
+  .err {
+    color: #b42318;
+    background: #fff6f5;
+    border: 1px solid #fbd6d2;
+    border-radius: 8px;
+    padding: 8px 10px;
+    font-size: 12.5px;
+  }
+
+  /* ---------------- 输入区 ---------------- */
+  .composer {
+    border-top: 1px solid var(--line-soft);
+    padding: 12px 20px 14px;
+    background: #fff;
+  }
+  .input-shell {
+    display: flex;
+    align-items: flex-end;
+    gap: 10px;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 8px 8px 8px 12px;
+    transition: border-color .15s, box-shadow .15s;
+    background: #fff;
+  }
+  .input-shell:focus-within {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-weak);
+  }
+  textarea {
+    flex: 1;
+    border: none;
+    outline: none;
+    resize: none;
+    font-family: inherit;
+    font-size: 13.5px;
+    line-height: 1.7;
+    color: var(--text);
+    background: transparent;
+    max-height: 132px;
+    padding: 3px 0;
+  }
+  textarea::placeholder { color: #aab1bd; }
+
+  .send {
+    flex: 0 0 auto;
+    height: 34px;
+    padding: 0 16px;
+    border: none;
+    border-radius: 9px;
+    background: var(--accent);
+    color: #fff;
+    font-size: 13px;
+    font-weight: 550;
+    cursor: pointer;
+    transition: opacity .15s, background .15s;
+  }
+  .send:hover { filter: brightness(1.05); }
+  .send:disabled { background: #c9d0dc; cursor: not-allowed; }
+  .send.stop { background: #374151; }
+
+  .hint {
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    color: var(--text-faint);
+    padding: 7px 4px 0;
+  }
+
+  /* ---------------- 审批抽屉 ---------------- */
+  .approve-btn { position: relative; display: inline-flex; align-items: center; gap: 6px; }
+  .approve-btn[hidden] { display: none; }
+  .badge {
+    min-width: 16px;
+    height: 16px;
+    padding: 0 4px;
+    border-radius: 999px;
+    background: #dc2626;
+    color: #fff;
+    font-size: 10.5px;
+    line-height: 16px;
+    text-align: center;
+    font-style: normal;
+  }
+  .badge[hidden] { display: none; }
+
+  .drawer-mask {
+    position: fixed;
+    inset: 0;
+    background: rgba(17, 24, 39, .34);
+    z-index: 40;
+    animation: fade .18s ease;
+  }
+  .drawer-mask[hidden] { display: none; }
+  @keyframes fade { from { opacity: 0; } to { opacity: 1; } }
+
+  .drawer {
+    position: fixed;
+    top: 0; right: 0;
+    height: 100%;
+    width: min(440px, 100vw);
+    background: #fff;
+    z-index: 41;
+    display: flex;
+    flex-direction: column;
+    box-shadow: -12px 0 32px rgba(16, 24, 40, .14);
+    transform: translateX(100%);
+    transition: transform .22s ease;
+  }
+  .drawer.on { transform: translateX(0); }
+
+  .drawer-head {
+    padding: 16px 18px 14px;
+    border-bottom: 1px solid var(--line-soft);
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  .drawer-title { font-size: 15px; font-weight: 650; }
+  .drawer-sub { font-size: 11.5px; color: var(--text-soft); margin-top: 4px; line-height: 1.6; }
+  .drawer-close {
+    margin-left: auto;
+    border: none;
+    background: transparent;
+    font-size: 18px;
+    line-height: 1;
+    color: var(--text-faint);
+    cursor: pointer;
+    padding: 2px 4px;
+  }
+  .drawer-close:hover { color: var(--text); }
+
+  .drawer-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 14px 18px 28px;
+  }
+  .drawer-body::-webkit-scrollbar { width: 8px; }
+  .drawer-body::-webkit-scrollbar-thumb { background: #e2e6ee; border-radius: 8px; }
+
+  .dr-stats { display: flex; gap: 8px; margin-bottom: 16px; }
+  .dr-stat {
+    flex: 1;
+    background: #f7f8fb;
+    border: 1px solid var(--line-soft);
+    border-radius: 10px;
+    padding: 9px 11px;
+  }
+  .dr-stat b { display: block; font-size: 18px; font-weight: 680; line-height: 1.2; }
+  .dr-stat span { font-size: 11.5px; color: var(--text-soft); }
+
+  .dr-label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: .6px;
+    color: var(--text-faint);
+    text-transform: uppercase;
+    margin: 18px 0 8px;
+  }
+  .dr-label:first-child { margin-top: 0; }
+
+  .lv-card {
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 12px 13px;
+    margin-bottom: 10px;
+    box-shadow: var(--shadow-sm);
+    background: #fff;
+  }
+  .lv-top { display: flex; align-items: baseline; gap: 8px; }
+  .lv-name { font-weight: 640; font-size: 13.5px; }
+  .lv-class { font-size: 11px; color: var(--text-faint); }
+  .lv-meta { font-size: 12.5px; color: #374151; margin-top: 6px; }
+  .lv-reason {
+    font-size: 12.5px;
+    color: var(--text-soft);
+    margin-top: 5px;
+    line-height: 1.65;
+    background: #f8f9fc;
+    border-radius: 7px;
+    padding: 6px 9px;
+  }
+  .lv-time { font-size: 11px; color: var(--text-faint); margin-top: 6px; }
+  .lv-comment {
+    width: 100%;
+    margin-top: 9px;
+    height: 30px;
+    border: 1px solid var(--line);
+    border-radius: 7px;
+    padding: 0 9px;
+    font-size: 12px;
+    font-family: inherit;
+    color: var(--text);
+    outline: none;
+  }
+  .lv-comment:focus { border-color: var(--accent); }
+  .lv-actions { display: flex; gap: 8px; margin-top: 9px; }
+  .lv-actions button {
+    flex: 1;
+    height: 30px;
+    border-radius: 7px;
+    font-size: 12.5px;
+    cursor: pointer;
+    border: 1px solid var(--line);
+    background: #fff;
+    color: #374151;
+    transition: all .13s;
+  }
+  .lv-actions .ok { background: #16a34a; border-color: #16a34a; color: #fff; font-weight: 550; }
+  .lv-actions .ok:hover { filter: brightness(1.06); }
+  .lv-actions .no { color: #b91c1c; border-color: #f0c9c9; }
+  .lv-actions .no:hover { background: #fff6f6; }
+  .lv-actions button:disabled { opacity: .6; cursor: not-allowed; }
+
+  .lv-done {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 9px 2px;
+    border-bottom: 1px dashed var(--line-soft);
+    font-size: 12.5px;
+  }
+  .lv-done:last-child { border-bottom: none; }
+  .lv-done .who2 { color: #374151; font-weight: 550; }
+  .lv-done .what { color: var(--text-soft); margin-top: 2px; font-size: 11.5px; line-height: 1.6; }
+  .pill {
+    flex: 0 0 auto;
+    font-size: 11px;
+    border-radius: 999px;
+    padding: 2px 8px;
+    margin-top: 1px;
+  }
+  .pill.ok { background: #e9f8ef; color: #15803d; }
+  .pill.no { background: #fdeceb; color: #b91c1c; }
+  .pill.wait { background: #fff6e5; color: #b45309; }
+
+  .dr-empty {
+    text-align: center;
+    color: var(--text-faint);
+    font-size: 12.5px;
+    padding: 26px 10px;
+    line-height: 1.8;
+  }
+  .dr-hint {
+    font-size: 12px;
+    color: #6b5b3e;
+    background: #fff9ec;
+    border: 1px solid #f5e3bd;
+    border-radius: 10px;
+    padding: 10px 12px;
+    line-height: 1.75;
+  }
+  .teach-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+  .teach-chip {
+    border: 1px solid var(--line);
+    background: #fff;
+    border-radius: 999px;
+    padding: 6px 12px;
+    font-size: 12px;
+    color: #374151;
+    cursor: pointer;
+  }
+  .teach-chip:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-weak); }
+  .teach-chip b { color: #dc2626; font-weight: 600; }
+
+  .toast {
+    position: fixed;
+    left: 50%;
+    bottom: 32px;
+    transform: translate(-50%, 12px);
+    background: #1f2937;
+    color: #fff;
+    font-size: 12.5px;
+    padding: 9px 16px;
+    border-radius: 9px;
+    z-index: 60;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .2s, transform .2s;
+    max-width: 80vw;
+  }
+  .toast.on { opacity: 1; transform: translate(-50%, 0); }
+  .toast.err { background: #b42318; }
+
+  @media (max-width: 900px) {
+    .app { padding: 10px; gap: 10px; }
+    .side { display: none; }
+    .bubble-wrap { max-width: 88%; }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="side">
+    <div class="brand">
+      <div class="brand-logo">粤教</div>
+      <div>
+        <div class="brand-title">智能体中台</div>
+        <div class="brand-sub">Dify × FastAPI · 演示控制台</div>
+      </div>
+    </div>
+
+    <div class="agents" id="agents"></div>
+
+    <div class="side-block">
+      <p class="side-label">快捷提问</p>
+      <div class="quicks" id="quicks"></div>
+    </div>
+
+    <div class="side-foot">
+      <div><span class="dot"></span>后端 :8000 · Dify :80</div>
+      <div id="foot-user"></div>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="head">
+      <div class="head-emoji" id="head-emoji">🎓</div>
+      <div>
+        <div class="head-name" id="head-name">留学生智能管家</div>
+        <div class="head-tag" id="head-tag">正在连接…</div>
+      </div>
+      <div class="head-right">
+        <button class="ghost-btn approve-btn" id="approve-btn" hidden>
+          请假审批<i class="badge" id="approve-badge" hidden>0</i>
+        </button>
+        <a class="ghost-btn" id="admin-link" href="/admin" hidden style="text-decoration:none;line-height:1.6">数据后台</a>
+        <select id="user-select" title="模拟任意身份（仅管理员）" hidden></select>
+        <div class="me" id="me-chip" title="">
+          <span class="me-avatar" id="me-avatar">·</span>
+          <span class="me-info"><b id="me-name">未登录</b><i id="me-role">—</i></span>
+        </div>
+        <button class="ghost-btn" id="logout-btn" title="退出登录，换一个角色">退出</button>
+        <button class="ghost-btn danger" id="clear-btn">清空对话</button>
+      </div>
+    </div>
+
+    <div class="chat" id="chat"></div>
+
+    <div class="composer">
+      <div class="input-shell">
+        <textarea id="input" rows="1" placeholder="说点什么，Enter 发送，Shift + Enter 换行"></textarea>
+        <button class="send" id="send">发送</button>
+      </div>
+      <div class="hint">
+        <span>对话由 Dify 工作流编排，业务数据来自本地 FastAPI</span>
+        <span id="hint-conv"></span>
+      </div>
+    </div>
+  </main>
+</div>
+
+<div class="drawer-mask" id="drawer-mask" hidden></div>
+<aside class="drawer" id="drawer">
+  <div class="drawer-head">
+    <div>
+      <div class="drawer-title">请假审批</div>
+      <div class="drawer-sub" id="drawer-sub">正在读取…</div>
+    </div>
+    <button class="drawer-close" id="drawer-close" title="关闭">✕</button>
+  </div>
+  <div class="drawer-body" id="drawer-body"></div>
+</aside>
+
+<div class="toast" id="toast"></div>
+
+<script>
+(function () {
+  "use strict";
+
+  var TOKEN_KEY = "yj_token";
+
+  var state = {
+    agents: [],
+    agent: null,
+    userId: null,
+    user: null,      // 登录用户（角色决定可见 Agent / 数据范围 / 功能入口）
+    perms: {},
+    conversationId: "",
+    streaming: false,
+    controller: null,
+  };
+
+  function token() {
+    return localStorage.getItem(TOKEN_KEY) || "";
+  }
+
+  var el = {
+    agents: document.getElementById("agents"),
+    quicks: document.getElementById("quicks"),
+    headEmoji: document.getElementById("head-emoji"),
+    headName: document.getElementById("head-name"),
+    headTag: document.getElementById("head-tag"),
+    userSelect: document.getElementById("user-select"),
+    clearBtn: document.getElementById("clear-btn"),
+    logoutBtn: document.getElementById("logout-btn"),
+    meChip: document.getElementById("me-chip"),
+    meAvatar: document.getElementById("me-avatar"),
+    meName: document.getElementById("me-name"),
+    meRole: document.getElementById("me-role"),
+    chat: document.getElementById("chat"),
+    input: document.getElementById("input"),
+    send: document.getElementById("send"),
+    footUser: document.getElementById("foot-user"),
+    hintConv: document.getElementById("hint-conv"),
+    approveBtn: document.getElementById("approve-btn"),
+    approveBadge: document.getElementById("approve-badge"),
+    drawer: document.getElementById("drawer"),
+    drawerMask: document.getElementById("drawer-mask"),
+    drawerSub: document.getElementById("drawer-sub"),
+    drawerBody: document.getElementById("drawer-body"),
+    drawerClose: document.getElementById("drawer-close"),
+    toast: document.getElementById("toast"),
+  };
+
+  /* ---------------- 轻量 Markdown ---------------- */
+  function escapeHtml(s) {
+    return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  }
+
+  function inline(s) {
+    s = s.replace(/`([^`]+)`/g, function (_, c) { return "<code>" + c + "</code>"; });
+    s = s.replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>");
+    s = s.replace(/(^|[^*])\*([^*\n]+)\*/g, "$1<em>$2</em>");
+    s = s.replace(/\[([^\]]+)\]\((https?:[^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>');
+    return s;
+  }
+
+  function renderMarkdown(src) {
+    var lines = escapeHtml(src).split("\n");
+    var out = [];
+    var list = null; // "ul" | "ol"
+    var inCode = false;
+    var buf = [];
+
+    function closeList() {
+      if (list) { out.push("</" + list + ">"); list = null; }
+    }
+    function flushPara() {
+      if (buf.length) { out.push("<p>" + inline(buf.join(" ")) + "</p>"); buf = []; }
+    }
+
+    for (var i = 0; i < lines.length; i++) {
+      var line = lines[i];
+
+      if (/^```/.test(line.trim())) {
+        flushPara(); closeList();
+        if (inCode) { out.push("</code></pre>"); inCode = false; }
+        else { out.push("<pre><code>"); inCode = true; }
+        continue;
+      }
+      if (inCode) { out.push(line + "\n"); continue; }
+
+      if (!line.trim()) { flushPara(); closeList(); continue; }
+
+      var h = line.match(/^(#{1,6})\s+(.*)$/);
+      if (h) { flushPara(); closeList(); out.push("<h4>" + inline(h[2]) + "</h4>"); continue; }
+
+      if (/^\s*(?:[-*·•])\s+/.test(line)) {
+        flushPara();
+        if (list !== "ul") { closeList(); out.push("<ul>"); list = "ul"; }
+        out.push("<li>" + inline(line.replace(/^\s*(?:[-*·•])\s+/, "")) + "</li>");
+        continue;
+      }
+      if (/^\s*\d+[.)]\s+/.test(line)) {
+        flushPara();
+        if (list !== "ol") { closeList(); out.push("<ol>"); list = "ol"; }
+        out.push("<li>" + inline(line.replace(/^\s*\d+[.)]\s+/, "")) + "</li>");
+        continue;
+      }
+      if (/^\s*(---+|\*\*\*+)\s*$/.test(line)) { flushPara(); closeList(); out.push("<hr>"); continue; }
+
+      if (list) { closeList(); }
+      buf.push(line.trim());
+    }
+
+    flushPara(); closeList();
+    if (inCode) out.push("</code></pre>");
+    return out.join("");
+  }
+
+  /* ---------------- 渲染骨架 ---------------- */
+  function renderAgents() {
+    el.agents.innerHTML = "";
+    state.agents.forEach(function (a) {
+      var b = document.createElement("button");
+      b.className = "agent" + (state.agent && state.agent.key === a.key ? " on" : "");
+      b.innerHTML =
+        '<span class="agent-emoji">' + a.icon + "</span>" +
+        '<span class="agent-body"><span class="agent-name">' + a.name + "</span>" +
+        '<span class="agent-tag">' + a.tagline + "</span></span>";
+      b.addEventListener("click", function () { switchAgent(a.key); });
+      el.agents.appendChild(b);
+    });
+  }
+
+  function renderQuicks() {
+    el.quicks.innerHTML = "";
+    (state.agent.prompts || []).forEach(function (p) {
+      var b = document.createElement("button");
+      b.className = "quick";
+      b.textContent = p;
+      b.addEventListener("click", function () {
+        el.input.value = p;
+        autoGrow();
+        el.input.focus();
+      });
+      el.quicks.appendChild(b);
+    });
+  }
+
+  function renderUsers() {
+    var canSwitch = !!(state.perms && state.perms.switch_identity);
+    el.userSelect.hidden = !canSwitch;
+    el.userSelect.innerHTML = "";
+    state.agent.users.forEach(function (u) {
+      var o = document.createElement("option");
+      o.value = u.id;
+      o.textContent = u.label;
+      el.userSelect.appendChild(o);
+    });
+    el.userSelect.value = state.userId;
+    var u = currentUser();
+    el.footUser.innerHTML =
+      "当前身份：" + escapeHtml(u.label) +
+      "<br>角色：" + escapeHtml(state.user ? state.user.role_label : "—") +
+      (canSwitch ? "（可模拟）" : "");
+  }
+
+  function renderMe() {
+    var u = state.user;
+    if (!u) return;
+    el.meAvatar.textContent = u.initial || (u.real_name || "?").slice(0, 1);
+    el.meName.textContent = u.real_name;
+    el.meRole.textContent = u.role_label;
+    el.meChip.title = u.role_desc +
+      (u.students ? "（名下 " + u.students + " 名学生）" : "");
+  }
+
+  function currentUser() {
+    var id = Number(state.userId);
+    return state.agent.users.filter(function (u) { return u.id === id; })[0] || state.agent.users[0];
+  }
+
+  // 审批人：管理员走全校视图（用自己 id），其他人就是当前身份
+  function approverId() {
+    return state.perms.approve === "all" && state.user ? state.user.id : Number(state.userId);
+  }
+
+  function emptyState() {
+    var a = state.agent;
+    el.chat.innerHTML = "";
+    var wrap = document.createElement("div");
+    wrap.className = "empty";
+    wrap.innerHTML =
+      '<div class="empty-emoji">' + a.icon + "</div>" +
+      '<div class="empty-title">' + a.name + "</div>" +
+      '<div class="empty-text">' + a.welcome + "</div>";
+    var chips = document.createElement("div");
+    chips.className = "empty-chips";
+    a.prompts.slice(0, 4).forEach(function (p) {
+      var c = document.createElement("button");
+      c.className = "chip";
+      c.textContent = p;
+      c.addEventListener("click", function () { send(p); });
+      chips.appendChild(c);
+    });
+    wrap.appendChild(chips);
+    el.chat.appendChild(wrap);
+  }
+
+  /* ---------------- 消息节点 ---------------- */
+  function scrollBottom(force) {
+    var near = el.chat.scrollHeight - el.chat.scrollTop - el.chat.clientHeight < 160;
+    if (force || near) el.chat.scrollTop = el.chat.scrollHeight;
+  }
+
+  function addUserMsg(text) {
+    var d = document.createElement("div");
+    d.className = "msg user";
+    d.innerHTML =
+      '<div class="avatar">🙋</div>' +
+      '<div class="bubble-wrap"><div class="bubble">' + escapeHtml(text).replace(/\n/g, "<br>") + "</div></div>";
+    el.chat.appendChild(d);
+    scrollBottom(true);
+  }
+
+  function addBotMsg() {
+    var d = document.createElement("div");
+    d.className = "msg bot";
+    d.innerHTML =
+      '<div class="avatar">' + state.agent.icon + "</div>" +
+      '<div class="bubble-wrap">' +
+        '<div class="who">' + state.agent.name + "</div>" +
+        '<div class="tools" hidden></div>' +
+        '<div class="bubble"><span class="body"></span><span class="cursor"></span></div>' +
+        '<div class="meta" hidden></div>' +
+      "</div>";
+    el.chat.appendChild(d);
+    scrollBottom(true);
+    return {
+      node: d,
+      tools: d.querySelector(".tools"),
+      body: d.querySelector(".body"),
+      cursor: d.querySelector(".cursor"),
+      meta: d.querySelector(".meta"),
+      text: "",
+      toolSet: {},
+      startedAt: performance.now(),
+    };
+  }
+
+  function pushTool(ref, title) {
+    if (ref.toolSet[title]) return;
+    ref.toolSet[title] = true;
+    ref.tools.hidden = false;
+    var s = document.createElement("span");
+    s.className = "tool active";
+    s.innerHTML = '<span class="mini-dot"></span>' + escapeHtml(title);
+    ref.tools.appendChild(s);
+  }
+
+  /* 模型偶尔会自己补一行空的「查询语句：」，展示层兜底裁掉 */
+  function tidyAnswer(t) {
+    if (!t) return t;
+    var prev = null;
+    while (prev !== t) {
+      prev = t;
+      t = t.replace(/\n*[`*_\s]*查询语句\s*[：:]?[`*_\s]*$/, "");
+      t = t.replace(/\n*[`*_\s]*(SQL|查询 SQL)\s*[：:]?[`*_\s]*$/, "");
+    }
+    return t;
+  }
+
+  function finishBotMsg(ref, usage, errMsg) {
+    var clean = tidyAnswer(ref.text);
+    if (clean !== ref.text) {
+      ref.text = clean;
+      ref.body.innerHTML = renderMarkdown(ref.text);
+    }
+    ref.cursor.remove();
+    if (errMsg) {
+      var e = document.createElement("div");
+      e.className = "err";
+      e.textContent = errMsg;
+      ref.body.parentElement.appendChild(e);
+      if (!ref.text) ref.body.parentElement.style.display = "none";
+      return;
+    }
+    var secs = ((performance.now() - ref.startedAt) / 1000).toFixed(1);
+    var parts = ["耗时 " + secs + "s"];
+    if (usage && usage.total_tokens) parts.push("tokens " + usage.total_tokens);
+    var price = usage ? parseFloat(usage.total_price) : 0;
+    if (price > 0) parts.push("¥" + price.toFixed(4));
+    ref.meta.hidden = false;
+    ref.meta.textContent = parts.join(" · ");
+    Array.prototype.forEach.call(ref.tools.children, function (t) { t.classList.remove("active"); });
+  }
+
+  /* ---------------- 请假审批抽屉 ---------------- */
+  var toastTimer = null;
+
+  function toast(msg, isErr) {
+    el.toast.textContent = msg;
+    el.toast.classList.toggle("err", !!isErr);
+    el.toast.classList.add("on");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { el.toast.classList.remove("on"); }, 3600);
+  }
+
+  function apiGet(url) {
+    return fetch(url).then(function (r) {
+      return r.json().then(function (d) {
+        if (!r.ok) throw new Error((d && (d.detail || d.msg)) || ("HTTP " + r.status));
+        return d.data;
+      });
+    });
+  }
+
+  // 头像栏按钮：员工助手 + 有审批权限的角色才出现；管理员看全校待办
+  function updateApproveEntry() {
+    var perm = state.perms && state.perms.approve;
+    var onEmployee = state.agent && state.agent.key === "employee";
+    el.approveBtn.hidden = !(perm && (onEmployee || perm === "all"));
+    if (el.approveBtn.hidden) return;
+    var scope = perm === "all" ? "&scope=all" : "";
+    apiGet("/api/leave/summary?approver_id=" + approverId() + scope)
+      .then(function (d) {
+        if (d.pending > 0) {
+          el.approveBadge.hidden = false;
+          el.approveBadge.textContent = d.pending;
+          el.approveBtn.title = (perm === "all" ? "全校还有 " : "还有 ") + d.pending + " 条请假待处理";
+        } else {
+          el.approveBadge.hidden = true;
+          el.approveBtn.title = "暂无待审批的请假";
+        }
+      })
+      .catch(function () { el.approveBadge.hidden = true; });
+  }
+
+  function openDrawer() {
+    el.drawerMask.hidden = false;
+    el.drawer.classList.add("on");
+    loadApprovals();
+  }
+
+  function closeDrawer() {
+    el.drawer.classList.remove("on");
+    el.drawerMask.hidden = true;
+  }
+
+  function loadApprovals() {
+    var uid = approverId();
+    var scope = state.perms.approve === "all" ? "&scope=all" : "";
+    el.drawerBody.innerHTML = '<div class="dr-empty">正在读取…</div>';
+    Promise.all([
+      apiGet("/api/leave/summary?approver_id=" + uid + scope),
+      apiGet("/api/leave/pending?approver_id=" + uid + scope),
+      apiGet("/api/leave/handled?approver_id=" + uid + "&limit=6" + scope),
+      apiGet("/api/leave/teachers"),
+    ])
+      .then(function (res) { renderApprovals(res[0], res[1], res[2], res[3]); })
+      .catch(function (e) {
+        el.drawerSub.textContent = "读取失败";
+        el.drawerBody.innerHTML = '<div class="dr-empty">' + escapeHtml(e.message || String(e)) + "</div>";
+      });
+  }
+
+  function renderApprovals(sum, pending, handled, teachers) {
+    if (sum.is_admin_view) {
+      el.drawerSub.textContent = sum.approver_name + " · " + (sum.department || "") +
+        " · 全校 " + sum.students.length + " 名学生（可代任何班主任审批）";
+    } else if (sum.is_homeroom) {
+      el.drawerSub.textContent = sum.approver_name + " · " + (sum.department || "") +
+        " · 名下 " + sum.students.length + " 名学生";
+    } else {
+      el.drawerSub.textContent = sum.approver_name + " · 当前身份不是班主任";
+    }
+
+    var html = "";
+
+    if (!sum.is_homeroom) {
+      html += '<div class="dr-hint">这个身份名下没有学生，无法审批。切换成下面任意一位班主任再试：</div>';
+      html += '<div class="teach-chips">';
+      teachers.forEach(function (t) {
+        html += '<button class="teach-chip" data-switch="' + t.id + '">' + escapeHtml(t.name) +
+          (t.pending ? " · 待办 <b>" + t.pending + "</b>" : " · 无待办") + "</button>";
+      });
+      html += "</div>";
+      el.drawerBody.innerHTML = html;
+      return;
+    }
+
+    html += '<div class="dr-stats">' +
+      '<div class="dr-stat"><b>' + sum.pending + '</b><span>待审批</span></div>' +
+      '<div class="dr-stat"><b>' + sum.handled + '</b><span>已处理</span></div>' +
+      '<div class="dr-stat"><b>' + sum.students.length + '</b><span>' +
+        (sum.is_admin_view ? "全校学生" : "名下学生") + '</span></div>' +
+      "</div>";
+
+    html += '<p class="dr-label">待审批</p>';
+    if (!pending.length) {
+      html += '<div class="dr-empty">没有待审批的请假，<br>学生提交后会自动出现在这里。</div>';
+    } else {
+      pending.forEach(function (r) {
+        html += '<div class="lv-card">' +
+          '<div class="lv-top"><span class="lv-name">' + escapeHtml(r.student_name) + "</span>" +
+            '<span class="lv-class">' + escapeHtml(r.student_class || "") + "</span></div>" +
+          '<div class="lv-meta">' + escapeHtml(r.period_text || "") + "</div>" +
+          '<div class="lv-reason">' + escapeHtml(r.reason || "（未填写事由）") + "</div>" +
+          '<div class="lv-time">' +
+            (sum.is_admin_view ? "班主任 " + escapeHtml(r.approver_name || "—") + " · " : "") +
+            "提交于 " + escapeHtml(r.create_time_short || "—") + "</div>" +
+          '<input class="lv-comment" data-comment="' + r.id + '" placeholder="审批意见（可选，学生查询时能看到）">' +
+          '<div class="lv-actions">' +
+            '<button class="ok" data-act="ok" data-id="' + r.id + '">通过</button>' +
+            '<button class="no" data-act="no" data-id="' + r.id + '">驳回</button>' +
+          "</div></div>";
+      });
+    }
+
+    html += '<p class="dr-label">最近处理</p>';
+    if (!handled.length) {
+      html += '<div class="dr-empty">还没有处理记录。</div>';
+    } else {
+      handled.forEach(function (r) {
+        var ok = r.status === "已通过";
+        html += '<div class="lv-done">' +
+          '<span class="pill ' + (ok ? "ok" : "no") + '">' + escapeHtml(r.status) + "</span>" +
+          "<div><div class=\"who2\">" + escapeHtml(r.student_name) + " · " + escapeHtml(r.period_text || "") + "</div>" +
+          '<div class="what">' + (r.approve_time_short ? escapeHtml(r.approve_time_short) + " 处理" : "") +
+            (r.approve_comment ? " · " + escapeHtml(r.approve_comment) : "") + "</div></div></div>";
+      });
+    }
+
+    el.drawerBody.innerHTML = html;
+  }
+
+  function decide(recordId, approved, comment) {
+    Array.prototype.forEach.call(
+      el.drawerBody.querySelectorAll("button[data-act]"),
+      function (b) { b.disabled = true; }
+    );
+    fetch("/api/leave/approve", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: "Bearer " + token() },
+      body: JSON.stringify({
+        record_id: recordId,
+        approver_id: state.user ? state.user.id : Number(state.userId),
+        approved: approved,
+        comment: comment || "",
+      }),
+    })
+      .then(function (r) {
+        return r.json().then(function (d) {
+          if (!r.ok) throw new Error(d.detail || ("HTTP " + r.status));
+          return d;
+        });
+      })
+      .then(function (d) {
+        toast(d.msg + "，学生再查请假就能看到你和审批意见");
+        loadApprovals();
+        updateApproveEntry();
+      })
+      .catch(function (e) {
+        toast("审批失败：" + (e.message || e), true);
+        loadApprovals();
+      });
+  }
+
+  el.approveBtn.addEventListener("click", openDrawer);
+  el.drawerClose.addEventListener("click", closeDrawer);
+  el.drawerMask.addEventListener("click", closeDrawer);
+
+  el.drawerBody.addEventListener("click", function (ev) {
+    var sw = ev.target.closest("[data-switch]");
+    if (sw) {
+      closeDrawer();
+      el.userSelect.value = sw.getAttribute("data-switch");
+      el.userSelect.dispatchEvent(new Event("change"));
+      setTimeout(openDrawer, 260);
+      return;
+    }
+    var btn = ev.target.closest("button[data-act]");
+    if (!btn) return;
+    var card = btn.closest(".lv-card");
+    var input = card ? card.querySelector(".lv-comment") : null;
+    decide(Number(btn.getAttribute("data-id")), btn.getAttribute("data-act") === "ok", input ? input.value.trim() : "");
+  });
+
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape" && el.drawer.classList.contains("on")) closeDrawer();
+  });
+
+  /* ---------------- 发送 ---------------- */
+  function send(text) {
+    if (state.streaming) return;
+    text = (text || el.input.value).trim();
+    if (!text) return;
+
+    var empty = el.chat.querySelector(".empty");
+    if (empty) el.chat.innerHTML = "";
+
+    addUserMsg(text);
+    el.input.value = "";
+    autoGrow();
+
+    var ref = addBotMsg();
+    setStreaming(true);
+    state.controller = new AbortController();
+
+    fetch("/api/chat/stream", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        agent: state.agent.key,
+        query: text,
+        user_id: Number(state.userId),
+        conversation_id: state.conversationId || "",
+        token: token(),
+      }),
+      signal: state.controller.signal,
+    })
+      .then(function (res) {
+        if (!res.ok || !res.body) {
+          return res.text().then(function (t) {
+            throw new Error("HTTP " + res.status + " " + t.slice(0, 200));
+          });
+        }
+        var reader = res.body.getReader();
+        var decoder = new TextDecoder("utf-8");
+        var buffer = "";
+
+        function pump() {
+          return reader.read().then(function (r) {
+            if (r.done) return;
+            buffer += decoder.decode(r.value, { stream: true });
+            var idx;
+            while ((idx = buffer.indexOf("\n\n")) >= 0) {
+              handleFrame(buffer.slice(0, idx), ref);
+              buffer = buffer.slice(idx + 2);
+            }
+            return pump();
+          });
+        }
+        return pump();
+      })
+      .catch(function (e) {
+        if (e.name === "AbortError") {
+          finishBotMsg(ref, null, null);
+          ref.meta.hidden = false;
+          ref.meta.textContent = "已停止";
+        } else {
+          finishBotMsg(ref, null, e.message || String(e));
+        }
+      })
+      .finally(function () {
+        setStreaming(false);
+      });
+  }
+
+  function handleFrame(frame, ref) {
+    var evt = "", data = "";
+    frame.split("\n").forEach(function (line) {
+      if (line.indexOf("event:") === 0) evt = line.slice(6).trim();
+      else if (line.indexOf("data:") === 0) data += line.slice(5).trim();
+    });
+    if (!data) return;
+
+    var obj;
+    try { obj = JSON.parse(data); } catch (e) { return; }
+
+    if (evt === "delta") {
+      ref.text += obj.text || "";
+      ref.body.innerHTML = renderMarkdown(tidyAnswer(ref.text));
+      scrollBottom(false);
+    } else if (evt === "node") {
+      pushTool(ref, obj.title);
+    } else if (evt === "done") {
+      if (obj.conversation_id) {
+        state.conversationId = obj.conversation_id;
+        el.hintConv.textContent = "会话 " + obj.conversation_id.slice(0, 8);
+      }
+      finishBotMsg(ref, obj.usage, null);
+    } else if (evt === "error") {
+      finishBotMsg(ref, null, obj.message || "出错了");
+    }
+  }
+
+  function setStreaming(on) {
+    state.streaming = on;
+    el.send.textContent = on ? "停止" : "发送";
+    el.send.classList.toggle("stop", on);
+    el.input.disabled = on;
+  }
+
+  /* ---------------- 切换 ---------------- */
+  function switchAgent(key) {
+    if (state.streaming) return;
+    closeDrawer();
+    state.agent = state.agents.filter(function (a) { return a.key === key; })[0];
+    state.userId = state.agent.users[0].id;
+    state.conversationId = "";
+    el.hintConv.textContent = "";
+    document.documentElement.style.setProperty("--accent", state.agent.accent);
+    el.headEmoji.textContent = state.agent.icon;
+    el.headName.textContent = state.agent.name;
+    el.headTag.textContent = state.agent.tagline;
+    el.headEmoji.style.background = state.agent.accent + "18";
+    renderAgents();
+    renderQuicks();
+    renderUsers();
+    updateApproveEntry();
+    emptyState();
+    el.input.focus();
+  }
+
+  /* ---------------- 输入框 ---------------- */
+  function autoGrow() {
+    el.input.style.height = "auto";
+    el.input.style.height = Math.min(el.input.scrollHeight, 132) + "px";
+  }
+
+  el.input.addEventListener("input", autoGrow);
+  el.input.addEventListener("keydown", function (e) {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      send();
+    }
+  });
+  el.send.addEventListener("click", function () {
+    if (state.streaming) {
+      if (state.controller) state.controller.abort();
+      return;
+    }
+    send();
+  });
+  el.clearBtn.addEventListener("click", function () {
+    if (state.streaming) return;
+    state.conversationId = "";
+    el.hintConv.textContent = "";
+    emptyState();
+  });
+  el.userSelect.addEventListener("change", function () {
+    state.userId = Number(el.userSelect.value);
+    state.conversationId = "";
+    renderUsers();
+    updateApproveEntry();
+    emptyState();
+  });
+
+  el.logoutBtn.addEventListener("click", function () {
+    if (state.streaming && state.controller) state.controller.abort();
+    localStorage.removeItem(TOKEN_KEY);
+    localStorage.removeItem("yj_user");
+    fetch("/api/auth/logout", { method: "POST" }).catch(function () {});
+    location.replace("/?logout=1");
+  });
+
+  /* ---------------- 启动：先校验登录，再按角色裁剪 ---------------- */
+  function boot() {
+    if (!token()) {
+      location.replace("/?next=" + encodeURIComponent("/demo/"));
+      return;
+    }
+    fetch("/api/auth/me", { headers: { Authorization: "Bearer " + token() } })
+      .then(function (r) {
+        return r.json().then(function (d) {
+          if (!r.ok) throw new Error(d.detail || "登录已过期");
+          return d.data;
+        });
+      })
+      .then(function (user) {
+        state.user = user;
+        state.perms = user.features || {};
+        renderMe();
+        // 数据后台只对管理员开放
+        if (state.perms && state.perms.admin) {
+          var adminLink = document.getElementById("admin-link");
+          if (adminLink) adminLink.hidden = false;
+        }
+        return fetch("/api/chat/agents")
+          .then(function (r) { return r.json(); })
+          .then(function (d) {
+            var allowed = user.agents || [];
+            state.agents = (d.data || []).filter(function (a) {
+              return allowed.indexOf(a.key) >= 0;
+            });
+            if (!state.agents.length) throw new Error("当前角色没有可用的 Agent");
+            if (!state.perms.switch_identity) {
+              // 非管理员：身份锁死本人，前端不给"切成别人"的入口
+              state.agents.forEach(function (a) {
+                var mine = a.users.filter(function (u) { return u.id === user.id; })[0];
+                a.users = [mine || { id: user.id, name: user.real_name, label: user.label }];
+              });
+            }
+            switchAgent(state.agents[0].key);
+            setStreaming(false);
+          });
+      })
+      .catch(function (e) {
+        var msg = e.message || String(e);
+        if (/登录|过期|401/.test(msg)) {
+          localStorage.removeItem(TOKEN_KEY);
+          location.replace("/?logout=1");
+          return;
+        }
+        el.headTag.textContent = "连接后端失败";
+        el.chat.innerHTML =
+          '<div class="empty"><div class="empty-emoji">⚠️</div>' +
+          '<div class="empty-title">无法进入控制台</div>' +
+          '<div class="empty-text">' + escapeHtml(msg) + "</div></div>";
+      });
+  }
+
+  boot();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,17 @@
+import sys, os, time
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from cdpkit import Browser, open_page
+b = Browser()
+open_page(b, "http://127.0.0.1:8000/login?s4=1", 1280, 800)
+time.sleep(0.7); b.js("localStorage.clear()")
+open_page(b, "http://127.0.0.1:8000/login?s4=2", 1280, 800)
+time.sleep(1.0)
+b.js("document.querySelectorAll('#roleCards .role-card')[2].click()")
+time.sleep(0.3); b.js("document.getElementById('form').requestSubmit()")
+time.sleep(2.8)
+print("first:", b.js("document.querySelector('#todos .todo').innerText"))
+b.shot("side_student3.png")
+b.js("document.querySelector('#todos .todo').click()")
+time.sleep(1.8)
+print("panel:", b.js("document.getElementById('ws-title').textContent"), "|", b.js("document.getElementById('ws-sub').textContent"))
+b.shot("side_student_panel3.png")

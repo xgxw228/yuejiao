@@ -1,0 +1,21 @@
+import sys, os, time
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from cdpkit import Browser, open_page
+b = Browser()
+open_page(b, "http://127.0.0.1:8000/admin?lg=1", 1360, 860)
+time.sleep(2.0)
+b.js("localStorage.clear()")
+open_page(b, "http://127.0.0.1:8000/admin?lg=2", 1360, 860)
+time.sleep(1.0)
+# 拦截页内登录
+b.js("if(document.getElementById('bu')){document.getElementById('bu').value='admin';document.getElementById('bp').value='123456';document.getElementById('blocked-form').requestSubmit();}")
+time.sleep(2.8)
+print("url:", b.js("location.pathname"))
+print("nav items:", b.js("Array.from(document.querySelectorAll('.navrow a')).map(a=>a.textContent.trim()).join(' | ')"))
+b.js("document.getElementById('nav-logs').click()")
+time.sleep(1.8)
+print("sub:", b.js("document.getElementById('log-sub').textContent"))
+print("rows:", b.js("document.querySelectorAll('#log-box .log-row').length"))
+print("first:", b.js("(document.querySelector('#log-box .log-row')||{}).innerText"))
+print("filters:", b.js("Array.from(document.querySelectorAll('#log-filters button')).map(b=>b.textContent).join(' / ')"))
+b.shot("admin_logs.png")

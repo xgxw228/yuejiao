@@ -1,0 +1,23 @@
+import sys, os, time
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from cdpkit import Browser, open_page
+b = Browser()
+open_page(b, "http://127.0.0.1:8000/login?h=1", 1080, 680)
+time.sleep(0.8); b.js("localStorage.clear()")
+open_page(b, "http://127.0.0.1:8000/login?h=2", 1080, 680)
+time.sleep(1.0)
+b.js("document.querySelectorAll('#roleCards .role-card')[0].click()")
+time.sleep(0.3)
+b.js("document.getElementById('form').requestSubmit()")
+time.sleep(2.8)
+print("admin ->", b.js("location.pathname"))
+print("top links:", b.js("Array.from(document.querySelectorAll('.top a')).map(a=>a.textContent.trim()+':'+a.getAttribute('href')).join(' , ')"))
+print("overflowX:", b.js("document.documentElement.scrollWidth+'/'+window.innerWidth"))
+b.shot("h_admin_top.png")
+
+b.js("document.querySelector('.top a[href=\"/demo/\"]').click()")
+time.sleep(2.5)
+print("demo ->", b.js("location.pathname"))
+print("head-right:", b.js("Array.from(document.querySelectorAll('.head-right > *')).map(e=>(e.textContent||'').trim().slice(0,8)).join(' | ')"))
+print("overflowX:", b.js("document.documentElement.scrollWidth+'/'+window.innerWidth"))
+b.shot("h_demo_top.png")

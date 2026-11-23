@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<title>F 白底红工业版</title>
+<link rel="stylesheet" href="light.css" />
+<style>
+  body { background: #fff; }
+
+  /* ---- 顶栏：白底细线，左 logo 右菜单 ---- */
+  .nav {
+    height: 66px; display: flex; align-items: center; justify-content: space-between;
+    padding: 0 56px; border-bottom: 1px solid #ecedef; background: #fff;
+    position: relative; z-index: 5;
+  }
+  .nav .brand { gap: 11px; }
+  .nav .mark { width: 38px; height: 38px; border: none; background: var(--red); color: #fff; font-size: 15px; margin: 0; }
+  .nav .mark::after { border-color: rgba(255,255,255,.35); }
+  .nav .bt b { font-size: 11.5px; letter-spacing: .18em; }
+  .nav .bt span { font-size: 8px; letter-spacing: .22em; }
+  .menu { display: flex; align-items: center; gap: 30px; }
+  .menu a { font-size: 12.5px; color: #2b3240; text-decoration: none; position: relative; }
+  .menu a.on { color: var(--red); font-weight: 600; }
+  .menu a.on::after { content: ""; position: absolute; left: 0; right: 0; bottom: -24px; height: 2px; background: var(--red); }
+  .menu .sep { width: 1px; height: 12px; background: #e3e5e8; }
+
+  /* ---- 主体两栏 ---- */
+  .hero {
+    height: calc(100vh - 66px - 52px);
+    display: grid; grid-template-columns: 1fr 470px;
+  }
+  .hero-l {
+    padding: 0 56px;
+    display: flex; flex-direction: column; justify-content: center;
+    position: relative;
+  }
+  .kick {
+    display: flex; align-items: center; gap: 10px;
+    font-size: 10px; letter-spacing: .22em; color: var(--red);
+    margin-bottom: 22px; font-weight: 600;
+  }
+  .kick i { width: 26px; height: 2px; background: var(--red); display: block; }
+
+  h1 { font-size: 52px; font-weight: 800; line-height: 1.22; letter-spacing: .01em; color: #10151d; }
+  h1 .hl { color: var(--red); }
+  .desc { margin-top: 20px; font-size: 13px; line-height: 2; color: #5c6472; max-width: 470px; }
+
+  /* ---- 红色大数字统计（参考站核心特征）---- */
+  .stats { display: flex; gap: 62px; margin-top: 52px; }
+  .stat .n { font-size: 42px; font-weight: 800; color: var(--red); line-height: 1; letter-spacing: -.01em; }
+  .stat .n small { font-size: 14px; font-weight: 600; margin-left: 3px; }
+  .stat .c { margin-top: 9px; font-size: 12px; color: #8b919c; letter-spacing: .04em; }
+
+  /* ---- 右侧表单 ---- */
+  .hero-r {
+    background:
+      radial-gradient(520px 380px at 84% 6%, rgba(217,35,31,.045), transparent 62%),
+      linear-gradient(180deg, #fbfbfc 0%, #f6f7f9 100%);
+    border-left: 1px solid #ecedef;
+    padding: 0 52px;
+    display: flex; flex-direction: column; justify-content: center;
+    position: relative;
+  }
+  .hero-r::before { content: ""; position: absolute; top: 0; left: 52px; width: 44px; height: 3px; background: var(--red); }
+  .form-title { font-size: 21px; font-weight: 700; letter-spacing: .04em; }
+  .form-sub { margin-top: 7px; font-size: 11.5px; color: #8b919c; }
+  .form-title .r { color: var(--red); }
+  .btn { background: var(--red); }
+  .btn:hover { background: var(--red-deep); }
+  .role.on { background: #fdf0ef; box-shadow: inset 0 0 0 1px var(--red); }
+  .role.on b { color: var(--red-deep); }
+  .field input:focus { border-bottom-color: var(--red); }
+
+  .foot2 {
+    height: 52px; display: flex; align-items: center; justify-content: space-between;
+    padding: 0 56px; border-top: 1px solid #ecedef;
+    font-size: 11px; color: #9aa0aa;
+  }
+  .foot2 .lks { display: flex; gap: 22px; }
+</style>
+</head>
+<body>
+
+<header class="nav">
+  <div class="brand">
+    <div class="mark">粤</div>
+    <div class="bt"><b>粤教服务</b><span>YUEJIAO SERVICE</span></div>
+  </div>
+  <nav class="menu">
+    <a class="on">首页</a>
+    <a>留学项目</a>
+    <a>课程与关怀</a>
+    <a>客户跟进</a>
+    <a>数据看板</a>
+    <span class="sep"></span>
+    <a>中文 / CN</a>
+  </nav>
+</header>
+
+<main class="hero">
+  <section class="hero-l">
+    <div class="kick"><i></i>STUDY ABROAD · 智能服务中台</div>
+    <h1>让每一份留学规划<br />都有<span class="hl">数据支撑</span></h1>
+    <p class="desc">学生问政策、顾问查客户、班主任盯成绩、管理员看全局——三类智能体，五级身份，一套对话入口全部打通。</p>
+
+    <div class="stats">
+      <div class="stat"><div class="n">1,286<small>人</small></div><div class="c">在服学生</div></div>
+      <div class="stat"><div class="n">47<small>所</small></div><div class="c">合作院校</div></div>
+      <div class="stat"><div class="n">42<small>秒</small></div><div class="c">顾问平均响应</div></div>
+      <div class="stat"><div class="n">3<small>类</small></div><div class="c">在线智能体</div></div>
+    </div>
+  </section>
+
+  <aside class="hero-r">
+    <div class="form-title">账号登录<span class="r">.</span></div>
+    <div class="form-sub">演示环境，密码统一 123456</div>
+
+    <div class="field"><label class="mono">用户名 / USERNAME</label><input value="emp001" /></div>
+    <div class="field"><label class="mono">密码 / PASSWORD</label><input type="password" value="123456" /></div>
+    <button class="btn mono">登录</button>
+    <button class="ghost mono">免登录先看看</button>
+
+    <div class="roles">
+      <div class="role on"><b>班主任</b><span class="mono">EMP001</span></div>
+      <div class="role"><b>员工</b><span class="mono">EMP002</span></div>
+      <div class="role"><b>留学生</b><span class="mono">STU001</span></div>
+      <div class="role"><b>管理员</b><span class="mono">ADMIN</span></div>
+    </div>
+    <div class="fine mono"><span>家长账号可注册</span><span>V 1.2</span></div>
+  </aside>
+</main>
+
+<footer class="foot2 mono">
+  <span>粤教服务 · STUDY ABROAD SERVICE © 2026</span>
+  <span class="lks"><span>隐私条款</span><span>使用说明</span><span>联系顾问</span></span>
+</footer>
+</body>
+</html>

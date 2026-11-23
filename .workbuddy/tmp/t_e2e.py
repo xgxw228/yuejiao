@@ -1,0 +1,31 @@
+import sys, os, time
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from cdpkit import Browser, open_page
+b = Browser()
+# 1) 客服留资
+open_page(b, "http://127.0.0.1:8000/login?e2e=1", 1100, 720)
+time.sleep(0.8); b.js("localStorage.clear()")
+open_page(b, "http://127.0.0.1:8000/login?e2e=2", 1100, 720)
+time.sleep(1.0)
+print("cards:", b.js("document.querySelectorAll('.role-card').length"))
+b.js("document.getElementById('csFab').click()")
+time.sleep(0.3)
+b.js("document.getElementById('csInput').value='我是李女士，电话13712340001，想了解香港升学'; document.getElementById('csForm').requestSubmit();")
+time.sleep(2.5)
+print("cs reply:", b.js("document.querySelector('#csBody .cs-msg:last-child').textContent.slice(0,80)"))
+
+# 2) 顾问登录，中台查线索
+b.js("localStorage.clear()")
+open_page(b, "http://127.0.0.1:8000/login?e2e=3", 1180, 760)
+time.sleep(1.0)
+b.js("document.querySelectorAll('#roleCards .role-card')[3].click()")
+time.sleep(0.3)
+print("picked:", b.js("document.getElementById('username').value"))
+b.js("document.getElementById('form').requestSubmit()")
+time.sleep(3.0)
+print("path:", b.js("location.pathname"))
+print("agent chip:", b.js("document.getElementById('me-role').textContent"))
+b.js("document.getElementById('input').value='李女士这个线索现在谁跟进，进度如何'; document.getElementById('send').click();")
+time.sleep(14)
+print("answer:", b.js("(document.querySelectorAll('.msg .bubble')[document.querySelectorAll('.msg .bubble').length-1]||{}).textContent.slice(0,160)"))
+b.shot("consultant_query.png")

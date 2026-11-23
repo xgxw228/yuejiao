@@ -1,0 +1,51 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8">
+<title>数据后台 · 卡片仪表盘（SaaS）</title><style>
+:root{--bg:#f1f4f9;--top:#fff;--panel:#fff;--tx:#1c2740;--mut:#8a93a6;--bd:#e7ebf2;--ac:#5b6ef5;--onac:#fff;--soft:#eef0ff;--hover:#f7f8ff;--input:#f5f7fb;--th:#fafbfe;--rowbd:#f0f2f7;--pilln:#f0f2f7;--pillnc:#5d6779;--pillw:#fff4e2;--pillwc:#b97400;--pillo:#e9f8f0;--pilloc:#1a8a50;--pillb:#fdecec;--pillbc:#c23b3b}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;font-size:13px;-webkit-font-smoothing:antialiased}
+.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+.top{height:64px;display:flex;align-items:center;gap:14px;padding:0 26px;background:var(--top);border-bottom:1px solid var(--bd);position:sticky;top:0;z-index:5}
+.logo{width:30px;height:30px;background:var(--ac);color:var(--onac);display:grid;place-items:center;font-weight:800;border-radius:12}.top h1{font-size:15px;margin:0;font-weight:700;letter-spacing:.3px}
+.tag{font-size:10px;padding:3px 9px;background:var(--soft);color:var(--ac);border-radius:12;font-family:ui-monospace,monospace;letter-spacing:.1em}
+.spacer{flex:1}.who{font-size:12px;color:var(--mut)}.top a,.top button{font:inherit;font-size:12px;color:var(--mut);border:1px solid var(--bd);background:var(--panel);padding:6px 13px;border-radius:12;text-decoration:none;cursor:pointer}
+.wrap{display:grid;grid-template-columns:236px 1fr;gap:16px;padding:16px 22px;align-items:start}
+.side{background:var(--panel);border:1px solid var(--bd);border-radius:12;padding:10px;position:sticky;top:80px}
+.side .st{font-family:ui-monospace,monospace;font-size:10px;letter-spacing:.16em;color:var(--mut);padding:8px 10px 10px}
+.side button{width:100%;display:flex;align-items:center;gap:10px;font:inherit;text-align:left;border:0;background:transparent;padding:10 10px;border-radius:12;color:var(--tx);cursor:pointer}
+.side button:hover{background:var(--hover)}.side button.on{background:var(--soft);color:var(--ac);font-weight:700}
+.side .ic{width:16px;text-align:center;font-size:13px;opacity:.8}.side .lb{flex:1}.side .n{font-family:ui-monospace,monospace;font-size:11px;color:var(--mut)}
+.side button.on .n{color:var(--ac)}
+.main{min-width:0;background:var(--panel);border:1px solid var(--bd);border-radius:12;overflow:hidden}
+.ovs{display:grid;grid-template-columns:repeat(4,1fr);border-bottom:1px solid var(--bd)}
+.ov{padding:20 22px;border-right:1px solid var(--bd)}.ov:last-child{border-right:0}
+.ovv{font-family:ui-monospace,monospace;font-size:34px;font-weight:700;line-height:1;color:var(--ac);letter-spacing:-.03em}
+.ovk{font-size:12px;color:var(--tx);margin-top:9px;font-weight:600}
+.ove{font-family:ui-monospace,monospace;font-size:9px;letter-spacing:.15em;color:var(--mut);margin-top:5px}
+.head{display:flex;align-items:center;gap:12px;padding:13px 18px;border-bottom:1px solid var(--bd)}
+.head h2{font-size:15px;margin:0;font-weight:700}.head .count{font-size:11px;color:var(--mut)}
+.search{display:flex;align-items:center;gap:8px;border:1px solid var(--bd);background:var(--input);border-radius:12;padding:0 11px;height:32px}
+.search input{border:0;background:transparent;outline:0;font:inherit;width:190px;color:var(--tx)}.search button{border:0;background:transparent;color:var(--mut);font:inherit;cursor:pointer}
+.tb{overflow:auto;max-height:520px}table{width:100%;border-collapse:collapse;font-size:12.5px}
+thead th{position:sticky;top:0;background:var(--th);z-index:1;text-align:left;font-weight:600;color:var(--mut);padding:10px 14px;border-bottom:1px solid var(--bd);white-space:nowrap;font-family:ui-monospace,monospace;font-size:10px;letter-spacing:.08em}
+tbody td{padding:10px 14px;border-bottom:1px solid var(--rowbd);vertical-align:middle}
+tbody tr:hover{background:var(--hover)}td.id{font-family:ui-monospace,monospace;color:var(--mut)}td.nm{font-weight:700}
+td.txt{max-width:230px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--tx)}td.dim{color:var(--mut)}
+.pill{display:inline-block;padding:2px 9px;font-size:11px;border-radius:999;background:var(--pilln);color:var(--pillnc);white-space:nowrap}
+.pill.w{background:var(--pillw);color:var(--pillwc)}.pill.o{background:var(--pillo);color:var(--pilloc)}.pill.b{background:var(--pillb);color:var(--pillbc)}
+.pager{display:flex;align-items:center;gap:10px;padding:12px 18px;border-top:1px solid var(--bd);font-size:11px;color:var(--mut)}
+.pager button{font:inherit;font-size:12px;padding:5px 13px;border:1px solid var(--bd);background:var(--panel);color:var(--tx);border-radius:12;cursor:pointer}
+.crumb{font-family:ui-monospace,monospace;font-size:10px;letter-spacing:.14em;color:var(--mut);padding:0 0 0 2px}
+.main{border-radius:14px}.ovs{gap:0}.ov{margin:14px 0;border-right:1px solid var(--bd)}.ovv{color:#2b3550}
+</style></head><body>
+<div class="top"><div class="logo">粤</div><h1>粤教服务 · 数据后台</h1><span class="tag">READ ONLY</span>
+<div class="spacer"></div><span class="who">管理员 · 系统运维</span><a href="#">返回工作台</a><button>退出</button></div>
+<div class="wrap">
+<aside class="side"><div class="st">DATA TABLES / 数据表</div><button class="on"><span class="ic">◎</span><span class="lb">客户线索</span><span class="n">12</span></button><button class=""><span class="ic">◇</span><span class="lb">用户账号</span><span class="n">15</span></button><button class=""><span class="ic">▣</span><span class="lb">行政服务</span><span class="n">14</span></button><button class=""><span class="ic">◈</span><span class="lb">心理画像</span><span class="n">2</span></button><button class=""><span class="ic">△</span><span class="lb">心理预警</span><span class="n">4</span></button><button class=""><span class="ic">✉</span><span class="lb">反馈工单</span><span class="n">5</span></button><button class=""><span class="ic">▤</span><span class="lb">员工日报</span><span class="n">8</span></button><button class=""><span class="ic">▥</span><span class="lb">学生成绩</span><span class="n">27</span></button><button class=""><span class="ic">▦</span><span class="lb">课程项目</span><span class="n">8</span></button><button class=""><span class="ic">◉</span><span class="lb">讲座活动</span><span class="n">6</span></button><button class=""><span class="ic">⊕</span><span class="lb">活动报名</span><span class="n">7</span></button><button class=""><span class="ic">≡</span><span class="lb">对话记录</span><span class="n">73</span></button></aside>
+<section class="main">
+<div class="ovs"><div class="ov"><div class="ovv">12</div><div class="ovk">在跟线索</div><div class="ove">LEADS</div></div><div class="ov"><div class="ovv">7</div><div class="ovk">待审批假条</div><div class="ove">PENDING</div></div><div class="ov"><div class="ovv">4</div><div class="ovk">未处理预警</div><div class="ove">ALERTS</div></div><div class="ov"><div class="ovv">73</div><div class="ovk">今日对话</div><div class="ove">CHATS</div></div></div>
+<div class="head"><div><div class="crumb">TABLE / 01</div><h2>客户线索</h2></div><span class="count">共 12 行</span>
+<div class="spacer"></div><form class="search"><input placeholder="关键字，逗号分隔多个词"><button>搜索</button></form></div>
+<div class="tb"><table><thead><tr><th>ID</th><th>客户姓名</th><th>联系方式</th><th>背景信息</th><th>跟进记录</th><th>状态</th><th>负责人</th><th>创建时间</th></tr></thead>
+<tbody><tr><td class="id">1</td><td class="nm">许明</td><td class="mono">13800000002</td><td class="txt">19 岁，高中刚毕业，家长陪同咨询，意向新加坡本科</td><td class="txt dim">回访：确认 12 月面谈</td><td><span class="pill w">跟进中</span></td><td class="mono dim">3</td><td class="mono dim">2026-11-18 08:11</td></tr><tr><td class="id">2</td><td class="nm">陈嘉怡</td><td class="mono">13700000003</td><td class="txt">22 岁，大专毕业，想快速拿本科学历</td><td class="txt dim">2026-11-12 线上咨询专升本项目</td><td><span class="pill n">新增意向</span></td><td class="mono dim">3</td><td class="mono dim">2026-11-18 08:11</td></tr><tr><td class="id">3</td><td class="nm">刘一鸣</td><td class="mono">13600000004</td><td class="txt">17 岁，中职机电专业，德语零基础，家庭希望尽快就业</td><td class="txt dim">2026-11-08 展会留资</td><td><span class="pill n">新增意向</span></td><td class="mono dim">3</td><td class="mono dim">2026-11-18 08:11</td></tr><tr><td class="id">4</td><td class="nm">黄伟</td><td class="mono">13400000008</td><td class="txt">20 岁，高中毕业两年，在汽修厂工作，想出国就业</td><td class="txt dim">2026-11-02 抖音私信；11-05 电话沟通德国双元制</td><td><span class="pill w">跟进中</span></td><td class="mono dim">9</td><td class="mono dim">2026-11-18 08:11</td></tr><tr><td class="id">5</td><td class="nm">梁诗敏</td><td class="mono">13400000009</td><td class="txt">24 岁，本科毕业，想一年制升硕，家长关注学历认证</td><td class="txt dim">2026-11-01 官网表单留资；11-06 到访，意向新加坡</td><td><span class="pill w">跟进中</span></td><td class="mono dim">9</td><td class="mono dim">2026-11-18 08:11</td></tr><tr><td class="id">6</td><td class="nm">郑浩然</td><td class="mono">13400000010</td><td class="txt">18 岁，高三在读，成绩中等，考虑 2+2 国际本科</td><td class="txt dim">2026-10-28 学校宣讲会留资；11-03 家长电话咨询</td><td><span class="pill w">跟进中</span></td><td class="mono dim">3</td><td class="mono dim">2026-11-18 08:11</td></tr><tr><td class="id">7</td><td class="nm">苏婉</td><td class="mono">13400000011</td><td class="txt">21 岁，专科在读大三，计划专升本后出国</td><td class="txt dim">2026-10-20 线上咨询；11-10 已签约一年制专升本</td><td><span class="pill o">已签约</span></td><td class="mono dim">9</td><td class="mono dim">2026-11-18 08:11</td></tr></tbody></table></div>
+<div class="pager"><span>第 1 / 1 页 · 每页 20 行</span><div class="spacer"></div><button>上一页</button><button>下一页</button></div>
+</section></div></body></html>

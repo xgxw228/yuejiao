@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate" />
+<meta http-equiv="Pragma" content="no-cache" />
+<meta http-equiv="Expires" content="0" />
+<title>粤教服务 · 留学服务智能助手</title>
+<style>
+  :root {
+    --ink: #0d1520;
+    --blue: #2563eb;
+    --blue-dark: #1d4ed8;
+    --red: #e5484d;
+    --mono: ui-monospace, "SF Mono", Consolas, "Courier New", monospace;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body {
+    background: #0b1119;
+    color: #fff;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+      "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+    -webkit-font-smoothing: antialiased;
+    overflow: hidden;
+  }
+  button, input { font-family: inherit; }
+  button { cursor: pointer; }
+
+  /* ============ 全屏视频轮播 ============ */
+  .stage { position: fixed; inset: 0; overflow: hidden; background: #0b1119; }
+  .slide {
+    position: absolute; inset: 0;
+    opacity: 0;
+    transition: opacity 1.05s cubic-bezier(.4,0,.2,1);
+  }
+  .slide.on { opacity: 1; }
+  .slide video {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  /* 底部重、右侧轻，保证左侧大字与右上角按钮都清楚 */
+  .stage::after {
+    content: ""; position: absolute; inset: 0;
+    pointer-events: none;
+    background:
+      linear-gradient(0deg, rgba(6,11,18,.86) 0%, rgba(6,11,18,.34) 34%, rgba(6,11,18,.06) 62%),
+      linear-gradient(90deg, rgba(6,11,18,.62) 0%, rgba(6,11,18,.1) 46%, rgba(6,11,18,.22) 100%);
+  }
+
+  /* ============ 顶部栏 ============ */
+  .topbar {
+    position: fixed; top: 0; left: 0; right: 0;
+    z-index: 30;
+    height: 84px;
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 20px;
+    padding: 0 56px;
+  }
+  .brand { display: flex; align-items: center; gap: 12px; text-decoration: none; color: #fff; }
+  .mark {
+    width: 38px; height: 38px;
+    border: 1px solid rgba(255,255,255,.8);
+    display: grid; place-items: center;
+    font-size: 17px; font-weight: 700;
+    position: relative; flex: 0 0 auto;
+  }
+  .mark::after { content: ""; position: absolute; inset: 3px; border: 1px solid rgba(255,255,255,.22); }
+  .bt b { display: block; font-size: 15px; font-weight: 700; letter-spacing: .08em; }
+  .bt span {
+    display: block; margin-top: 3px;
+    font-family: var(--mono); font-size: 8px;
+    letter-spacing: .2em; color: rgba(255,255,255,.55);
+  }
+  .top-right { display: flex; align-items: center; gap: 12px; }
+  .status {
+    display: flex; align-items: center; gap: 7px;
+    font-family: var(--mono); font-size: 8.5px;
+    letter-spacing: .16em; color: rgba(255,255,255,.62);
+  }
+  .dot { width: 5px; height: 5px; background: #6ee7a8; display: inline-block; }
+  .login-btn {
+    height: 40px; padding: 0 20px;
+    border: 1px solid rgba(255,255,255,.5);
+    background: rgba(255,255,255,.1);
+    -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
+    color: #fff;
+    font-size: 12.5px; letter-spacing: .16em;
+    display: inline-flex; align-items: center; gap: 9px;
+    text-decoration: none;
+    transition: background .18s, border-color .18s, transform .1s;
+  }
+  .login-btn:hover { background: #fff; color: var(--ink); border-color: #fff; }
+  .login-btn:active { transform: translateY(1px); }
+  /* 管理员登录态下才出现的后台入口 */
+  .admin-entry {
+    display: none;
+    text-decoration: none;
+    border-color: rgba(255,255,255,.5);
+    background: #fff; color: var(--ink);
+  }
+  .admin-entry.on { display: inline-flex; }
+  .admin-entry:hover { background: rgba(255,255,255,.86); color: var(--ink); }
+  .admin-entry .ad-mini { display: none; }
+
+  /* ============ 主文案 ============ */
+  .hero-copy {
+    position: absolute; z-index: 10;
+    left: 56px; bottom: 110px;
+    max-width: 720px;
+  }
+  .kicker {
+    display: flex; align-items: center; gap: 11px;
+    font-family: var(--mono); font-size: 9px;
+    letter-spacing: .26em; color: rgba(255,255,255,.78);
+    margin-bottom: 22px;
+  }
+  .kicker .num { background: #fff; color: var(--ink); padding: 3px 7px; letter-spacing: .1em; }
+  .kicker i { display: block; width: 72px; height: 1px; background: rgba(255,255,255,.45); }
+  h1 {
+    margin: 0;
+    font-size: clamp(38px, 5.1vw, 78px);
+    font-weight: 800; line-height: 1.05;
+    letter-spacing: -.03em;
+  }
+  h1 .hl { color: #8fb2ff; }
+  .lead {
+    margin: 24px 0 0;
+    font-size: 14px; line-height: 1.9;
+    color: rgba(255,255,255,.78);
+    max-width: 480px;
+  }
+  .facts {
+    display: flex; gap: 34px; flex-wrap: wrap;
+    margin-top: 32px; padding-top: 24px;
+    border-top: 1px solid rgba(255,255,255,.22);
+  }
+  .fact .v { font-size: 22px; font-weight: 700; font-variant-numeric: tabular-nums; }
+  .fact .v small { font-size: 12px; font-weight: 500; color: rgba(255,255,255,.7); margin-left: 4px; }
+  .fact .k {
+    display: block; margin-top: 5px;
+    font-family: var(--mono); font-size: 8px;
+    letter-spacing: .18em; color: rgba(255,255,255,.55);
+  }
+
+  /* ============ 轮播控制 ============ */
+  .controls {
+    position: absolute; z-index: 20;
+    right: 56px; bottom: 52px;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .dots { display: flex; align-items: center; gap: 8px; }
+  .dot-btn {
+    position: relative;
+    width: 34px; height: 22px;
+    padding: 0; border: none; background: transparent;
+  }
+  .dot-btn::before {
+    content: ""; position: absolute; left: 0; right: 0; top: 10px;
+    height: 2px; background: rgba(255,255,255,.35);
+  }
+  .dot-btn i {
+    position: absolute; left: 0; top: 10px; height: 2px;
+    width: 0; background: #fff; display: block;
+  }
+  .dot-btn.on i { animation: fill 5s linear forwards; }
+  .dot-btn.done i { width: 100%; }
+  @keyframes fill { from { width: 0 } to { width: 100% } }
+  .icon-btn {
+    width: 34px; height: 34px;
+    border: 1px solid rgba(255,255,255,.35);
+    background: rgba(10,16,24,.28);
+    color: #fff;
+    display: grid; place-items: center;
+    transition: background .16s, border-color .16s;
+  }
+  .icon-btn:hover { background: rgba(255,255,255,.16); border-color: rgba(255,255,255,.7); }
+  .slide-count {
+    font-family: var(--mono); font-size: 9px;
+    letter-spacing: .18em; color: rgba(255,255,255,.72);
+    min-width: 52px; text-align: right;
+  }
+  .hint {
+    position: absolute; z-index: 20;
+    left: 56px; bottom: 44px;
+    font-family: var(--mono); font-size: 8.5px;
+    letter-spacing: .2em; color: rgba(255,255,255,.5);
+    display: flex; align-items: center; gap: 9px;
+  }
+  .hint i { display: block; width: 28px; height: 1px; background: rgba(255,255,255,.42); }
+
+  /* ============ 登录弹窗 ============ */
+  .modal {
+    position: fixed; inset: 0; z-index: 100;
+    display: none;
+    align-items: center; justify-content: center;
+    padding: 24px;
+    background: rgba(6, 11, 18, .66);
+    -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
+  }
+  .modal.open { display: flex; animation: fade .22s ease; }
+  @keyframes fade { from { opacity: 0 } to { opacity: 1 } }
+  .dialog {
+    width: min(460px, 100%);
+    max-height: calc(100vh - 48px);
+    overflow-y: auto;
+    background: #fff; color: var(--ink);
+    border: 1px solid rgba(13,21,32,.16);
+    box-shadow: 0 40px 100px rgba(0,0,0,.36);
+    padding: 26px 30px 24px;
+    position: relative;
+    animation: rise .3s cubic-bezier(.16,1,.3,1);
+  }
+  @keyframes rise { from { opacity: 0; transform: translateY(18px) } to { opacity: 1; transform: none } }
+  .dialog-head {
+    display: flex; justify-content: space-between; align-items: baseline;
+    font-family: var(--mono); font-size: 9px;
+    letter-spacing: .22em; color: rgba(13,21,32,.4);
+    padding-bottom: 11px; border-bottom: 1px solid rgba(13,21,32,.13);
+  }
+  .dialog-head b { color: var(--blue); font-weight: 400; letter-spacing: .06em; }
+  .close {
+    position: absolute; top: 16px; right: 18px;
+    width: 28px; height: 28px;
+    border: none; background: transparent;
+    color: rgba(13,21,32,.45); font-size: 19px; line-height: 1;
+  }
+  .close:hover { color: var(--ink); }
+  .dialog h2 { margin: 20px 0 0; font-size: 20px; font-weight: 700; letter-spacing: .01em; }
+  .dialog .sub { margin: 8px 0 0; font-size: 11.5px; color: rgba(13,21,32,.55); }
+
+  .field { margin-top: 16px; }
+  .field label {
+    display: block;
+    font-family: var(--mono); font-size: 9px;
+    letter-spacing: .2em; color: rgba(13,21,32,.4); margin-bottom: 5px;
+  }
+  .field-row {
+    display: flex; align-items: center; gap: 8px;
+    border-bottom: 1px solid rgba(13,21,32,.13);
+    transition: border-color .16s;
+  }
+  .field-row:focus-within { border-bottom-color: var(--ink); }
+  .field input {
+    flex: 1; min-width: 0; height: 34px;
+    border: none; background: transparent; outline: none;
+    font-size: 13px; color: var(--ink); letter-spacing: .02em;
+  }
+  .field input::placeholder { color: rgba(13,21,32,.3); }
+  .field.err label { color: var(--red); }
+  .field.err .field-row { border-bottom-color: var(--red); }
+  .eye {
+    flex: 0 0 auto; border: none; background: none; padding: 3px;
+    color: rgba(13,21,32,.3); display: grid; place-items: center;
+  }
+  .btn {
+    width: 100%; height: 44px; margin-top: 20px;
+    border: none; background: var(--blue); color: #fff;
+    font-size: 12px; font-weight: 700; letter-spacing: .24em;
+    transition: background .16s, transform .1s;
+  }
+  .btn:hover { background: var(--blue-dark); }
+  .btn:active { transform: translateY(1px); }
+  .btn:disabled { background: #b9cbef; cursor: not-allowed; }
+  .ghost {
+    width: 100%; height: 36px; margin-top: 8px;
+    background: transparent; border: 1px solid rgba(13,21,32,.18);
+    color: rgba(13,21,32,.62);
+    font-family: var(--mono); font-size: 9.5px; letter-spacing: .2em;
+  }
+  .ghost:hover { border-color: var(--ink); color: var(--ink); }
+  .msg { min-height: 16px; margin-top: 8px; font-size: 11.5px; color: var(--red); }
+  .msg.ok { color: #0f7b45; }
+  .divider {
+    display: flex; align-items: center; gap: 10px;
+    margin: 8px 0 9px;
+    font-family: var(--mono); font-size: 8.5px;
+    letter-spacing: .18em; color: rgba(13,21,32,.4);
+  }
+  .divider::before, .divider::after { content: ""; flex: 1; height: 1px; background: rgba(13,21,32,.09); }
+  .roles { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: rgba(13,21,32,.07);
+           border: 1px solid rgba(13,21,32,.07); }
+  .role-card {
+    display: block; width: 100%; padding: 8px 10px;
+    border: none; background: #fff; text-align: left;
+    transition: background .14s, box-shadow .14s;
+  }
+  .role-card:hover { background: #f5f8ff; }
+  .role-card.wide { grid-column: span 2; }
+  .role-card.on { background: #eef3ff; box-shadow: inset 0 0 0 1px var(--blue); }
+  .role-icon { display: none; }
+  .role-name { font-size: 11.5px; font-weight: 600; }
+  .role-desc { display: block; margin-top: 3px; font-size: 9.5px; color: rgba(13,21,32,.4);
+               white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .fine {
+    display: flex; justify-content: space-between; gap: 10px;
+    margin-top: 14px; font-size: 10px; color: rgba(13,21,32,.4);
+  }
+  .fine a { color: var(--blue); text-decoration: none; cursor: pointer; }
+  .toast {
+    position: fixed; left: 50%; bottom: 34px; transform: translate(-50%, 12px);
+    background: var(--ink); color: #fff; font-size: 12px;
+    padding: 10px 18px; opacity: 0; pointer-events: none;
+    transition: opacity .2s, transform .2s; max-width: 84vw; z-index: 150;
+  }
+  .toast.on { opacity: 1; transform: translate(-50%, 0); }
+  .shake { animation: shake .32s; }
+  @keyframes shake { 25%{transform:translateX(-4px)} 50%{transform:translateX(4px)} 75%{transform:translateX(-2px)} }
+
+  /* ============ 响应式 ============ */
+  @media (max-width: 900px) {
+    .topbar { height: 68px; padding: 0 22px; }
+    .status { display: none; }
+    .hero-copy { left: 22px; right: 22px; bottom: 128px; }
+    h1 { font-size: clamp(32px, 8vw, 52px); }
+    .lead { font-size: 12.5px; }
+    .facts { gap: 22px; }
+    .fact .v { font-size: 18px; }
+    .controls { right: 22px; bottom: 42px; }
+    .hint { left: 22px; bottom: 48px; }
+    .dialog { padding: 22px 20px 20px; }
+  }
+  @media (max-width: 560px) {
+    .bt span { display: none; }
+    .brand { gap: 9px; }
+    .bt b { white-space: nowrap; }
+    .login-btn { height: 36px; padding: 0 12px; font-size: 11.5px; white-space: nowrap; letter-spacing: .1em; }
+    .admin-entry .ad-full { display: none; }
+    .admin-entry .ad-mini { display: inline; }
+    .hero-copy { bottom: 134px; }
+    .facts { gap: 16px 24px; }
+    .hint { display: none; }
+    .controls { left: 22px; right: 22px; justify-content: flex-end; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .slide { transition: none; }
+    .dot-btn.on i { animation: none; width: 100%; }
+  }
+</style>
+</head>
+<body>
+
+<!-- 视频轮播舞台 -->
+<div class="stage" id="stage">
+  <div class="slide on" data-i="0"><video src="assets/video/campus-walk.mp4" muted playsinline preload="auto"></video></div>
+  <div class="slide" data-i="1"><video src="assets/video/lawn-students.mp4" muted playsinline preload="metadata"></video></div>
+  <div class="slide" data-i="2"><video src="assets/video/study-group.mp4" muted playsinline preload="metadata"></video></div>
+  <div class="slide" data-i="3"><video src="assets/video/campus-lawn.mp4" muted playsinline preload="metadata"></video></div>
+</div>
+
+<!-- 顶栏：右上角登录小按钮 -->
+<header class="topbar">
+  <a class="brand" href="/portal" aria-label="粤教服务首页">
+    <span class="mark">粤</span>
+    <span class="bt"><b>粤教服务</b><span>YUEJIAO SERVICE · STUDY ABROAD OS</span></span>
+  </a>
+  <div class="top-right">
+    <span class="status"><i class="dot"></i>SYSTEM ONLINE</span>
+    <a class="login-btn admin-entry" id="adminEntry" href="/admin"><span class="ad-full">数据后台 / ADMIN</span><span class="ad-mini">后台</span></a>
+    <a class="login-btn" id="loginLink" href="/login">
+      <svg width="13" height="13" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+        <path d="M6 2H3.5A1.5 1.5 0 0 0 2 3.5v9A1.5 1.5 0 0 0 3.5 14H6M10 11l3-3-3-3m-4 3h7"
+          stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      登录 / LOGIN
+    </a>
+  </div>
+</header>
+
+<!-- 主文案 -->
+<div class="hero-copy">
+  <div class="kicker"><span class="num">01</span><span>STUDY ABROAD SERVICE</span><i></i></div>
+  <h1>每一个留学的<br /><span class="hl">决定</span>，都有依据</h1>
+  <p class="lead">留学规划、课程与关怀、客户跟进，收进同一个对话入口。<br />学生问政策，顾问查数据，班主任盯成绩，管理员看全局。</p>
+  <div class="facts">
+    <div class="fact"><div class="v">1,286<small>人</small></div><span class="k">STUDENTS · 在服学生</span></div>
+    <div class="fact"><div class="v">47<small>所</small></div><span class="k">PARTNERS · 合作院校</span></div>
+    <div class="fact"><div class="v">3<small>类</small></div><span class="k">AGENTS · 智能体</span></div>
+  </div>
+</div>
+
+<!-- 轮播控制 -->
+<div class="hint"><span>SCROLL / 视频轮播</span><i></i></div>
+<div class="controls">
+  <div class="dots" id="dots"></div>
+  <span class="slide-count" id="count">01 / 04</span>
+  <button class="icon-btn" id="prev" type="button" title="上一个" aria-label="上一个视频">
+    <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><path d="M10 3 5 8l5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  </button>
+  <button class="icon-btn" id="toggle" type="button" title="暂停/播放" aria-label="暂停或播放">
+    <svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor" id="toggleIcon"><path d="M4 2h3v12H4zm5 0h3v12H9z"/></svg>
+  </button>
+  <button class="icon-btn" id="next" type="button" title="下一个" aria-label="下一个视频">
+    <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><path d="m6 3 5 5-5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  </button>
+</div>
+
+<!-- 登录弹窗 -->
+<div class="modal" id="modal" role="dialog" aria-modal="true" aria-label="账号登录">
+  <div class="dialog" id="dialog">
+    <button class="close" id="closeLogin" type="button" aria-label="关闭">×</button>
+    <div class="dialog-head"><span>ACCOUNT ACCESS</span><b>／ 账号登录</b></div>
+    <h2>进入粤教服务</h2>
+    <p class="sub">使用演示账号登录，或用游客身份先体验公开咨询。</p>
+
+    <form id="form" autocomplete="on">
+      <div class="field" id="user-wrap">
+        <label for="username">USERNAME · 用户名</label>
+        <div class="field-row"><input id="username" name="username" placeholder="请输入用户名" autocomplete="username" spellcheck="false" /></div>
+      </div>
+      <div class="field" id="pwd-wrap">
+        <label for="password">PASSWORD · 密码</label>
+        <div class="field-row">
+          <input id="password" name="password" type="password" placeholder="请输入密码" autocomplete="current-password" />
+          <button class="eye" type="button" id="eye" title="显示/隐藏密码" aria-label="显示密码">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+              <path d="M1.6 8s2.3-4.1 6.4-4.1S14.4 8 14.4 8 12.1 12.1 8 12.1 1.6 8 1.6 8Z" stroke="currentColor" stroke-width="1.2"/>
+              <circle cx="8" cy="8" r="1.9" stroke="currentColor" stroke-width="1.2"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+      <button class="btn" id="submit" type="submit">进入系统</button>
+      <button class="ghost" type="button" id="guest">免登录体验 / GUEST</button>
+      <div class="msg" id="msg"></div>
+      <div class="divider">演示角色 · 点击填入</div>
+      <div class="roles" id="roleCards"></div>
+      <div class="fine">
+        <span>演示环境 · 密码统一 123456</span>
+        <a id="more">查看完整介绍 →</a>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+(function () {
+  "use strict";
+
+  /* ============ 视频轮播：4 段、每段 5 秒 ============ */
+  var DURATION = 5000;
+  var slides = Array.prototype.slice.call(document.querySelectorAll('.slide'));
+  var videos = slides.map(function (s) { return s.querySelector('video'); });
+  var dotsWrap = document.getElementById('dots');
+  var countEl = document.getElementById('count');
+  var toggleBtn = document.getElementById('toggle');
+  var toggleIcon = document.getElementById('toggleIcon');
+  var idx = 0;
+  var paused = false;
+  var timer = null;
+
+  var PLAY = '<path d="M4 2h3v12H4zm5 0h3v12H9z"/>';
+  var PAUSE = '<path d="M4 2.5v11l9-5.5z"/>';
+
+  slides.forEach(function (_, i) {
+    var b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'dot-btn' + (i === 0 ? ' on' : '');
+    b.setAttribute('aria-label', '第 ' + (i + 1) + ' 段视频');
+    b.innerHTML = '<i></i>';
+    b.addEventListener('click', function () { go(i); });
+    dotsWrap.appendChild(b);
+  });
+  var dots = Array.prototype.slice.call(dotsWrap.children);
+
+  function paint() {
+    slides.forEach(function (s, i) { s.classList.toggle('on', i === idx); });
+    dots.forEach(function (d, i) {
+      d.classList.remove('on', 'done');
+      if (i < idx) d.classList.add('done');
+      if (i === idx && !paused) {
+        // 强制重排以重启进度动画
+        void d.offsetWidth;
+        d.classList.add('on');
+      } else if (i === idx) {
+        d.classList.add('on');
+      }
+    });
+    countEl.textContent = String(idx + 1).padStart(2, '0') + ' / ' + String(slides.length).padStart(2, '0');
+  }
+
+  function playCurrent() {
+    videos.forEach(function (v, i) {
+      if (i === idx) {
+        v.currentTime = 0;
+        var p = v.play();
+        if (p && p.catch) p.catch(function () {});
+      } else {
+        v.pause();
+      }
+    });
+  }
+
+  function schedule() {
+    clearTimeout(timer);
+    if (paused) return;
+    timer = setTimeout(function () { go((idx + 1) % slides.length); }, DURATION);
+  }
+
+  function go(n) {
+    idx = (n + slides.length) % slides.length;
+    paint();
+    playCurrent();
+    schedule();
+  }
+
+  function setPaused(v) {
+    paused = v;
+    toggleIcon.innerHTML = paused ? PLAY : PAUSE;
+    toggleBtn.title = paused ? '播放' : '暂停';
+    videos.forEach(function (vi, i) {
+      if (paused) vi.pause();
+      else if (i === idx) { var p = vi.play(); if (p && p.catch) p.catch(function () {}); }
+    });
+    paint();
+    schedule();
+  }
+
+  document.getElementById('next').addEventListener('click', function () { go(idx + 1); });
+  document.getElementById('prev').addEventListener('click', function () { go(idx - 1); });
+  toggleBtn.addEventListener('click', function () { setPaused(!paused); });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') closeModal();
+    if (document.getElementById('modal').classList.contains('open')) return;
+    if (e.key === 'ArrowRight') go(idx + 1);
+    if (e.key === 'ArrowLeft') go(idx - 1);
+    if (e.key === ' ') { e.preventDefault(); setPaused(!paused); }
+  });
+  // 页面不可见时暂停，回来接着播
+  document.addEventListener('visibilitychange', function () {
+    if (document.hidden) { videos.forEach(function (v) { v.pause(); }); clearTimeout(timer); }
+    else if (!paused) { playCurrent(); schedule(); }
+  });
+
+  go(0);
+
+  /* ============ 登录弹窗 ============ */
+  var modal = document.getElementById('modal');
+  var dialog = document.getElementById('dialog');
+  var form = document.getElementById('form');
+  var username = document.getElementById('username');
+  var password = document.getElementById('password');
+  var userWrap = document.getElementById('user-wrap');
+  var pwdWrap = document.getElementById('pwd-wrap');
+  var eye = document.getElementById('eye');
+  var submit = document.getElementById('submit');
+  var msg = document.getElementById('msg');
+  var rolesBox = document.getElementById('roleCards');
+  var toastEl = document.getElementById('toast');
+  var cards = [];
+  var order = ['admin', 'teacher', 'staff', 'student', 'parent'];
+  var TOKEN_KEY = 'yj_token';
+  var USER_KEY = 'yj_user';
+  var NEXT = '/demo/';
+  var hadNext = false;
+  try {
+    var _next = new URLSearchParams(location.search).get('next');
+    if (_next && _next.charAt(0) === '/' && _next.charAt(1) !== '/') { NEXT = _next; hadNext = true; }
+  } catch (e) {}
+  var toastTimer = null;
+
+  function toast(text, isErr) {
+    toastEl.textContent = text;
+    toastEl.style.background = isErr ? '#b42318' : '#0d1520';
+    toastEl.classList.add('on');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { toastEl.classList.remove('on'); }, 2800);
+  }
+  function setMsg(text, ok) { msg.textContent = text || ''; msg.classList.toggle('ok', !!ok); }
+  function clearErr() { userWrap.classList.remove('err'); pwdWrap.classList.remove('err'); }
+
+  function openModal() {
+    modal.classList.add('open');
+    setTimeout(function () { username.focus(); }, 60);
+    videos.forEach(function (v) { v.pause(); });
+    clearTimeout(timer);
+  }
+  function closeModal() {
+    modal.classList.remove('open');
+    setMsg('');
+    if (!paused) { playCurrent(); schedule(); }
+  }
+
+  // 右上角「登录」直接跳到登录页（不再弹窗）
+  document.getElementById('closeLogin').addEventListener('click', closeModal);
+  modal.addEventListener('mousedown', function (e) { if (e.target === modal) closeModal(); });
+  document.getElementById('more').addEventListener('click', function () { location.href = '/login'; });
+
+  // 已是管理员登录态：右上角直接显示「数据后台」，不用再走登录
+  (function () {
+    var entry = document.getElementById('adminEntry');
+    var tk = localStorage.getItem(TOKEN_KEY);
+    if (!entry || !tk) return;
+    fetch('/api/auth/me', { headers: { Authorization: 'Bearer ' + tk } })
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (d) {
+        var u = (d && d.data) || null;
+        if (u && u.features && u.features.admin) entry.classList.add('on');
+      })
+      .catch(function () {});
+  })();
+
+  function renderRoles(list) {
+    cards = list.slice().sort(function (a, b) { return order.indexOf(a.key) - order.indexOf(b.key); });
+    rolesBox.innerHTML = '';
+    cards.forEach(function (r) {
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'role-card' + (r.key === 'admin' ? ' wide' : '');
+      b.setAttribute('data-role', r.key);
+      b.title = r.label + ' · ' + r.desc;
+      b.innerHTML = '<span class="role-icon">' + r.icon + '</span>' +
+        '<span class="role-name">' + r.label + ' · ' + r.name + '</span>' +
+        '<span class="role-desc">' + r.desc + '</span>';
+      b.addEventListener('click', function () { fill(r); });
+      rolesBox.appendChild(b);
+    });
+  }
+
+  function fill(role) {
+    username.value = role.username;
+    password.value = role.password;
+    clearErr();
+    setMsg('已填入「' + role.label + '」演示账号：' + role.username + ' / ' + role.password, true);
+    Array.prototype.forEach.call(rolesBox.children, function (c) {
+      c.classList.toggle('on', c.getAttribute('data-role') === role.key);
+    });
+    submit.focus();
+  }
+
+  fetch('/api/auth/roles')
+    .then(function (r) { return r.json(); })
+    .then(function (d) { if (d && d.data && d.data.length) renderRoles(d.data); })
+    .catch(function () { toast('读取演示角色失败，可手动输入账号', true); });
+
+  eye.addEventListener('click', function () {
+    var show = password.type === 'password';
+    password.type = show ? 'text' : 'password';
+    eye.style.color = show ? '#2563eb' : '';
+  });
+
+  function doLogin(u, p, silent) {
+    u = (u || username.value).trim();
+    p = p || password.value;
+    clearErr();
+    setMsg('');
+    if (!u) { userWrap.classList.add('err'); setMsg('请输入用户名'); dialog.classList.add('shake'); setTimeout(function () { dialog.classList.remove('shake'); }, 340); return; }
+    if (!p) { pwdWrap.classList.add('err'); setMsg('请输入密码'); return; }
+    submit.disabled = true;
+    submit.textContent = '登录中…';
+    fetch('/api/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username: u, password: p })
+    })
+      .then(function (r) { return r.json().then(function (d) {
+        if (!r.ok) throw new Error(d.detail || d.msg || ('HTTP ' + r.status));
+        return d;
+      }); })
+      .then(function (d) {
+        var data = d.data || {};
+        localStorage.setItem(TOKEN_KEY, data.token);
+        localStorage.setItem(USER_KEY, JSON.stringify(data.user || {}));
+        setMsg(d.msg || '登录成功，正在进入…', true);
+        if (silent) setMsg('已按游客身份进入…', true);
+        // 管理员在这个入口登录，直接进数据后台；其他角色仍去工作台
+        var _u = data.user || {};
+        var isAdmin = !!(_u.features && _u.features.admin);
+        location.replace((isAdmin && !hadNext && !silent) ? '/admin' : NEXT);
+      })
+      .catch(function (e) {
+        submit.disabled = false;
+        submit.textContent = '进入系统';
+        setMsg(e.message || '登录失败');
+        dialog.classList.add('shake');
+        setTimeout(function () { dialog.classList.remove('shake'); }, 340);
+      });
+  }
+
+  form.addEventListener('submit', function (ev) { ev.preventDefault(); doLogin(); });
+  document.getElementById('guest').addEventListener('click', function () {
+    var parent = cards.filter(function (c) { return c.key === 'parent'; })[0];
+    if (parent) doLogin(parent.username, parent.password, true);
+    else doLogin('parent001', '123456', true);
+  });
+  username.addEventListener('input', clearErr);
+  password.addEventListener('input', clearErr);
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,18 @@
+import sys, os, time
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from cdpkit import Browser, open_page
+b = Browser()
+open_page(b, "http://127.0.0.1:8000/login?st=1", 1280, 800)
+time.sleep(0.7); b.js("localStorage.clear()")
+open_page(b, "http://127.0.0.1:8000/login?st=2", 1280, 800)
+time.sleep(1.0)
+b.js("document.getElementById('username').value='emp007';document.getElementById('password').value='123456';document.getElementById('form').requestSubmit();")
+time.sleep(2.8)
+print("items:", b.js("document.querySelectorAll('#todos .todo').length"))
+print("first:", b.js("document.querySelector('#todos .todo').innerText"))
+b.shot("side_staff2.png")
+b.js("document.querySelector('#todos .todo').click()")
+time.sleep(1.8)
+print("panel:", b.js("document.getElementById('ws-title').textContent"))
+print("lead list:", b.js("document.querySelectorAll('#ws-body .ws-item').length"))
+b.shot("side_staff_panel.png")

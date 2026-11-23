@@ -1,0 +1,27 @@
+import sys, os, time
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from cdpkit import Browser, open_page
+b = Browser()
+# 管理员
+open_page(b, "http://127.0.0.1:8000/login?w6=1", 1320, 820)
+time.sleep(0.7); b.js("localStorage.clear()")
+open_page(b, "http://127.0.0.1:8000/login?w6=2", 1320, 820)
+time.sleep(1.0)
+b.js("document.querySelectorAll('#roleCards .role-card')[0].click()")
+time.sleep(0.3); b.js("document.getElementById('form').requestSubmit()")
+time.sleep(2.6)
+print("admin path:", b.js("location.pathname"))
+b.js("document.getElementById('ws-btn').click()")
+time.sleep(1.8)
+print("admin title:", b.js("document.getElementById('ws-title').textContent"))
+print("admin kpis:", b.js("Array.from(document.querySelectorAll('.ws-kpi .v')).map(e=>e.textContent).join('/')"))
+print("footer:", b.js("(document.querySelector('.ws-foot')||{}).innerText"))
+b.shot("ws_admin.png")
+# 手机端
+open_page(b, "http://127.0.0.1:8000/demo/?w6=9", 390, 844)
+time.sleep(1.6)
+print("mobile overflow:", b.js("document.documentElement.scrollWidth+'/'+window.innerWidth"))
+b.js("document.getElementById('ws-btn').click()")
+time.sleep(1.8)
+print("mobile panel:", b.js("JSON.stringify(document.getElementById('ws-drawer').getBoundingClientRect())"))
+b.shot("ws_mobile.png")

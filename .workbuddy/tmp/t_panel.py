@@ -1,0 +1,20 @@
+import sys, os, time
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from cdpkit import Browser, open_page
+b = Browser()
+open_page(b, "http://127.0.0.1:8000/login?pn=1", 1320, 820)
+time.sleep(0.7); b.js("localStorage.clear()")
+open_page(b, "http://127.0.0.1:8000/login?pn=2", 1320, 820)
+time.sleep(1.0)
+b.js("document.querySelectorAll('#roleCards .role-card')[1].click()")  # 班主任
+time.sleep(0.3); b.js("document.getElementById('form').requestSubmit()")
+time.sleep(2.8)
+print("navs:", b.js("Array.from(document.querySelectorAll('.nav')).map(e=>e.innerText.replace(/\n/g,'/')).join(' || ')"))
+print("badge:", b.js("document.querySelector('.nav .nav-badge')?.textContent"))
+b.shot("panel_side.png")
+b.js("document.querySelector('.nav').click()")
+time.sleep(1.6)
+print("panel:", b.js("document.getElementById('panel-title').textContent"), "|", b.js("document.getElementById('panel-sub').textContent"))
+print("panel items:", b.js("document.querySelectorAll('#panel-body .ws-item').length"))
+print("chat hidden:", b.js("document.getElementById('chat').hidden"), "composer:", b.js("getComputedStyle(document.querySelector('.composer')).display"))
+b.shot("panel_leave.png")

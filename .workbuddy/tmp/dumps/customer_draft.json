@@ -1,0 +1,1168 @@
+{
+ "id": "6d565d1a-bfc8-411e-bdcc-9250769d31a1",
+ "graph": {
+  "nodes": [
+   {
+    "id": "start",
+    "type": "custom",
+    "data": {
+     "variables": [
+      {
+       "variable": "user_id",
+       "label": "客户ID",
+       "description": "",
+       "type": "number",
+       "required": false,
+       "hide": false,
+       "max_length": null,
+       "options": []
+      },
+      {
+       "variable": "customer_name",
+       "label": "客户称呼",
+       "description": "",
+       "type": "text-input",
+       "required": false,
+       "hide": false,
+       "max_length": 48,
+       "options": []
+      }
+     ],
+     "type": "start",
+     "title": "用户输入",
+     "desc": "",
+     "selected": false,
+     "default_value": [
+      {
+       "key": "user_id",
+       "type": "number",
+       "value": 1
+      },
+      {
+       "key": "customer_name",
+       "type": "string",
+       "value": "陈嘉怡"
+      }
+     ]
+    },
+    "position": {
+     "x": 80,
+     "y": 420
+    },
+    "positionAbsolute": {
+     "x": 80,
+     "y": 420
+    },
+    "targetPosition": "left",
+    "sourcePosition": "right",
+    "width": 242,
+    "height": 134,
+    "selected": false
+   },
+   {
+    "id": "classifier",
+    "type": "custom",
+    "data": {
+     "type": "question-classifier",
+     "title": "意图分类",
+     "desc": "",
+     "query_variable_selector": [
+      "start",
+      "sys.query"
+     ],
+     "model": {
+      "provider": "langgenius/tongyi/tongyi",
+      "name": "qwen-plus",
+      "mode": "chat",
+      "completion_params": {
+       "temperature": 0,
+       "max_tokens": 800
+      }
+     },
+     "classes": [
+      {
+       "id": "c_recommend",
+       "name": "留学项目推荐：描述自己或孩子的年龄、学历、意向，希望匹配留学项目，例如「19岁高中刚毕业想快点拿本科学历」"
+      },
+      {
+       "id": "c_project_query",
+       "name": "项目或课程查询：问有哪些项目、某个项目读几年、什么条件能报"
+      },
+      {
+       "id": "c_event_query",
+       "name": "活动查询：问最近有什么讲座、分享会、说明会"
+      },
+      {
+       "id": "c_event_register",
+       "name": "活动报名：要报名某场活动，例如「我要报名留学分享会」"
+      },
+      {
+       "id": "c_faq",
+       "name": "公司与政策咨询：公司介绍、留学政策、费用标准、签证材料、常见问题，以及不属于上面任何一类的问题"
+      }
+     ],
+     "instruction": "",
+     "instructions": "",
+     "vision": {
+      "enabled": false
+     },
+     "selected": false
+    },
+    "position": {
+     "x": 400,
+     "y": 200
+    },
+    "positionAbsolute": {
+     "x": 400,
+     "y": 200
+    },
+    "targetPosition": "left",
+    "sourcePosition": "right",
+    "width": 241,
+    "height": 411,
+    "selected": false
+   },
+   {
+    "id": "recommend_http",
+    "type": "custom",
+    "data": {
+     "type": "http-request",
+     "title": "画像研判推荐",
+     "desc": "",
+     "method": "post",
+     "url": "http://host.docker.internal:8000/api/agent/profile-evaluate",
+     "authorization": {
+      "type": "no-auth",
+      "config": null
+     },
+     "headers": "Content-Type:application/json",
+     "params": "",
+     "body": {
+      "type": "json",
+      "data": [
+       {
+        "key": "",
+        "type": "text",
+        "value": "{\"raw_text\":\"{{#sys.query#}}\"}"
+       }
+      ]
+     },
+     "timeout": {
+      "connect": 10,
+      "read": 30,
+      "write": 10
+     },
+     "retry_config": {
+      "retry_enabled": true,
+      "max_retries": 2,
+      "retry_interval": 500
+     },
+     "ssl_verify": true,
+     "variables": [],
+     "selected": false
+    },
+    "position": {
+     "x": 780,
+     "y": 60
+    },
+    "positionAbsolute": {
+     "x": 780,
+     "y": 60
+    },
+    "targetPosition": "left",
+    "sourcePosition": "right",
+    "width": 241,
+    "height": 152,
+    "selected": false
+   },
+   {
+    "id": "recommend_llm",
+    "type": "custom",
+    "data": {
+     "type": "llm",
+     "title": "推荐话术",
+     "desc": "",
+     "model": {
+      "provider": "langgenius/tongyi/tongyi",
+      "name": "qwen-plus",
+      "mode": "chat",
+      "completion_params": {
+       "temperature": 0.3,
+       "max_tokens": 2000
+      }
+     },
+     "prompt_template": [
+      {
+       "role": "system",
+       "text": "你是「粤教服务」的售前顾问，服务对象是想出国留学的学生和家长，负责项目推荐、课程查询、活动报名和公司政策咨询。\n客户正在咨询该读什么项目，你要基于规则引擎的匹配结果做推荐。\n【铁律】\n1. 业务数据只能来自「工具返回」里的 data 字段，不许自己编造姓名、时间、分数、单号、名额。\n2. 工具返回 code 不为 0，或出现 detail / msg 里带\"未找到\"\"不存在\"\"已满\"\"非法\"等字眼时，如实转述原因，并给出一个下一步建议。\n3. 用中文口语回答，不要输出 JSON、不要暴露接口路径、不要提\"工具\"\"节点\"\"API\"这些词。\n4. 回答控制在 4 句话以内，需要罗列信息时用简短列表。\n5. 必须说出推荐项目的全名和匹配度分值，再给 2 条推荐理由。\n6. 如果 matches 为空，直接说明当前信息不足、需要补充学历或意向，绝对不许硬推一个项目。\n7. 不要承诺录取结果、不要报出资料里没有的费用数字。\n",
+       "id": "19462e4c-14e4-4da1-9238-c4da9c6ff2e1"
+      },
+      {
+       "role": "user",
+       "text": "客户说：{{#sys.query#}}\n\n工具返回：{{#recommend_http.body#}}\n\n请先复述你从他的话里读到的画像（年龄、学历、意向），再推荐最适合的项目。",
+       "id": "22087715-2e19-461f-bb3a-385692f34282"
+      }
+     ],
+     "context": {
+      "enabled": false,
+      "variable_selector": []
+     },
+     "vision": {
+      "enabled": false
+     },
+     "memory": null,
+     "reasoning_format": "separated",
+     "selected": false
+    },
+    "position": {
+     "x": 1120,
+     "y": 60
+    },
+    "positionAbsolute": {
+     "x": 1120,
+     "y": 60
+    },
+    "targetPosition": "left",
+    "sourcePosition": "right",
+    "width": 241,
+    "height": 87,
+    "selected": false
+   },
+   {
+    "id": "recommend_ans",
+    "type": "custom",
+    "data": {
+     "type": "answer",
+     "title": "推荐回复",
+     "desc": "",
+     "answer": "{{#recommend_llm.text#}}",
+     "variables": [],
+     "selected": false
+    },
+    "position": {
+     "x": 1460,
+     "y": 60
+    },
+    "positionAbsolute": {
+     "x": 1460,
+     "y": 60
+    },
+    "targetPosition": "left",
+    "sourcePosition": "right",
+    "width": 241,
+    "height": 102,
+    "selected": false
+   },
+   {
+    "id": "project_http",
+    "type": "custom",
+    "data": {
+     "type": "http-request",
+     "title": "项目列表查询",
+     "desc": "",
+     "method": "get",
+     "url": "http://host.docker.internal:8000/api/agent/project-list",
+     "authorization": {
+      "type": "no-auth",
+      "config": null
+     },
+     "headers": "Content-Type:application/json",
+     "params": "",
+     "body": {
+      "type": "none",
+      "data": []
+     },
+     "timeout": {
+      "connect": 10,
+      "read": 30,
+      "write": 10
+     },
+     "retry_config": {
+      "retry_enabled": true,
+      "max_retries": 2,
+      "retry_interval": 500
+     },
+     "ssl_verify": true,
+     "variables": [],
+     "selected": false
+    },
+    "position": {
+     "x": 780,
+     "y": 300
+    },
+    "positionAbsolute": {
+     "x": 780,
+     "y": 300
+    },
+    "targetPosition": "left",
+    "sourcePosition": "right",
+    "width": 241,
+    "height": 136,
+    "selected": false
+   },
+   {
+    "id": "project_llm",
+    "type": "custom",
+    "data": {
+     "type": "llm",
+     "title": "项目介绍",
+     "desc": "",
+     "model": {
+      "provider": "langgenius/tongyi/tongyi",
+      "name": "qwen-plus",
+      "mode": "chat",
+      "completion_params": {
+       "temperature": 0.3,
+       "max_tokens": 2000
+      }
+     },
+     "prompt_template": [
+      {
+       "role": "system",
+       "text": "你是「粤教服务」的售前顾问，服务对象是想出国留学的学生和家长，负责项目推荐、课程查询、活动报名和公司政策咨询。\n客户想了解具体项目，你要从项目清单里挑出相关的介绍。\n【铁律】\n1. 业务数据只能来自「工具返回」里的 data 字段，不许自己编造姓名、时间、分数、单号、名额。\n2. 工具返回 code 不为 0，或出现 detail / msg 里带\"未找到\"\"不存在\"\"已满\"\"非法\"等字眼时，如实转述原因，并给出一个下一步建议。\n3. 用中文口语回答，不要输出 JSON、不要暴露接口路径、不要提\"工具\"\"节点\"\"API\"这些词。\n4. 回答控制在 4 句话以内，需要罗列信息时用简短列表。",
+       "id": "e8b29b65-a91e-4fb5-b6a3-de86c3714b34"
+      },
+      {
+       "role": "user",
+       "text": "客户问：{{#sys.query#}}\n\n工具返回：{{#project_http.body#}}\n\n请只讲和他问题相关的项目（项目名、适合人群、特点），不要把所有项目都念一遍。",
+       "id": "052aae76-8e41-4790-9a3a-de0d3c75e45b"
+      }
+     ],
+     "context": {
+      "enabled": false,
+      "variable_selector": []
+     },
+     "vision": {
+      "enabled": false
+     },
+     "memory": null,
+     "reasoning_format": "separated",
+     "selected": false
+    },
+    "position": {
+     "x": 1120,
+     "y": 300
+    },
+    "positionAbsolute": {
+     "x": 1120,
+     "y": 300
+    },
+    "targetPosition": "left",
+    "sourcePosition": "right",
+    "width": 241,
+    "height": 87,
+    "selected": false
+   },
+   {
+    "id": "project_ans",
+    "type": "custom",
+    "data": {
+     "type": "answer",
+     "title": "项目回复",
+     "desc": "",
+     "answer": "{{#project_llm.text#}}",
+     "variables": [],
+     "selected": false
+    },
+    "position": {
+     "x": 1460,
+     "y": 300
+    },
+    "positionAbsolute": {
+     "x": 1460,
+     "y": 300
+    },
+    "targetPosition": "left",
+    "sourcePosition": "right",
+    "width": 241,
+    "height": 102,
+    "selected": false
+   },
+   {
+    "id": "event_http",
+    "type": "custom",
+    "data": {
+     "type": "http-request",
+     "title": "活动列表查询",
+     "desc": "",
+     "method": "get",
+     "url": "http://host.docker.internal:8000/api/agent/event-list",
+     "authorization": {
+      "type": "no-auth",
+      "config": null
+     },
+     "headers": "Content-Type:application/json",
+     "params": "",
+     "body": {
+      "type": "none",
+      "data": []
+     },
+     "timeout": {
+      "connect": 10,
+      "read": 30,
+      "write": 10
+     },
+     "retry_config": {
+      "retry_enabled": true,
+      "max_retries": 2,
+      "retry_interval": 500
+     },
+     "ssl_verify": true,
+     "variables": [],
+     "selected": true
+    },
+    "position": {
+     "x": 780,
+     "y": 540
+    },
+    "positionAbsolute": {
+     "x": 780,
+     "y": 540
+    },
+    "targetPosition": "left",
+    "sourcePosition": "right",
+    "width": 241,
+    "height": 136,
+    "selected": true
+   },
+   {
+    "id": "event_llm",
+    "type": "custom",
+    "data": {
+     "type": "llm",
+     "title": "活动播报",
+     "desc": "",
+     "model": {
+      "provider": "langgenius/tongyi/tongyi",
+      "name": "qwen-plus",
+      "mode": "chat",
+      "completion_params": {
+       "temperature": 0.3,
+       "max_tokens": 2000
+      }
+     },
+     "prompt_template": [
+      {
+       "role": "system",
+       "text": "你是「粤教服务」的售前顾问，服务对象是想出国留学的学生和家长，负责项目推荐、课程查询、活动报名和公司政策咨询。\n客户在问近期活动。\n【铁律】\n1. 业务数据只能来自「工具返回」里的 data 字段，不许自己编造姓名、时间、分数、单号、名额。\n2. 工具返回 code 不为 0，或出现 detail / msg 里带\"未找到\"\"不存在\"\"已满\"\"非法\"等字眼时，如实转述原因，并给出一个下一步建议。\n3. 用中文口语回答，不要输出 JSON、不要暴露接口路径、不要提\"工具\"\"节点\"\"API\"这些词。\n4. 回答控制在 4 句话以内，需要罗列信息时用简短列表。",
+       "id": "39897992-7565-4564-a58f-63e58d229719"
+      },
+      {
+       "role": "user",
+       "text": "客户问：{{#sys.query#}}\n\n工具返回：{{#event_http.body#}}\n\n请列出活动名称、时间、地点、剩余名额，并邀请他报名。",
+       "id": "c7e9975c-4ef2-4d6d-a430-c395403d8efc"
+      }
+     ],
+     "context": {
+      "enabled": false,
+      "variable_selector": []
+     },
+     "vision": {
+      "enabled": false
+     },
+     "memory": null,
+     "reasoning_format": "separated",
+     "selected": false
+    },
+    "position": {
+     "x": 1120,
+     "y": 540
+    },
+    "positionAbsolute": {
+     "x": 1120,
+     "y": 540
+    },
+    "targetPosition": "left",
+    "sourcePosition": "right",
+    "width": 241,
+    "height": 87,
+    "selected": false
+   },
+   {
+    "id": "event_ans",
+    "type": "custom",
+    "data": {
+     "type": "answer",
+     "title": "活动回复",
+     "desc": "",
+     "answer": "{{#event_llm.text#}}",
+     "variables": [],
+     "selected": false
+    },
+    "position": {
+     "x": 1460,
+     "y": 540
+    },
+    "positionAbsolute": {
+     "x": 1460,
+     "y": 540
+    },
+    "targetPosition": "left",
+    "sourcePosition": "right",
+    "width": 241,
+    "height": 102,
+    "selected": false
+   },
+   {
+    "id": "register_extract",
+    "type": "custom",
+    "data": {
+     "type": "llm",
+     "title": "抽取报名信息",
+     "desc": "",
+     "model": {
+      "provider": "langgenius/tongyi/tongyi",
+      "name": "qwen-plus",
+      "mode": "chat",
+      "completion_params": {
+       "temperature": 0.3,
+       "max_tokens": 2000
+      }
+     },
+     "prompt_template": [
+      {
+       "role": "system",
+       "text": "你是一个信息抽取器。提取客户想报名的活动名称，只输出 JSON，不要解释、不要代码块。\n客户ID固定为 {{#start.user_id#}}。\n输出格式：{\"event_name\":\"活动名称\",\"customer_id\":\"{{#start.user_id#}}\"}",
+       "id": "97f713fe-f8f8-4e0f-9454-4cb6471ee760"
+      },
+      {
+       "role": "user",
+       "text": "客户说：{{#sys.query#}}",
+       "id": "78f9092d-2ed3-4dcf-9049-5aaea73cb8e0"
+      }
+     ],
+     "context": {
+      "enabled": false,
+      "variable_selector": []
+     },
+     "vision": {
+      "enabled": false
+     },
+     "memory": null,
+     "reasoning_format": "separated",
+     "selected": false
+    },
+    "position": {
+     "x": 780,
+     "y": 780
+    },
+    "positionAbsolute": {
+     "x": 780,
+     "y": 780
+    },
+    "targetPosition": "left",
+    "sourcePosition": "right",
+    "width": 241,
+    "height": 87,
+    "selected": false
+   },
+   {
+    "id": "register_http",
+    "type": "custom",
+    "data": {
+     "type": "http-request",
+     "title": "活动报名",
+     "desc": "",
+     "method": "post",
+     "url": "http://host.docker.internal:8000/api/agent/event-register",
+     "authorization": {
+      "type": "no-auth",
+      "config": null
+     },
+     "headers": "Content-Type:application/json",
+     "params": "",
+     "body": {
+      "type": "json",
+      "data": [
+       {
+        "key": "",
+        "type": "text",
+        "value": "{{#register_extract.text#}}"
+       }
+      ]
+     },
+     "timeout": {
+      "connect": 10,
+      "read": 30,
+      "write": 10
+     },
+     "retry_config": {
+      "retry_enabled": true,
+      "max_retries": 2,
+      "retry_interval": 500
+     },
+     "ssl_verify": true,
+     "variables": [],
+     "selected": false,
+     "error_strategy": "default-value",
+     "default_value": [
+      {
+       "key": "body",
+       "type": "string",
+       "value": "{\"code\": -1, \"msg\": \"报名没有成功：这场活动可能名额已满或者活动名称不对，请换一场活动再试。\"}"
+      },
+      {
+       "key": "status_code",
+       "type": "number",
+       "value": 400
+      }
+     ]
+    },
+    "position": {
+     "x": 1120,
+     "y": 780
+    },
+    "positionAbsolute": {
+     "x": 1120,
+     "y": 780
+    },
+    "targetPosition": "left",
+    "sourcePosition": "right",
+    "width": 241,
+    "height": 188,
+    "selected": false
+   },
+   {
+    "id": "register_llm",
+    "type": "custom",
+    "data": {
+     "type": "llm",
+     "title": "报名回执",
+     "desc": "",
+     "model": {
+      "provider": "langgenius/tongyi/tongyi",
+      "name": "qwen-plus",
+      "mode": "chat",
+      "completion_params": {
+       "temperature": 0.3,
+       "max_tokens": 2000
+      }
+     },
+     "prompt_template": [
+      {
+       "role": "system",
+       "text": "你是「粤教服务」的售前顾问，服务对象是想出国留学的学生和家长，负责项目推荐、课程查询、活动报名和公司政策咨询。\n客户刚报名了活动，你要给回执。\n【铁律】\n1. 业务数据只能来自「工具返回」里的 data 字段，不许自己编造姓名、时间、分数、单号、名额。\n2. 工具返回 code 不为 0，或出现 detail / msg 里带\"未找到\"\"不存在\"\"已满\"\"非法\"等字眼时，如实转述原因，并给出一个下一步建议。\n3. 用中文口语回答，不要输出 JSON、不要暴露接口路径、不要提\"工具\"\"节点\"\"API\"这些词。\n4. 回答控制在 4 句话以内，需要罗列信息时用简短列表。",
+       "id": "2803447d-5fe8-4b8f-ab57-fd8b622eb87a"
+      },
+      {
+       "role": "user",
+       "text": "客户说：{{#sys.query#}}\n\n工具返回：{{#register_http.body#}}\n\n请确认活动名称、时间、地点，并说明名额已占用；失败时如实说明原因。",
+       "id": "c858be11-ca9d-4a61-8873-ab5bcc95ea49"
+      }
+     ],
+     "context": {
+      "enabled": false,
+      "variable_selector": []
+     },
+     "vision": {
+      "enabled": false
+     },
+     "memory": null,
+     "reasoning_format": "separated",
+     "selected": false
+    },
+    "position": {
+     "x": 1460,
+     "y": 780
+    },
+    "positionAbsolute": {
+     "x": 1460,
+     "y": 780
+    },
+    "targetPosition": "left",
+    "sourcePosition": "right",
+    "width": 241,
+    "height": 87,
+    "selected": false
+   },
+   {
+    "id": "register_ans",
+    "type": "custom",
+    "data": {
+     "type": "answer",
+     "title": "报名回复",
+     "desc": "",
+     "answer": "{{#register_llm.text#}}",
+     "variables": [],
+     "selected": false
+    },
+    "position": {
+     "x": 1800,
+     "y": 780
+    },
+    "positionAbsolute": {
+     "x": 1800,
+     "y": 780
+    },
+    "targetPosition": "left",
+    "sourcePosition": "right",
+    "width": 241,
+    "height": 102,
+    "selected": false
+   },
+   {
+    "id": "faq_kb",
+    "type": "custom",
+    "data": {
+     "type": "knowledge-retrieval",
+     "title": "知识检索",
+     "desc": "",
+     "query_variable_selector": [
+      "start",
+      "sys.query"
+     ],
+     "dataset_ids": [
+      "fdd91978-5c55-4e1d-85d0-45b16f9f72ea",
+      "af4371ce-4934-4468-971a-e61e3dc9d849",
+      "07ab743d-ee3a-4d7a-b802-a4bfc51fdd54"
+     ],
+     "retrieval_mode": "multiple",
+     "multiple_retrieval_config": {
+      "top_k": 4,
+      "score_threshold": 0.3,
+      "score_threshold_enabled": true,
+      "reranking_mode": "reranking_model",
+      "reranking_enable": false,
+      "reranking_model": {
+       "provider": "langgenius/tongyi/tongyi",
+       "model": "qwen3-vl-rerank"
+      }
+     },
+     "selected": false
+    },
+    "position": {
+     "x": 780,
+     "y": 1020
+    },
+    "positionAbsolute": {
+     "x": 780,
+     "y": 1020
+    },
+    "targetPosition": "left",
+    "sourcePosition": "right",
+    "width": 241,
+    "height": 145,
+    "selected": false
+   },
+   {
+    "id": "faq_llm",
+    "type": "custom",
+    "data": {
+     "type": "llm",
+     "title": "政策问答",
+     "desc": "",
+     "model": {
+      "provider": "langgenius/tongyi/tongyi",
+      "name": "qwen-plus",
+      "mode": "chat",
+      "completion_params": {
+       "temperature": 0.3,
+       "max_tokens": 2000
+      }
+     },
+     "prompt_template": [
+      {
+       "role": "system",
+       "text": "你是「粤教服务」的咨询顾问，回答公司介绍、留学政策、费用标准、签证材料、申请流程等问题。\n只依据检索到的资料回答；资料里没有的就说「这个我需要让顾问老师跟你确认」，不要编造数字。\n回答用中文，控制在 5 句话以内。",
+       "id": "1254314e-6ec4-48b8-bd0d-8e39726c3128"
+      },
+      {
+       "role": "user",
+       "text": "客户问：{{#sys.query#}}\n\n参考资料：{{#context#}}",
+       "id": "e6eb6d29-8d1b-44e4-959e-30d8b62a6855"
+      }
+     ],
+     "context": {
+      "enabled": true,
+      "variable_selector": [
+       "faq_kb",
+       "result"
+      ]
+     },
+     "vision": {
+      "enabled": false
+     },
+     "memory": null,
+     "reasoning_format": "separated",
+     "selected": false
+    },
+    "position": {
+     "x": 1120,
+     "y": 1020
+    },
+    "positionAbsolute": {
+     "x": 1120,
+     "y": 1020
+    },
+    "targetPosition": "left",
+    "sourcePosition": "right",
+    "width": 241,
+    "height": 87,
+    "selected": false
+   },
+   {
+    "id": "faq_ans",
+    "type": "custom",
+    "data": {
+     "type": "answer",
+     "title": "咨询回复",
+     "desc": "",
+     "answer": "{{#faq_llm.text#}}",
+     "variables": [],
+     "selected": false
+    },
+    "position": {
+     "x": 1460,
+     "y": 1020
+    },
+    "positionAbsolute": {
+     "x": 1460,
+     "y": 1020
+    },
+    "targetPosition": "left",
+    "sourcePosition": "right",
+    "width": 241,
+    "height": 102,
+    "selected": false
+   }
+  ],
+  "edges": [
+   {
+    "id": "start-source-classifier-target",
+    "type": "custom",
+    "source": "start",
+    "sourceHandle": "source",
+    "target": "classifier",
+    "targetHandle": "target",
+    "data": {
+     "sourceType": "start",
+     "targetType": "question-classifier",
+     "isInIteration": false,
+     "isInLoop": false
+    },
+    "zIndex": 0
+   },
+   {
+    "id": "classifier-c_recommend-recommend_http-target",
+    "type": "custom",
+    "source": "classifier",
+    "sourceHandle": "c_recommend",
+    "target": "recommend_http",
+    "targetHandle": "target",
+    "data": {
+     "sourceType": "question-classifier",
+     "targetType": "http-request",
+     "isInIteration": false,
+     "isInLoop": false
+    },
+    "zIndex": 0
+   },
+   {
+    "id": "recommend_http-source-recommend_llm-target",
+    "type": "custom",
+    "source": "recommend_http",
+    "sourceHandle": "source",
+    "target": "recommend_llm",
+    "targetHandle": "target",
+    "data": {
+     "sourceType": "http-request",
+     "targetType": "llm",
+     "isInIteration": false,
+     "isInLoop": false
+    },
+    "zIndex": 0
+   },
+   {
+    "id": "recommend_llm-source-recommend_ans-target",
+    "type": "custom",
+    "source": "recommend_llm",
+    "sourceHandle": "source",
+    "target": "recommend_ans",
+    "targetHandle": "target",
+    "data": {
+     "sourceType": "llm",
+     "targetType": "answer",
+     "isInIteration": false,
+     "isInLoop": false
+    },
+    "zIndex": 0
+   },
+   {
+    "id": "classifier-c_project_query-project_http-target",
+    "type": "custom",
+    "source": "classifier",
+    "sourceHandle": "c_project_query",
+    "target": "project_http",
+    "targetHandle": "target",
+    "data": {
+     "sourceType": "question-classifier",
+     "targetType": "http-request",
+     "isInIteration": false,
+     "isInLoop": false
+    },
+    "zIndex": 0
+   },
+   {
+    "id": "project_http-source-project_llm-target",
+    "type": "custom",
+    "source": "project_http",
+    "sourceHandle": "source",
+    "target": "project_llm",
+    "targetHandle": "target",
+    "data": {
+     "sourceType": "http-request",
+     "targetType": "llm",
+     "isInIteration": false,
+     "isInLoop": false
+    },
+    "zIndex": 0
+   },
+   {
+    "id": "project_llm-source-project_ans-target",
+    "type": "custom",
+    "source": "project_llm",
+    "sourceHandle": "source",
+    "target": "project_ans",
+    "targetHandle": "target",
+    "data": {
+     "sourceType": "llm",
+     "targetType": "answer",
+     "isInIteration": false,
+     "isInLoop": false
+    },
+    "zIndex": 0
+   },
+   {
+    "id": "classifier-c_event_query-event_http-target",
+    "type": "custom",
+    "source": "classifier",
+    "sourceHandle": "c_event_query",
+    "target": "event_http",
+    "targetHandle": "target",
+    "data": {
+     "sourceType": "question-classifier",
+     "targetType": "http-request",
+     "isInIteration": false,
+     "isInLoop": false
+    },
+    "zIndex": 0
+   },
+   {
+    "id": "event_http-source-event_llm-target",
+    "type": "custom",
+    "source": "event_http",
+    "sourceHandle": "source",
+    "target": "event_llm",
+    "targetHandle": "target",
+    "data": {
+     "sourceType": "http-request",
+     "targetType": "llm",
+     "isInIteration": false,
+     "isInLoop": false
+    },
+    "zIndex": 0
+   },
+   {
+    "id": "event_llm-source-event_ans-target",
+    "type": "custom",
+    "source": "event_llm",
+    "sourceHandle": "source",
+    "target": "event_ans",
+    "targetHandle": "target",
+    "data": {
+     "sourceType": "llm",
+     "targetType": "answer",
+     "isInIteration": false,
+     "isInLoop": false
+    },
+    "zIndex": 0
+   },
+   {
+    "id": "classifier-c_event_register-register_extract-target",
+    "type": "custom",
+    "source": "classifier",
+    "sourceHandle": "c_event_register",
+    "target": "register_extract",
+    "targetHandle": "target",
+    "data": {
+     "sourceType": "question-classifier",
+     "targetType": "llm",
+     "isInIteration": false,
+     "isInLoop": false
+    },
+    "zIndex": 0
+   },
+   {
+    "id": "register_extract-source-register_http-target",
+    "type": "custom",
+    "source": "register_extract",
+    "sourceHandle": "source",
+    "target": "register_http",
+    "targetHandle": "target",
+    "data": {
+     "sourceType": "llm",
+     "targetType": "http-request",
+     "isInIteration": false,
+     "isInLoop": false
+    },
+    "zIndex": 0
+   },
+   {
+    "id": "register_http-source-register_llm-target",
+    "type": "custom",
+    "source": "register_http",
+    "sourceHandle": "source",
+    "target": "register_llm",
+    "targetHandle": "target",
+    "data": {
+     "sourceType": "http-request",
+     "targetType": "llm",
+     "isInIteration": false,
+     "isInLoop": false
+    },
+    "zIndex": 0
+   },
+   {
+    "id": "register_llm-source-register_ans-target",
+    "type": "custom",
+    "source": "register_llm",
+    "sourceHandle": "source",
+    "target": "register_ans",
+    "targetHandle": "target",
+    "data": {
+     "sourceType": "llm",
+     "targetType": "answer",
+     "isInIteration": false,
+     "isInLoop": false
+    },
+    "zIndex": 0
+   },
+   {
+    "id": "classifier-c_faq-faq_kb-target",
+    "type": "custom",
+    "source": "classifier",
+    "sourceHandle": "c_faq",
+    "target": "faq_kb",
+    "targetHandle": "target",
+    "data": {
+     "sourceType": "question-classifier",
+     "targetType": "knowledge-retrieval",
+     "isInIteration": false,
+     "isInLoop": false
+    },
+    "zIndex": 0
+   },
+   {
+    "id": "faq_kb-source-faq_llm-target",
+    "type": "custom",
+    "source": "faq_kb",
+    "sourceHandle": "source",
+    "target": "faq_llm",
+    "targetHandle": "target",
+    "data": {
+     "sourceType": "knowledge-retrieval",
+     "targetType": "llm",
+     "isInIteration": false,
+     "isInLoop": false
+    },
+    "zIndex": 0
+   },
+   {
+    "id": "faq_llm-source-faq_ans-target",
+    "type": "custom",
+    "source": "faq_llm",
+    "sourceHandle": "source",
+    "target": "faq_ans",
+    "targetHandle": "target",
+    "data": {
+     "sourceType": "llm",
+     "targetType": "answer",
+     "isInIteration": false,
+     "isInLoop": false
+    },
+    "zIndex": 0
+   }
+  ],
+  "viewport": {
+   "x": -348.2196835690844,
+   "y": -174.40246044613565,
+   "zoom": 0.6000000000000002
+  }
+ },
+ "features": {
+  "opening_statement": "",
+  "suggested_questions": [],
+  "suggested_questions_after_answer": {
+   "enabled": false
+  },
+  "text_to_speech": {
+   "enabled": false,
+   "voice": "",
+   "language": ""
+  },
+  "speech_to_text": {
+   "enabled": false
+  },
+  "retriever_resource": {
+   "enabled": true
+  },
+  "sensitive_word_avoidance": {
+   "enabled": false
+  },
+  "file_upload": {
+   "image": {
+    "enabled": false,
+    "number_limits": 3,
+    "transfer_methods": [
+     "local_file",
+     "remote_url"
+    ]
+   },
+   "enabled": false,
+   "allowed_file_types": [
+    "image"
+   ],
+   "allowed_file_extensions": [
+    ".JPG",
+    ".JPEG",
+    ".PNG",
+    ".GIF",
+    ".WEBP",
+    ".SVG"
+   ],
+   "allowed_file_upload_methods": [
+    "local_file",
+    "remote_url"
+   ],
+   "number_limits": 3,
+   "fileUploadConfig": {
+    "file_size_limit": 15,
+    "batch_count_limit": 5,
+    "image_file_size_limit": 10,
+    "video_file_size_limit": 100,
+    "audio_file_size_limit": 50,
+    "workflow_file_upload_limit": 10
+   }
+  }
+ },
+ "hash": "e5a0d256b7b635456214f7d84ab0961b51ddc90840f1b89366b5f89e335d5b34",
+ "version": "draft",
+ "marked_name": "",
+ "marked_comment": "",
+ "created_by": {
+  "id": "048ea528-b688-4916-b3de-a63ee15cc03e",
+  "name": "游戏测评助手",
+  "email": "723217924@qq.com"
+ },
+ "created_at": 1794916478,
+ "updated_by": {
+  "id": "048ea528-b688-4916-b3de-a63ee15cc03e",
+  "name": "游戏测评助手",
+  "email": "723217924@qq.com"
+ },
+ "updated_at": 1794924868,
+ "tool_published": false,
+ "environment_variables": [],
+ "conversation_variables": [],
+ "rag_pipeline_variables": []
+}

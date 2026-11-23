@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>后台风格方案看图器 · 滚轮缩放</title>
+<style>
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; overflow: hidden; background: #1b1f27; color: #e8ecf2;
+    font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; }
+  #bar { position: fixed; top: 0; left: 0; right: 0; height: 52px; z-index: 10;
+    display: flex; align-items: center; gap: 8px; padding: 0 16px;
+    background: rgba(24,28,36,.96); border-bottom: 1px solid #313846; }
+  #bar .t { font-size: 13px; font-weight: 600; margin-right: 6px; }
+  #bar button { font: inherit; font-size: 12px; color: #cfd6e2; background: #262c38;
+    border: 1px solid #3a4352; border-radius: 6px; padding: 6px 11px; cursor: pointer; }
+  #bar button:hover { background: #313a49; color: #fff; }
+  #bar button.on { background: #2563eb; border-color: #2563eb; color: #fff; }
+  #bar .zoom { font-family: ui-monospace, monospace; font-size: 12px; color: #9fb0c9; min-width: 52px; text-align: center; }
+  #bar .sp { flex: 1; }
+  #bar .tip { font-size: 11px; color: #7f8ca3; }
+  #stage { position: absolute; inset: 52px 0 0; overflow: hidden; cursor: grab;
+    display: flex; align-items: center; justify-content: center; touch-action: none; }
+  #stage.drag { cursor: grabbing; }
+  #img { transform-origin: center center; will-change: transform; max-width: none; user-select: none;
+    -webkit-user-drag: none; box-shadow: 0 8px 40px rgba(0,0,0,.5); }
+</style>
+</head>
+<body>
+<div id="bar">
+  <span class="t">截图看图器</span>
+  <button data-img="adm_H.png" class="on">H · 柔和渐变 SaaS</button>
+  <button data-img="adm_I.png">I · 深色驾驶舱</button>
+  <button data-img="adm_J.png">J · 浅蓝灰商务</button>
+  <button data-img="adm_K.png">K · 米白档案</button>
+  <span class="sp"></span>
+  <button id="out">− 缩小</button>
+  <span class="zoom" id="zoom">100%</span>
+  <button id="in">放大 ＋</button>
+  <button id="fit">适应窗口</button>
+  <button id="one">1:1</button>
+  <span class="tip">滚轮缩放 · 按住拖拽 · 双击放大</span>
+</div>
+<div id="stage"><img id="img" src="adm_H.png" alt="截图"></div>
+
+<script>
+  var stage = document.getElementById('stage'), img = document.getElementById('img');
+  var zEl = document.getElementById('zoom');
+  var scale = 1, tx = 0, ty = 0, fitScale = 1;
+  var dragging = false, sx = 0, sy = 0, bx = 0, by = 0;
+
+  function apply() {
+    img.style.transform = 'translate(' + tx + 'px,' + ty + 'px) scale(' + scale + ')';
+    zEl.textContent = Math.round(scale * 100) + '%';
+  }
+  function fit() {
+    var r = stage.getBoundingClientRect();
+    fitScale = Math.min((r.width - 48) / img.naturalWidth, (r.height - 48) / img.naturalHeight, 1);
+    scale = fitScale; tx = 0; ty = 0; apply();
+  }
+  function zoomAt(factor, cx, cy) {
+    var r = stage.getBoundingClientRect();
+    if (cx === undefined) { cx = r.width / 2; cy = r.height / 2; }
+    var px = cx - r.width / 2, py = cy - r.height / 2;
+    var mx = (px - tx) / scale, my = (py - ty) / scale;
+    var ns = Math.max(0.15, Math.min(8, scale * factor));
+    tx = px - mx * ns; ty = py - my * ns; scale = ns; apply();
+  }
+
+  stage.addEventListener('wheel', function (e) {
+    e.preventDefault();
+    var r = stage.getBoundingClientRect();
+    zoomAt(e.deltaY < 0 ? 1.12 : 1 / 1.12, e.clientX - r.left, e.clientY - r.top);
+  }, { passive: false });
+
+  stage.addEventListener('mousedown', function (e) {
+    dragging = true; stage.classList.add('drag');
+    sx = e.clientX; sy = e.clientY; bx = tx; by = ty; e.preventDefault();
+  });
+  window.addEventListener('mousemove', function (e) {
+    if (!dragging) return;
+    tx = bx + (e.clientX - sx); ty = by + (e.clientY - sy); apply();
+  });
+  window.addEventListener('mouseup', function () { dragging = false; stage.classList.remove('drag'); });
+  stage.addEventListener('dblclick', function (e) {
+    var r = stage.getBoundingClientRect();
+    zoomAt(scale < 1.5 ? 2 : 0.5, e.clientX - r.left, e.clientY - r.top);
+  });
+
+  document.getElementById('in').onclick = function () { zoomAt(1.25); };
+  document.getElementById('out').onclick = function () { zoomAt(0.8); };
+  document.getElementById('fit').onclick = fit;
+  document.getElementById('one').onclick = function () { scale = 1; tx = 0; ty = 0; apply(); };
+
+  Array.prototype.forEach.call(document.querySelectorAll('#bar button[data-img]'), function (btn) {
+    btn.onclick = function () {
+      Array.prototype.forEach.call(document.querySelectorAll('#bar button[data-img]'), function (b) { b.classList.remove('on'); });
+      btn.classList.add('on');
+      img.src = btn.getAttribute('data-img');
+      img.onload = fit;
+    };
+  });
+  img.onload = fit;
+</script>
+</body>
+</html>

@@ -1,0 +1,16 @@
+import sys, os, time
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from cdpkit import Browser, open_page
+b = Browser()
+open_page(b, "http://127.0.0.1:8000/login?f=9", 1180, 760)
+time.sleep(1.0); b.js("localStorage.clear()")
+b.js("document.getElementById('csFab').click()")
+time.sleep(0.4)
+b.js("document.querySelectorAll('.cs-chip')[1].click()")
+time.sleep(13)
+print("answer:", b.js("document.querySelector('#csBody .cs-msg:last-child').textContent.slice(0,90)"))
+b.js("document.getElementById('csInput').value='帮我查一下张三的成绩'; document.getElementById('csForm').requestSubmit();")
+time.sleep(1.5)
+print("guard:", b.js("document.querySelector('#csBody .cs-msg:last-child').textContent.slice(0,40)"))
+b.shot("cs_final2.png")
+print("panel overflow:", b.js("document.getElementById('csPanel').scrollHeight > document.getElementById('csPanel').clientHeight"))

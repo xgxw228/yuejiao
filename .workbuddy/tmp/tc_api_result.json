@@ -1,0 +1,324 @@
+[
+ {
+  "id": "TC-PROF-001",
+  "title": "全字段结构化画像",
+  "verdict": "PASS",
+  "expect": "命中 0.5/1+2 且 best_match 有分",
+  "actual": "edu=高中 top=['0.5/1+2 新加坡定向培养本科班', '2+2 国际本科直通班'] score=93"
+ },
+ {
+  "id": "TC-PROF-002",
+  "title": "仅 raw_text 走正则兜底",
+  "verdict": "PASS",
+  "expect": "抽出 age=19，不得编造学历",
+  "actual": "age=19 edu='姓名 张三 性别 男 年龄 19岁 家里很有钱' keys=['profile', 'matches', 'best_match', 'summary']"
+ },
+ {
+  "id": "TC-PROF-003",
+  "title": "目标学历≠当前学历",
+  "verdict": "PASS",
+  "expect": "高中/专科/高中/本科",
+  "actual": "我19岁，高中刚→高中/0.5/1+2 新加坡定向培养本科班; 我是专科毕业，想→专科/一年制专升本; 我现在高二在读→高中/0.5/1+2 新加坡定向培养本科班; 本科毕业了，想读→本科/一年制本升硕"
+ },
+ {
+  "id": "TC-PROF-004",
+  "title": "学历归一化优先级",
+  "verdict": "PASS",
+  "expect": "硕士/硕士/本科/专科/专科/中职技校/中职技校/高中/初中/中一/学历不详",
+  "actual": "研究生→硕士; 硕士→硕士; 本科→本科; 大专→专科; 专科→专科; 中职→中职技校; 技校→中职技校; 高中→高中; 初中→初中; 中一→中一; 学历不详→学历不详"
+ },
+ {
+  "id": "TC-PROF-005",
+  "title": "意向归一化",
+  "verdict": "PASS",
+  "expect": "就业/就业/移民/移民/升学/升学/升学/升学/None",
+  "actual": "想找工作→就业; 想就业→就业; 想移民→移民; 想拿永居→移民; 想升学→升学; 想提升学历→升学; 想出国留学→升学; 想读本科→升学; 随便看看→None"
+ },
+ {
+  "id": "TC-PROF-006",
+  "title": "学历→项目池匹配",
+  "verdict": "PASS",
+  "expect": "2+2 / 0.5+1+2 / 专升本 / 本升硕 / 6+6",
+  "actual": "初中15→2+2 国际本科直通班; 高中17→0.5/1+2 新加坡定向培养本科班; 专科21→一年制专升本; 本科23→一年制本升硕; 中职技校17→6+6 酒店运营大专就业班"
+ },
+ {
+  "id": "TC-PROF-007",
+  "title": "双元制三条件为「与」",
+  "verdict": "PASS",
+  "expect": "只有第1组命中",
+  "actual": "25岁/德语B1/强→命中; 17岁/德语B1/强→未命中; 30岁/无/强→未命中; 30岁/德语B1/弱→未命中"
+ },
+ {
+  "id": "TC-PROF-008",
+  "title": "无匹配不得编造",
+  "verdict": "PASS",
+  "expect": "matches 为空、best_match=null",
+  "actual": "matches=0 best=None summary=根据目前的画像信息（学历：硕士，年龄：45，意向：移民），暂未匹配到合适的留学项目。建议补充学历层次或意向方向后再做研判。"
+ },
+ {
+  "id": "TC-PROF-009",
+  "title": "加分/排序/去重/上限",
+  "verdict": "PASS",
+  "expect": "降序、去重、≤100",
+  "actual": "scores=[93, 88, 88, 85] 去重=True"
+ },
+ {
+  "id": "TC-PROF-010",
+  "title": "输出结构契约",
+  "verdict": "PASS",
+  "expect": "profile/matches/best_match/summary + project/reason/score",
+  "actual": "summary=张三（高中，19）推荐【0.5/1+2 新加坡定向培养本科班】，匹配度 93 分。推荐理由：学历【高中】正是该项目的首选起点；年龄 19 岁在 17-25 岁招生区间内；升学意向匹配项目的学历产出。国内 0.5~1 年语言与专业衔接 + 新加坡 2 年本科，周期短、学历可认证"
+ },
+ {
+  "id": "TC-STU-001",
+  "title": "请假自然语言解析",
+  "verdict": "PASS",
+  "expect": "明天/今天半天/后天3天/明确区间/两天",
+  "actual": "我明天要请假一天，家→2026-11-19 08:00~2026-11-19 18:00 待审批; 我今天下午请假半天→2026-11-18 08:00~2026-11-18 12:00 待审批; 后天请假三天，去医院→2026-11-20 08:00~2026-11-22 18:00 待审批; 2026-11-20→2026-11-20 08:00~2026-11-22 18:00 待审批; 请两天假→2026-11-19 08:00~2026-11-20 18:00 待审批 (新增5条)"
+ },
+ {
+  "id": "TC-STU-002",
+  "title": "请假查询过滤",
+  "verdict": "PASS",
+  "expect": "过滤生效、不串数据",
+  "actual": "全部7 待审批5 学生2=2 已通过=4"
+ },
+ {
+  "id": "TC-STU-003",
+  "title": "请假审批通过/驳回",
+  "verdict": "PASS",
+  "expect": "两次都落库",
+  "actual": "通过=True 驳回=True"
+ },
+ {
+  "id": "TC-STU-004",
+  "title": "审批不存在资源 404",
+  "verdict": "PASS",
+  "expect": "404 请假申请不存在",
+  "actual": "HTTP404 {'detail': '请假申请 9999 不存在'}"
+ },
+ {
+  "id": "TC-STU-005",
+  "title": "情绪四档打分",
+  "verdict": "PASS",
+  "expect": "90高/55中/15低/20低",
+  "actual": "最近压力好大，感→90/高; 最近总失眠，很焦→55/中; 今天特别开心，考→15/低; 今天正常上课→20/低"
+ },
+ {
+  "id": "TC-STU-006",
+  "title": "高危预警触发与通知",
+  "verdict": "PASS",
+  "expect": "alerted=true + 预警表新增 + 可查",
+  "actual": "alerted=True id=3 表内1->2 msg=已触发高危预警并通知班主任，请尽快关注该学生。"
+ },
+ {
+  "id": "TC-STU-007",
+  "title": "预警阈值边界 70/69/40/39",
+  "verdict": "PASS",
+  "expect": "仅 70 写预警",
+  "actual": "{70: ('高', 1), 69: ('中', 0), 40: ('中', 0), 39: ('低', 0)}"
+ },
+ {
+  "id": "TC-STU-008",
+  "title": "画像 upsert + 50 条上限",
+  "verdict": "PASS",
+  "expect": "1 条画像 + 历史 50 条 (JSON)",
+  "actual": "画像1条 历史50"
+ },
+ {
+  "id": "TC-STU-009",
+  "title": "售后反馈提交与查询",
+  "verdict": "PASS",
+  "expect": "待处理 + 两种过滤可查 + 不串号",
+  "actual": "工单5 本人2 待处理3 学生2=1"
+ },
+ {
+  "id": "TC-STU-010",
+  "title": "工单解决与 404",
+  "verdict": "PASS",
+  "expect": "已解决+已通知；不存在 404",
+  "actual": "status=已解决 notified=1 404=404"
+ },
+ {
+  "id": "TC-STU-011",
+  "title": "学生本人成绩查询",
+  "verdict": "PASS",
+  "expect": "各查各的",
+  "actual": "学生1 8 条 / 学生2 5 条"
+ },
+ {
+  "id": "TC-STU-012",
+  "title": "学生侧越权（接口层）",
+  "verdict": "PASS",
+  "expect": "无凭证 401；学生冒用班主任身份被纠正",
+  "actual": "无凭证→HTTP401；学生 token 冒充 3 号→HTTP400 该申请由班主任李老师负责，你不是这名学生的班主任"
+ },
+ {
+  "id": "TC-EMP-001",
+  "title": "客户录入",
+  "verdict": "PASS",
+  "expect": "status=新增意向",
+  "actual": "id=12 status=新增意向 owner=3"
+ },
+ {
+  "id": "TC-EMP-002",
+  "title": "客户查询三条件过滤",
+  "verdict": "PASS",
+  "expect": "status/owner/keyword(姓名+背景)",
+  "actual": "已签约1 许1 专升本3 owner9=4"
+ },
+ {
+  "id": "TC-EMP-003",
+  "title": "客户详情 404 + 字段更新",
+  "verdict": "PASS",
+  "expect": "查 ID=999 → 404；可更新背景/跟进历史",
+  "actual": "状态999→404 详情999→404 更新跟进→200"
+ },
+ {
+  "id": "TC-EMP-004",
+  "title": "状态流转 + 非法状态",
+  "verdict": "PASS",
+  "expect": "三次流转 200；四个非法 400",
+  "actual": "['跟进中:200', '已签约:200', '已流失:200'] | ['已成交:400', '成交:400', 'pause:400', '空:400']"
+ },
+ {
+  "id": "TC-EMP-005",
+  "title": "日报默认日期=当天",
+  "verdict": "PASS",
+  "expect": "不传日期 → 2026-11-18",
+  "actual": "date=2026-11-18 指定日期=2026-11-17"
+ },
+ {
+  "id": "TC-EMP-006",
+  "title": "成绩录入（小数 + semester 可选）",
+  "verdict": "PASS",
+  "expect": "6.5 不被截断；不传学期也能落库",
+  "actual": "score=6.5 semester=2026秋 无学期录入=200"
+ },
+ {
+  "id": "TC-EMP-007",
+  "title": "成绩按学生/课程查询",
+  "verdict": "PASS",
+  "expect": "course 过滤生效；不存在课程返回空",
+  "actual": "学生1 10 门；传 course 参数后返回 2 条（已过滤）"
+ },
+ {
+  "id": "TC-EMP-008",
+  "title": "NL2SQL 七意图 + 返回 SQL",
+  "verdict": "PASS",
+  "expect": "7 类查询意图全覆盖，且返回可展示的 SQL 原文",
+  "actual": "意图命中 8/8；带 SQL 7 条；查一下许同学的跟进→crm_lead; 张三这次雅思听力多→student_score; 我昨天日报写了什么→daily_report; 有哪些待处理的投诉→ticket; 还有哪些学生请假待→leave; 现在有哪些心理预警→alert; 新加坡留学分享会还→event; 把周同学改成跟进中→crm_lead_update"
+ },
+ {
+  "id": "TC-EMP-009",
+  "title": "无实体/超范围意图",
+  "verdict": "PASS",
+  "expect": "识别不了就给能力清单，不返回数据",
+  "actual": "『那个同学』unknown 行0；『天气』unknown 行0"
+ },
+ {
+  "id": "TC-EMP-010",
+  "title": "NL2SQL 写操作安全",
+  "verdict": "PASS",
+  "expect": "危险指令被拒、不生成 SQL、数据不被批量改",
+  "actual": "['把所有客户都删了:200/forbidden', '帮我把客户状态改成随便什:200/forbidden', 'update crm_l:200/forbidden'] 客户表仍12条"
+ },
+ {
+  "id": "TC-CS-001",
+  "title": "项目查询与过滤",
+  "verdict": "PASS",
+  "expect": "列表8 + keyword + category + detail",
+  "actual": "全部8 新加坡3 德国1(德国双元制职业教育) 新加坡就业2 非法分类0 detail=1条"
+ },
+ {
+  "id": "TC-CS-007",
+  "title": "活动查询 + 类型过滤",
+  "verdict": "PASS",
+  "expect": "列表含剩余名额 + type 过滤生效",
+  "actual": "活动6场，线下4场；字段=['id', 'event_name', 'event_type', 'start_time', 'location', 'max_participants', 'current_participants', 'remaining']"
+ },
+ {
+  "id": "TC-CS-008",
+  "title": "活动报名成功 +1",
+  "verdict": "PASS",
+  "expect": "18 → 19",
+  "actual": "HTTP200 报名成功：新加坡留学分享会 现19"
+ },
+ {
+  "id": "TC-CS-009",
+  "title": "名额已满 400",
+  "verdict": "PASS",
+  "expect": "400 + 人数不变",
+  "actual": "活动6(30/30) HTTP400 现30"
+ },
+ {
+  "id": "TC-CS-010",
+  "title": "活动不存在 404",
+  "verdict": "PASS",
+  "expect": "404 活动不存在",
+  "actual": "HTTP404 {'detail': '活动不存在'}"
+ },
+ {
+  "id": "TC-CS-011",
+  "title": "报名记录 + 重复报名去重",
+  "verdict": "PASS",
+  "expect": "报名列表带活动名；重复报名不重复计数",
+  "actual": "报名3条(首条新加坡留学分享会)；重复报名=你已报名【新加坡留学分享会】，无需重复提交"
+ },
+ {
+  "id": "TC-SYS-002",
+  "title": "健康检查",
+  "verdict": "PASS",
+  "expect": "GET /api/health → {\"status\":\"ok\"}",
+  "actual": "HTTP200 {'code': 0, 'msg': '服务正常', 'data': {'status': 'ok', 'db': {'"
+ },
+ {
+  "id": "TC-SYS-003",
+  "title": "管理后台（只读 8 表 + 权限）",
+  "verdict": "PASS",
+  "expect": "管理员可逐表查看/搜索；未登录 401、非管理员 403",
+  "actual": "表清单 HTTP200（12 张）分页 HTTP200（5 行）；未登录 401；学生 403"
+ },
+ {
+  "id": "TC-ERR-003",
+  "title": "参数校验 422",
+  "verdict": "PASS",
+  "expect": "score:'abc' → 422",
+  "actual": "HTTP422"
+ },
+ {
+  "id": "TC-ERR-006",
+  "title": "密码哈希",
+  "verdict": "PASS",
+  "expect": "非明文",
+  "actual": "stu001:8d969eef6ecad3c2…"
+ },
+ {
+  "id": "TC-NFR-001",
+  "title": "响应速度（本地）",
+  "verdict": "PASS",
+  "expect": "毫秒级",
+  "actual": "平均 10 ms/次"
+ },
+ {
+  "id": "TC-EMP-011",
+  "title": "只读意图不得写库",
+  "verdict": "PASS",
+  "expect": "3 条查询前后 student_score 条数与总分不变",
+  "actual": "条数 10→10，总分 619.0→619.0"
+ },
+ {
+  "id": "TC-STU-013",
+  "title": "请假申请不得被误写库",
+  "verdict": "PASS",
+  "expect": "审批词→403、无时间无请假词→400，且记录数不变",
+  "actual": "审批词 HTTP403、随便看看 HTTP400、记录 14→14"
+ },
+ {
+  "id": "TC-SYS-000",
+  "title": "登录与角色权限矩阵",
+  "verdict": "PASS",
+  "expect": "5 个角色可登录；管理员/领导可进 /admin，班主任/学生/家长 403；错密码 401",
+  "actual": "admin:登录OK/admin200；emp005:登录OK/admin200；emp001:登录OK/admin403；stu001:登录OK/admin403；parent001:登录OK/admin403；错密码401"
+ }
+]

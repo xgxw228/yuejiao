@@ -1,0 +1,15 @@
+import sys, os, time
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from cdpkit import Browser, open_page
+b = Browser()
+open_page(b, "http://127.0.0.1:8000/login?w5=1", 1320, 820)
+time.sleep(0.7); b.js("localStorage.clear()")
+open_page(b, "http://127.0.0.1:8000/login?w5=2", 1320, 820)
+time.sleep(1.0)
+b.js("document.querySelectorAll('#roleCards .role-card')[3].click()")
+time.sleep(0.3); b.js("document.getElementById('form').requestSubmit()")
+time.sleep(2.6)
+b.js("document.getElementById('ws-btn').click()")
+time.sleep(2.0)
+print("first 3:", b.js("Array.from(document.querySelectorAll('#ws-body .ws-item')).slice(0,3).map(e=>e.innerText.split('\n').slice(0,4).join(' / ')).join(' || ')"))
+b.shot("ws_final_staff.png")

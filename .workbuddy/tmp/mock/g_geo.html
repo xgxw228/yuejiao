@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<title>G 浅色档案版</title>
+<link rel="stylesheet" href="light.css" />
+<style>
+  body {
+    background:
+      radial-gradient(900px 620px at 88% 8%, rgba(27, 98, 246, .07), transparent 62%),
+      linear-gradient(172deg, #fbfcfd 0%, #f2f4f7 56%, #eceff4 100%);
+  }
+  /* 极淡斜线，替代照片提供质感 */
+  body::before {
+    content: ""; position: fixed; inset: -25%;
+    background-image: repeating-linear-gradient(64deg, rgba(13,21,32,.05) 0 1px, transparent 1px 92px);
+    mask-image: radial-gradient(circle at 62% 30%, #000 0%, transparent 76%);
+    pointer-events: none;
+  }
+
+  .stage { position: relative; z-index: 2; height: 100vh; display: flex; flex-direction: column; }
+  .top { padding: 24px 64px; }
+
+  .main { flex: 1; display: flex; align-items: stretch; min-height: 0; }
+
+  .lede {
+    flex: 1; min-width: 0;
+    padding: 0 40px 0 64px;
+    display: flex; align-items: center; gap: 40px;
+    position: relative; z-index: 2; overflow: hidden;
+  }
+  .copy { flex: 0 0 548px; }
+  .shot {
+    flex: 1; align-self: stretch;
+    margin: 30px 0;
+    border: 1px solid var(--line);
+    position: relative;
+    background: #fff;
+  }
+  .shot-photo { background-image: url(img/bright.jpg); background-size: cover; background-position: 42% center; }
+  .shot-photo::after {
+    content: ""; position: absolute; inset: 0;
+    background: linear-gradient(150deg, rgba(255,255,255,.14), rgba(255,255,255,0) 46%, rgba(13,21,32,.06));
+  }
+  .shot-geo { display: grid; place-items: center; padding: 26px; background: linear-gradient(168deg,#fff,#f4f6f9); }
+  .shot-geo svg { width: 100%; height: 100%; }
+  .shot-cap {
+    position: absolute; left: 12px; bottom: 10px;
+    font-size: 8.5px; letter-spacing: .22em; color: var(--faint);
+  }
+  .eyebrow { display: flex; align-items: center; gap: 11px; font-size: 9px; letter-spacing: .3em; color: var(--dim); margin-bottom: 24px; }
+  .eyebrow .num { color: #fff; background: var(--ink); padding: 3px 7px; letter-spacing: .1em; }
+  .eyebrow i { flex: 1; height: 1px; background: var(--line); display: block; max-width: 80px; font-style: normal; }
+
+  h1 { font-size: 64px; font-weight: 800; line-height: .98; letter-spacing: -.015em; }
+  h1 .hl { color: var(--blue); }
+  h1 .en { display: block; font-size: 11px; font-weight: 600; letter-spacing: .28em; color: var(--faint); margin-top: 18px; }
+
+  .sub { margin-top: 20px; font-size: 12.5px; line-height: 1.9; color: var(--dim); max-width: 400px; }
+  .rows { margin-top: 34px; max-width: 460px; }
+
+  .chips { display: flex; gap: 8px; margin-top: 26px; }
+  .chips span {
+    font-size: 10px; letter-spacing: .1em; color: var(--faint);
+    border: 1px solid var(--line); padding: 6px 11px;
+  }
+
+  .panel {
+    width: 400px; flex: 0 0 400px;
+    background: #fff;
+    border-left: 1px solid var(--line);
+    padding: 0 44px;
+    display: flex; flex-direction: column; justify-content: center;
+    box-shadow: -18px 0 46px rgba(13,21,32,.045);
+  }
+  .panel-head { display: flex; justify-content: space-between; align-items: center; font-size: 9px; letter-spacing: .28em; color: var(--faint); padding-bottom: 11px; border-bottom: 1px solid var(--line); }
+  .panel-head b { color: var(--blue); font-weight: 400; }
+  .btn { background: var(--blue); }
+  .btn:hover { background: #0f4fd6; }
+
+  .foot {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 16px 64px 20px;
+    font-size: 8.5px; letter-spacing: .22em; color: var(--faint);
+    border-top: 1px solid var(--line);
+    position: relative; z-index: 3;
+  }
+  .foot .pg { color: var(--ink); border-bottom: 1px solid var(--blue); padding-bottom: 2px; margin-left: 10px; }
+</style>
+</head>
+<body>
+
+<div class="stage">
+  <header class="top">
+    <div class="brand">
+      <div class="mark">粤</div>
+      <div class="bt"><b>YUEJIAO SERVICE</b><span>STUDY ABROAD OS · 2026</span></div>
+    </div>
+    <div class="top-right mono">
+      <span><i class="dot" style="background:var(--blue)"></i>SYSTEM ONLINE</span>
+      <span>V 1.2 / DEMO</span>
+    </div>
+  </header>
+
+  <div class="main">
+    <section class="lede">
+      <div class="copy">
+      <div class="eyebrow"><span class="num mono">01</span><span class="mono">COMPANY PROFILE</span><i></i></div>
+      <h1>每一个<br />留学的<span class="hl">决定</span><br />都有依据<span class="en mono">ONE CONVERSATION, EVERY ANSWER</span></h1>
+      <p class="sub">留学规划、课程与关怀、客户跟进，收进同一个对话入口。学生问政策，顾问查数据，班主任盯成绩，管理员看全局。</p>
+      <div class="rows">
+        <div class="row"><span class="k mono">STUDENTS</span><span class="fill"></span><span class="v">在服学生 <em>1,286</em> 人</span></div>
+        <div class="row"><span class="k mono">PARTNERS</span><span class="fill"></span><span class="v">合作院校 <em>47</em> 所</span></div>
+        <div class="row"><span class="k mono">AGENTS</span><span class="fill"></span><span class="v">在线智能体 <em>3</em> 类</span></div>
+      </div>
+      <div class="chips">
+        <span class="mono">留学生管家</span>
+        <span class="mono">员工业务助手</span>
+        <span class="mono">客服与活动助手</span>
+      </div>
+      </div>
+            <div class="shot shot-geo">
+        <svg viewBox="0 0 400 520" preserveAspectRatio="xMidYMid meet">
+          <g fill="none" stroke="#0d1520" stroke-opacity=".28" stroke-width="1">
+            <circle cx="200" cy="252" r="168"/>
+            <ellipse cx="200" cy="252" rx="126" ry="168"/>
+            <ellipse cx="200" cy="252" rx="82" ry="168"/>
+            <ellipse cx="200" cy="252" rx="38" ry="168"/>
+            <line x1="200" y1="84" x2="200" y2="420"/>
+            <ellipse cx="200" cy="252" rx="168" ry="126"/>
+            <ellipse cx="200" cy="252" rx="168" ry="82"/>
+            <ellipse cx="200" cy="252" rx="168" ry="36"/>
+            <line x1="32" y1="252" x2="368" y2="252"/>
+          </g>
+          <g fill="none" stroke="#1b62f6" stroke-opacity=".6" stroke-width="1.2">
+            <path d="M104 208 Q196 132 300 214"/>
+            <path d="M112 318 Q206 372 306 276"/>
+          </g>
+          <g fill="#1b62f6">
+            <circle cx="104" cy="208" r="3.2"/><circle cx="300" cy="214" r="3.2"/>
+            <circle cx="112" cy="318" r="3.2"/><circle cx="306" cy="276" r="3.2"/>
+          </g>
+          <g stroke="#0d1520" stroke-opacity=".18" stroke-width="1">
+            <line x1="200" y1="62" x2="200" y2="76"/><line x1="200" y1="428" x2="200" y2="442"/>
+            <line x1="10" y1="252" x2="24" y2="252"/><line x1="376" y1="252" x2="390" y2="252"/>
+          </g>
+          <text x="200" y="36" text-anchor="middle" font-size="9" letter-spacing="3"
+                fill="#8b919c" font-family="Consolas, monospace">GLOBAL NETWORK</text>
+          <text x="200" y="486" text-anchor="middle" font-size="9" letter-spacing="3"
+                fill="#8b919c" font-family="Consolas, monospace">47 PARTNERS · 12 CITIES</text>
+        </svg>
+        <div class="shot-cap mono">FIG.01 / 服务网络</div>
+      </div>
+    </section>
+
+    <aside class="panel">
+      <div class="panel-head mono"><span>ACCOUNT ACCESS</span><b>／ 账号登录</b></div>
+      <div class="field"><label class="mono">USERNAME 用户名</label><input value="emp001" /></div>
+      <div class="field"><label class="mono">PASSWORD 密码</label><input type="password" value="123456" /></div>
+      <button class="btn mono">进入系统</button>
+      <button class="ghost mono">免登录体验 / GUEST</button>
+      <div class="roles">
+        <div class="role on"><b>班主任</b><span class="mono">EMP001</span></div>
+        <div class="role"><b>员工</b><span class="mono">EMP002</span></div>
+        <div class="role"><b>留学生</b><span class="mono">STU001</span></div>
+        <div class="role"><b>管理员</b><span class="mono">ADMIN</span></div>
+      </div>
+      <div class="fine mono"><span>演示环境 · 密码 123456</span><span>家长可注册</span></div>
+    </aside>
+  </div>
+
+  <footer class="foot mono">
+    <span>粤教服务 · STUDY ABROAD SERVICE</span>
+    <span>演示环境 · 数据每日可重置</span>
+    <span>YUEJIAO SERVICE © 2026<span class="pg">0</span></span>
+  </footer>
+</div>
+</body>
+</html>

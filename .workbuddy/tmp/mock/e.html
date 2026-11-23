@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<title>E 应用内改造</title>
+<link rel="stylesheet" href="mock.css" />
+</head>
+<body class="app">
+<div class="bg" style="--img:url(img/lib.jpg);background-position:center 30%"></div>
+<div class="veil" style="background:linear-gradient(180deg,rgba(5,8,13,.9),rgba(5,8,13,.97))"></div>
+
+<div class="app-grid">
+  <aside class="rail">
+    <div class="brand">
+      <div class="mark">粤</div>
+      <div class="bt"><b style="font-size:11px">YUEJIAO</b><span style="font-size:8px">EMPLOYEE OS</span></div>
+    </div>
+    <nav class="nav">
+      <a class="on"><span>对话助手</span><small class="mono">01</small></a>
+      <a><span>学生成绩</span><small class="mono">02</small></a>
+      <a><span>客户档案</span><small class="mono">03</small></a>
+      <a><span>请假审批</span><small class="mono">04</small></a>
+      <a><span>心理预警</span><small class="mono">05</small></a>
+      <a><span>数据后台</span><small class="mono">06</small></a>
+    </nav>
+    <div class="rail-foot mono">
+      李老师 · 班主任<br />
+      新加坡 2025 级 1 班<br />
+      —————<br />
+      46 / 46 API OK
+    </div>
+  </aside>
+
+  <section class="chat">
+    <div class="chat-top mono">
+      <b>员工业务助手</b>
+      <span>CONTEXT · 4 TURNS</span>
+    </div>
+    <div class="chat-body">
+      <div class="msg me">
+        <div class="who mono">李老师 · 班主任</div>
+        <div class="bubble">给张三录入高等数学课程成绩 76 分</div>
+      </div>
+      <div class="msg">
+        <div class="who mono">ASSISTANT · 员工端</div>
+        <div class="bubble">
+          已给张三录入【高等数学】76 分。<br />
+          未指定学期，系统按他在读学期归档为 <span class="k">2025-2026 第二学期</span>，要改的话告诉我学期。
+        </div>
+      </div>
+      <div class="msg me">
+        <div class="who mono">李老师 · 班主任</div>
+        <div class="bubble">这是哪个学期的成绩？</div>
+      </div>
+      <div class="msg">
+        <div class="who mono">ASSISTANT · 员工端</div>
+        <div class="bubble">
+          你问的是张三的【高等数学】，学期为 <span class="k">2025-2026 第二学期</span>。
+        </div>
+      </div>
+    </div>
+    <div class="composer">
+      <div class="box">输入问题，例如「我班上还有谁不及格」</div>
+      <button class="send mono">SEND</button>
+    </div>
+  </section>
+
+  <aside class="info">
+    <h3 class="mono">CURRENT PROFILE</h3>
+    <div class="rows">
+      <div class="row"><span class="k mono">NAME</span><span class="fill"></span><span class="v">李老师</span></div>
+      <div class="row"><span class="k mono">ROLE</span><span class="fill"></span><span class="v">班主任</span></div>
+      <div class="row"><span class="k mono">CLASS</span><span class="fill"></span><span class="v">新加坡 2025 级</span></div>
+    </div>
+    <h3 class="mono" style="margin-top:26px">TODAY</h3>
+    <div class="rows">
+      <div class="row"><span class="k mono">SCORES</span><span class="fill"></span><span class="v"><em>2</em> 条待核</span></div>
+      <div class="row"><span class="k mono">LEAVE</span><span class="fill"></span><span class="v"><em>1</em> 条待批</span></div>
+      <div class="row"><span class="k mono">ALERT</span><span class="fill"></span><span class="v">无新增</span></div>
+    </div>
+  </aside>
+</div>
+</body>
+</html>

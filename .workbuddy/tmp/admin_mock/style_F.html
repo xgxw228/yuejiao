@@ -1,0 +1,68 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><title>经营驾驶舱（Stripe / Vercel 式）</title><style>
+*{box-sizing:border-box}body{margin:0;font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;font-size:13px;-webkit-font-smoothing:antialiased}
+.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+.top{height:60px;display:flex;align-items:center;gap:12px;padding:0 24px;background:var(--panel);border-bottom:1px solid var(--bd)}
+.logo{width:28px;height:28px;background:var(--ac);color:#fff;display:grid;place-items:center;font-weight:800;border-radius:10px}
+.top h1{font-size:14px;margin:0;font-weight:700}.crumb{color:var(--mut);font-size:11px;font-family:ui-monospace,monospace;letter-spacing:.1em}
+.spacer{flex:1}.who{font-size:12px;color:var(--mut)}.top a{font-size:12px;color:var(--mut);text-decoration:none;border:1px solid var(--bd);padding:5px 12px;border-radius:10px}
+.wrap{display:grid;grid-template-columns:212px 1fr;min-height:calc(100vh - 60px)}
+.side{background:var(--side);border-right:1px solid var(--bd);padding:16px 10px}
+.side .st{font-family:ui-monospace,monospace;font-size:9.5px;letter-spacing:.16em;color:var(--mut);padding:0 12px 10px}
+.side a{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:10px;color:var(--tx);text-decoration:none;font-size:13px;margin-bottom:2px}
+.side a.on{background:var(--soft);color:var(--ac);font-weight:700}.side a:hover:not(.on){background:var(--hover)}
+.side a .ic{width:15px;text-align:center;opacity:.75}.side a .n{margin-left:auto;font-family:ui-monospace,monospace;font-size:11px;color:var(--mut)}
+.side a.on .n{color:var(--ac)}
+.main{padding:24px 28px 40px;min-width:0;background:var(--bg)}
+.mh{display:flex;align-items:flex-end;gap:12px;margin-bottom:18px}.mh h2{font-size:21px;margin:0;font-weight:750;letter-spacing:-.01em}
+.mh .sub{font-size:12px;color:var(--mut);padding-bottom:3px}
+.card{background:var(--panel);border:1px solid var(--bd);border-radius:10px;overflow:hidden}
+.sec-h{display:flex;align-items:center;gap:10px;margin:22px 0 11px}
+.sec-h b{font-size:13px;font-weight:700}.sec-h .line{flex:1;height:1px;background:var(--bd)}
+.sec-h .more{font-size:11px;color:var(--ac);text-decoration:none}
+:root{--bg:#f6f7fb;--panel:#fff;--side:#fff;--tx:#171f35;--mut:#8a93a8;--bd:#e6e9f1;--ac:#4f46e5;--soft:#eef0ff;--hover:#f7f8ff}
+.hero-kpi{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.hero-kpi .k{padding:20px 22px;border:1px solid var(--bd);border-radius:var(--r);background:var(--panel)}
+.hero-kpi .lab{font-size:11px;color:var(--mut);letter-spacing:.02em}
+.hero-kpi .val{font-family:ui-monospace,monospace;font-size:40px;font-weight:700;line-height:1.1;margin-top:9px;letter-spacing:-.03em}
+.hero-kpi .chg{font-size:10.5px;color:#16a34a;margin-top:8px;font-weight:600}
+.hero-kpi .chg.warn{color:#d97706}.hero-kpi .chg.bad{color:#dc2626}
+.panel{padding:20px 22px}
+.dist2{margin-top:16px}
+.dist2 .row{display:grid;grid-template-columns:78px 1fr 44px;gap:12px;align-items:center;margin:13px 0;font-size:12px}
+.dist2 .track{height:9px;background:#f0f2f7;border-radius:99px;overflow:hidden}
+.dist2 .fill{height:100%;border-radius:99px;display:block}
+.dist2 .pct{font-family:ui-monospace,monospace;font-size:11px;color:var(--mut);text-align:right}
+.tbl{width:100%;border-collapse:collapse;font-size:12px}
+.tbl th{text-align:left;font-family:ui-monospace,monospace;font-size:9.5px;letter-spacing:.1em;color:var(--mut);padding:10px 14px;border-bottom:1px solid var(--bd)}
+.tbl td{padding:11px 14px;border-bottom:1px solid var(--bd)}
+.tbl tr:last-child td{border-bottom:0}
+.pill{font-size:10.5px;padding:2px 9px;border-radius:99px;background:#f1f3f8;color:#5b6478;white-space:nowrap}
+.pill.w{background:#fef3c7;color:#a16207}.pill.o{background:#dcfce7;color:#15803d}.pill.b{background:#fee2e2;color:#b91c1c}
+</style></head><body><div class="top"><div class="logo">粤</div><h1>粤教服务 · 数据后台</h1><span class="crumb">DATA / 概览</span>
+<div class="spacer"></div><span class="who">管理员 · 梁老师</span><a href="#">返回工作台</a></div>
+<div class="wrap"><aside class="side"><div class="st">WORKSPACE / 工作区</div><a class="on"><span class="ic">◎</span>概览<span class="n">12</span></a><a class=""><span class="ic">◇</span>客户线索<span class="n">12</span></a><a class=""><span class="ic">△</span>心理预警<span class="n">4</span></a><a class=""><span class="ic">▣</span>行政服务<span class="n">7</span></a><a class=""><span class="ic">✉</span>反馈工单<span class="n">3</span></a><a class=""><span class="ic">▥</span>学生成绩<span class="n">27</span></a><a class=""><span class="ic">≡</span>对话记录<span class="n">73</span></a><a class=""><span class="ic">◉</span>讲座活动<span class="n">5</span></a></aside>
+<main class="main"><div class="mh"><h2>经营概览</h2><span class="sub">2026 年 11 月 18 日 · 周三</span></div>
+<div class="hero-kpi">
+  <div class="k"><div class="lab">客户线索</div><div class="val">12</div><div class="chg">↑ 今日新增 12 · 全部为今日录入</div></div>
+  <div class="k"><div class="lab">已签约</div><div class="val">1</div><div class="chg warn">转化率 8.3% · 4 条跟进中</div></div>
+  <div class="k"><div class="lab">未处理预警</div><div class="val" style="color:#dc2626">4</div><div class="chg bad">3 条高风险 · 需立即介入</div></div>
+  <div class="k"><div class="lab">今日对话</div><div class="val">73</div><div class="chg">3 类智能体协同处理</div></div>
+</div>
+<div class="sec-h"><b>结构分析</b><span class="line"></span></div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+  <div class="card panel"><div style="font-size:13px;font-weight:700">线索状态分布</div><div style="font-size:11px;color:var(--mut);margin-top:4px">共 12 条 · 按状态聚合</div>
+  <div class="dist2">
+<div class="row"><span>新增意向</span><span class="track"><span class="fill" style="width:41.66666666666667%;background:#2563eb"></span></span><span class="pct">5 / 12</span></div><div class="row"><span>跟进中</span><span class="track"><span class="fill" style="width:33.33333333333333%;background:#f59e0b"></span></span><span class="pct">4 / 12</span></div><div class="row"><span>已签约</span><span class="track"><span class="fill" style="width:8.333333333333332%;background:#16a34a"></span></span><span class="pct">1 / 12</span></div><div class="row"><span>已流失</span><span class="track"><span class="fill" style="width:16.666666666666664%;background:#94a3b8"></span></span><span class="pct">2 / 12</span></div>
+  </div></div>
+  <div class="card panel"><div style="font-size:13px;font-weight:700">待办事项</div><div style="font-size:11px;color:var(--mut);margin-top:4px">按紧急程度排序</div>
+  <div class="dist2">
+   <div class="row"><span style="color:#b91c1c;font-weight:700">高风险预警</span><span class="track"><span class="fill" style="width:75%;background:#dc2626"></span></span><span class="pct">3</span></div>
+   <div class="row"><span>待审批请假</span><span class="track"><span class="fill" style="width:88%;background:#f59e0b"></span></span><span class="pct">7</span></div>
+   <div class="row"><span>待处理工单</span><span class="track"><span class="fill" style="width:50%;background:#2563eb"></span></span><span class="pct">3</span></div>
+   <div class="row"><span>跟进中线索</span><span class="track"><span class="fill" style="width:33%;background:#64748b"></span></span><span class="pct">4</span></div>
+  </div></div>
+</div>
+<div class="sec-h"><b>最近线索</b><span class="line"></span><a class="more" href="#">查看全部 12 条 →</a></div>
+<div class="card"><table class="tbl"><thead><tr><th>客户</th><th>状态</th><th>联系方式</th><th>背景</th><th>录入时间</th></tr></thead><tbody>
+<tr><td style="font-weight:700">许明</td><td><span class="pill w">跟进中</span></td><td class="mono">138****0002</td><td style="color:var(--mut)">19 岁高中毕业，意向新加坡本科</td><td class="mono" style="color:var(--mut)">2026-11-18 08:11</td></tr><tr><td style="font-weight:700">陈嘉怡</td><td><span class="pill ">新增意向</span></td><td class="mono">137****0003</td><td style="color:var(--mut)">22 岁大专毕业，想快速拿本科</td><td class="mono" style="color:var(--mut)">2026-11-18 08:11</td></tr><tr><td style="font-weight:700">刘一鸣</td><td><span class="pill ">新增意向</span></td><td class="mono">136****0004</td><td style="color:var(--mut)">17 岁中职机电，德语零基础</td><td class="mono" style="color:var(--mut)">2026-11-18 08:11</td></tr><tr><td style="font-weight:700">张三</td><td><span class="pill w">跟进中</span></td><td class="mono">135****0001</td><td style="color:var(--mut)">意向德国双元制，已录成绩</td><td class="mono" style="color:var(--mut)">2026-11-18 08:16</td></tr><tr><td style="font-weight:700">吴天成</td><td><span class="pill o">已签约</span></td><td class="mono">139****0009</td><td style="color:var(--mut)">德国双元制已签约</td><td class="mono" style="color:var(--mut)">2026-11-18 08:20</td></tr>
+</tbody></table></div></main></div></body></html>

@@ -1,0 +1,1266 @@
+{
+ "id": "e42b0336-f2ce-4b8e-9193-508f8b71e3ff",
+ "graph": {
+  "nodes": [
+   {
+    "id": "start",
+    "type": "custom",
+    "data": {
+     "variables": [
+      {
+       "variable": "user_id",
+       "label": "学生ID",
+       "description": "",
+       "type": "number",
+       "required": false,
+       "hide": false,
+       "max_length": null,
+       "options": []
+      },
+      {
+       "variable": "student_name",
+       "label": "学生姓名",
+       "description": "",
+       "type": "text-input",
+       "required": false,
+       "hide": false,
+       "max_length": 48,
+       "options": []
+      }
+     ],
+     "type": "start",
+     "title": "用户输入",
+     "desc": "",
+     "selected": false,
+     "default_value": [
+      {
+       "key": "user_id",
+       "type": "number",
+       "value": 1
+      },
+      {
+       "key": "student_name",
+       "type": "string",
+       "value": "张三"
+      }
+     ]
+    },
+    "position": {
+     "x": 80,
+     "y": 420
+    },
+    "positionAbsolute": {
+     "x": 80,
+     "y": 420
+    },
+    "targetPosition": "left",
+    "sourcePosition": "right",
+    "width": 242,
+    "height": 134,
+    "selected": false
+   },
+   {
+    "id": "classifier",
+    "type": "custom",
+    "data": {
+     "type": "question-classifier",
+     "title": "意图分类",
+     "desc": "",
+     "query_variable_selector": [
+      "start",
+      "sys.query"
+     ],
+     "model": {
+      "provider": "langgenius/tongyi/tongyi",
+      "name": "qwen-plus",
+      "mode": "chat",
+      "completion_params": {
+       "temperature": 0,
+       "max_tokens": 800
+      }
+     },
+     "classes": [
+      {
+       "id": "c_leave_apply",
+       "name": "请假申请：要请假、开请假条、说明请假时间和事由，例如「我明天要请假一天，家里有事」"
+      },
+      {
+       "id": "c_leave_query",
+       "name": "请假查询：查自己交过的请假单、审批到哪一步了，例如「我的请假批了吗」"
+      },
+      {
+       "id": "c_emotion",
+       "name": "情绪倾诉：表达压力大、焦虑、失眠、难过、孤独，或说出「活不下去」「不想活」这类极端情绪"
+      },
+      {
+       "id": "c_feedback",
+       "name": "售后反馈：投诉、对课程或住宿服务不满意、要求退费或换项目"
+      },
+      {
+       "id": "c_score",
+       "name": "成绩查询：查考试成绩、某门课考了多少分"
+      },
+      {
+       "id": "c_policy",
+       "name": "升学政策咨询：留学政策、费用标准、院校和项目介绍、申请材料等知识型问题，以及不属于上面任何一类的问题"
+      }
+     ],
+     "instruction": "",
+     "instructions": "",
+     "vision": {
+      "enabled": false
+     },
+     "selected": false
+    },
+    "position": {
+     "x": 400,
+     "y": 200
+    },
+    "positionAbsolute": {
+     "x": 400,
+     "y": 200
+    },
+    "targetPosition": "left",
+    "sourcePosition": "right",
+    "width": 241,
+    "height": 465,
+    "selected": false
+   },
+   {
+    "id": "leave_apply_http",
+    "type": "custom",
+    "data": {
+     "type": "http-request",
+     "title": "提交请假",
+     "desc": "",
+     "method": "post",
+     "url": "http://host.docker.internal:8000/api/agent/leave-apply",
+     "authorization": {
+      "type": "no-auth",
+      "config": null
+     },
+     "headers": "Content-Type:application/json",
+     "params": "",
+     "body": {
+      "type": "json",
+      "data": [
+       {
+        "key": "",
+        "type": "text",
+        "value": "{\"student_id\":\"{{#start.user_id#}}\",\"reason\":\"{{#sys.query#}}\",\"service_type\":\"请假\"}"
+       }
+      ]
+     },
+     "timeout": {
+      "connect": 10,
+      "read": 30,
+      "write": 10
+     },
+     "retry_config": {
+      "retry_enabled": true,
+      "max_retries": 2,
+      "retry_interval": 500
+     },
+     "ssl_verify": true,
+     "variables": [],
+     "selected": false
+    },
+    "position": {
+     "x": 780,
+     "y": 60
+    },
+    "positionAbsolute": {
+     "x": 780,
+     "y": 60
+    },
+    "targetPosition": "left",
+    "sourcePosition": "right",
+    "width": 241,
+    "height": 136,
+    "selected": false
+   },
+   {
+    "id": "leave_apply_llm",
+    "type": "custom",
+    "data": {
+     "type": "llm",
+     "title": "请假回执",
+     "desc": "",
+     "model": {
+      "provider": "langgenius/tongyi/tongyi",
+      "name": "qwen-plus",
+      "mode": "chat",
+      "completion_params": {
+       "temperature": 0.3,
+       "max_tokens": 2000
+      }
+     },
+     "prompt_template": [
+      {
+       "role": "system",
+       "text": "你是「粤教服务」的留学生智能管家，负责在读留学生的请假、情绪关怀、售后反馈、成绩查询和升学咨询。\n学生刚提交了请假申请，你要把申请结果清楚地告诉他。\n【铁律】\n1. 业务数据只能来自「工具返回」里的 data 字段，不许自己编造姓名、时间、分数、单号、名额。\n2. 工具返回 code 不为 0，或出现 detail / msg 里带\"未找到\"\"不存在\"\"已满\"\"非法\"等字眼时，如实转述原因，并给出一个下一步建议。\n3. 用中文口语回答，不要输出 JSON、不要暴露接口路径、不要提\"工具\"\"节点\"\"API\"这些词。\n4. 回答控制在 4 句话以内，需要罗列信息时用简短列表。",
+       "id": "7cfb3b4e-af5d-4295-b891-8abb64df9878"
+      },
+      {
+       "role": "user",
+       "text": "学生说：{{#sys.query#}}\n\n工具返回：{{#leave_apply_http.body#}}\n\n请告诉他：申请单号、请假起止时间、当前状态，并提醒他等待班主任审批。",
+       "id": "607be1fb-f408-4344-a157-8f85f929c7a0"
+      }
+     ],
+     "context": {
+      "enabled": false,
+      "variable_selector": []
+     },
+     "vision": {
+      "enabled": false
+     },
+     "memory": null,
+     "reasoning_format": "separated",
+     "selected": false
+    },
+    "position": {
+     "x": 1120,
+     "y": 60
+    },
+    "positionAbsolute": {
+     "x": 1120,
+     "y": 60
+    },
+    "targetPosition": "left",
+    "sourcePosition": "right",
+    "width": 241,
+    "height": 87,
+    "selected": false
+   },
+   {
+    "id": "leave_apply_ans",
+    "type": "custom",
+    "data": {
+     "type": "answer",
+     "title": "请假回复",
+     "desc": "",
+     "answer": "{{#leave_apply_llm.text#}}",
+     "variables": [],
+     "selected": false
+    },
+    "position": {
+     "x": 1460,
+     "y": 60
+    },
+    "positionAbsolute": {
+     "x": 1460,
+     "y": 60
+    },
+    "targetPosition": "left",
+    "sourcePosition": "right",
+    "width": 241,
+    "height": 102,
+    "selected": false
+   },
+   {
+    "id": "leave_query_http",
+    "type": "custom",
+    "data": {
+     "type": "http-request",
+     "title": "查询请假记录",
+     "desc": "",
+     "method": "get",
+     "url": "http://host.docker.internal:8000/api/agent/leave-list?student_id={{#start.user_id#}}",
+     "authorization": {
+      "type": "no-auth",
+      "config": null
+     },
+     "headers": "Content-Type:application/json",
+     "params": "",
+     "body": {
+      "type": "none",
+      "data": []
+     },
+     "timeout": {
+      "connect": 10,
+      "read": 30,
+      "write": 10
+     },
+     "retry_config": {
+      "retry_enabled": true,
+      "max_retries": 2,
+      "retry_interval": 500
+     },
+     "ssl_verify": true,
+     "variables": [],
+     "selected": false
+    },
+    "position": {
+     "x": 780,
+     "y": 300
+    },
+    "positionAbsolute": {
+     "x": 780,
+     "y": 300
+    },
+    "targetPosition": "left",
+    "sourcePosition": "right",
+    "width": 241,
+    "height": 155,
+    "selected": false
+   },
+   {
+    "id": "leave_query_llm",
+    "type": "custom",
+    "data": {
+     "type": "llm",
+     "title": "请假记录播报",
+     "desc": "",
+     "model": {
+      "provider": "langgenius/tongyi/tongyi",
+      "name": "qwen-plus",
+      "mode": "chat",
+      "completion_params": {
+       "temperature": 0.3,
+       "max_tokens": 2000
+      }
+     },
+     "prompt_template": [
+      {
+       "role": "system",
+       "text": "你是「粤教服务」的留学生智能管家，负责在读留学生的请假、情绪关怀、售后反馈、成绩查询和升学咨询。\n学生要查自己的请假记录。\n【铁律】\n1. 业务数据只能来自「工具返回」里的 data 字段，不许自己编造姓名、时间、分数、单号、名额。\n2. 工具返回 code 不为 0，或出现 detail / msg 里带\"未找到\"\"不存在\"\"已满\"\"非法\"等字眼时，如实转述原因，并给出一个下一步建议。\n3. 用中文口语回答，不要输出 JSON、不要暴露接口路径、不要提\"工具\"\"节点\"\"API\"这些词。\n4. 回答控制在 4 句话以内，需要罗列信息时用简短列表。",
+       "id": "8bf2cd6a-170d-4211-a4ac-55e0f6f65907"
+      },
+      {
+       "role": "user",
+       "text": "学生说：{{#sys.query#}}\n\n工具返回：{{#leave_query_http.body#}}\n\n请列出他的请假记录（类型、起止时间、状态），没有记录就直说没有。",
+       "id": "6c81114d-e347-4662-8ed2-05d63e9abed4"
+      }
+     ],
+     "context": {
+      "enabled": false,
+      "variable_selector": []
+     },
+     "vision": {
+      "enabled": false
+     },
+     "memory": null,
+     "reasoning_format": "separated",
+     "selected": false
+    },
+    "position": {
+     "x": 1120,
+     "y": 300
+    },
+    "positionAbsolute": {
+     "x": 1120,
+     "y": 300
+    },
+    "targetPosition": "left",
+    "sourcePosition": "right",
+    "width": 241,
+    "height": 87,
+    "selected": false
+   },
+   {
+    "id": "leave_query_ans",
+    "type": "custom",
+    "data": {
+     "type": "answer",
+     "title": "请假查询回复",
+     "desc": "",
+     "answer": "{{#leave_query_llm.text#}}",
+     "variables": [],
+     "selected": false
+    },
+    "position": {
+     "x": 1460,
+     "y": 300
+    },
+    "positionAbsolute": {
+     "x": 1460,
+     "y": 300
+    },
+    "targetPosition": "left",
+    "sourcePosition": "right",
+    "width": 241,
+    "height": 102,
+    "selected": false
+   },
+   {
+    "id": "emotion_http",
+    "type": "custom",
+    "data": {
+     "type": "http-request",
+     "title": "情绪评估与预警",
+     "desc": "",
+     "method": "post",
+     "url": "http://host.docker.internal:8000/api/agent/emotion-evaluate",
+     "authorization": {
+      "type": "no-auth",
+      "config": null
+     },
+     "headers": "Content-Type:application/json",
+     "params": "",
+     "body": {
+      "type": "json",
+      "data": [
+       {
+        "key": "",
+        "type": "text",
+        "value": "{\"student_id\":\"{{#start.user_id#}}\",\"text\":\"{{#sys.query#}}\"}"
+       }
+      ]
+     },
+     "timeout": {
+      "connect": 10,
+      "read": 30,
+      "write": 10
+     },
+     "retry_config": {
+      "retry_enabled": true,
+      "max_retries": 2,
+      "retry_interval": 500
+     },
+     "ssl_verify": true,
+     "variables": [],
+     "selected": false
+    },
+    "position": {
+     "x": 780,
+     "y": 540
+    },
+    "positionAbsolute": {
+     "x": 780,
+     "y": 540
+    },
+    "targetPosition": "left",
+    "sourcePosition": "right",
+    "width": 241,
+    "height": 152,
+    "selected": false
+   },
+   {
+    "id": "emotion_llm",
+    "type": "custom",
+    "data": {
+     "type": "llm",
+     "title": "心理关怀话术",
+     "desc": "",
+     "model": {
+      "provider": "langgenius/tongyi/tongyi",
+      "name": "qwen-plus",
+      "mode": "chat",
+      "completion_params": {
+       "temperature": 0.3,
+       "max_tokens": 2000
+      }
+     },
+     "prompt_template": [
+      {
+       "role": "system",
+       "text": "你是「粤教服务」的留学生智能管家，负责在读留学生的请假、情绪关怀、售后反馈、成绩查询和升学咨询。\n学生正在向你倾诉情绪，你要先共情、再给支持，绝对不能说教。\n【铁律】\n1. 业务数据只能来自「工具返回」里的 data 字段，不许自己编造姓名、时间、分数、单号、名额。\n2. 工具返回 code 不为 0，或出现 detail / msg 里带\"未找到\"\"不存在\"\"已满\"\"非法\"等字眼时，如实转述原因，并给出一个下一步建议。\n3. 用中文口语回答，不要输出 JSON、不要暴露接口路径、不要提\"工具\"\"节点\"\"API\"这些词。\n4. 回答控制在 4 句话以内，需要罗列信息时用简短列表。\n5. 如果返回里 alerted 为 true，必须明确告诉他「已经通知班主任关注你」，并且给出一个可以马上做的小建议。\n6. 不许做医学诊断，不许承诺保密，不许说\"我完全理解你的感受\"这类空话。\n",
+       "id": "fd9ca2c4-30f3-47c7-8e7f-4a7d05d0b29b"
+      },
+      {
+       "role": "user",
+       "text": "学生说：{{#sys.query#}}\n\n工具返回：{{#emotion_http.body#}}\n\n请用温和、具体的语气回应他，先接住情绪，再说明系统已经做了什么。",
+       "id": "f308fd72-c891-4137-aede-6b7262c5fa6f"
+      }
+     ],
+     "context": {
+      "enabled": false,
+      "variable_selector": []
+     },
+     "vision": {
+      "enabled": false
+     },
+     "memory": null,
+     "reasoning_format": "separated",
+     "selected": false
+    },
+    "position": {
+     "x": 1120,
+     "y": 540
+    },
+    "positionAbsolute": {
+     "x": 1120,
+     "y": 540
+    },
+    "targetPosition": "left",
+    "sourcePosition": "right",
+    "width": 241,
+    "height": 87,
+    "selected": false
+   },
+   {
+    "id": "emotion_ans",
+    "type": "custom",
+    "data": {
+     "type": "answer",
+     "title": "关怀回复",
+     "desc": "",
+     "answer": "{{#emotion_llm.text#}}",
+     "variables": [],
+     "selected": false
+    },
+    "position": {
+     "x": 1460,
+     "y": 540
+    },
+    "positionAbsolute": {
+     "x": 1460,
+     "y": 540
+    },
+    "targetPosition": "left",
+    "sourcePosition": "right",
+    "width": 241,
+    "height": 102,
+    "selected": false
+   },
+   {
+    "id": "feedback_http",
+    "type": "custom",
+    "data": {
+     "type": "http-request",
+     "title": "创建反馈工单",
+     "desc": "",
+     "method": "post",
+     "url": "http://host.docker.internal:8000/api/agent/feedback-create",
+     "authorization": {
+      "type": "no-auth",
+      "config": null
+     },
+     "headers": "Content-Type:application/json",
+     "params": "",
+     "body": {
+      "type": "json",
+      "data": [
+       {
+        "key": "",
+        "type": "text",
+        "value": "{\"student_id\":\"{{#start.user_id#}}\",\"content\":\"{{#sys.query#}}\"}"
+       }
+      ]
+     },
+     "timeout": {
+      "connect": 10,
+      "read": 30,
+      "write": 10
+     },
+     "retry_config": {
+      "retry_enabled": true,
+      "max_retries": 2,
+      "retry_interval": 500
+     },
+     "ssl_verify": true,
+     "variables": [],
+     "selected": false
+    },
+    "position": {
+     "x": 780,
+     "y": 780
+    },
+    "positionAbsolute": {
+     "x": 780,
+     "y": 780
+    },
+    "targetPosition": "left",
+    "sourcePosition": "right",
+    "width": 241,
+    "height": 152,
+    "selected": false
+   },
+   {
+    "id": "feedback_llm",
+    "type": "custom",
+    "data": {
+     "type": "llm",
+     "title": "工单回执",
+     "desc": "",
+     "model": {
+      "provider": "langgenius/tongyi/tongyi",
+      "name": "qwen-plus",
+      "mode": "chat",
+      "completion_params": {
+       "temperature": 0.3,
+       "max_tokens": 2000
+      }
+     },
+     "prompt_template": [
+      {
+       "role": "system",
+       "text": "你是「粤教服务」的留学生智能管家，负责在读留学生的请假、情绪关怀、售后反馈、成绩查询和升学咨询。\n学生提交了售后反馈，你要给他工单回执。\n【铁律】\n1. 业务数据只能来自「工具返回」里的 data 字段，不许自己编造姓名、时间、分数、单号、名额。\n2. 工具返回 code 不为 0，或出现 detail / msg 里带\"未找到\"\"不存在\"\"已满\"\"非法\"等字眼时，如实转述原因，并给出一个下一步建议。\n3. 用中文口语回答，不要输出 JSON、不要暴露接口路径、不要提\"工具\"\"节点\"\"API\"这些词。\n4. 回答控制在 4 句话以内，需要罗列信息时用简短列表。",
+       "id": "96db5873-38d9-437c-866b-dca15af9e73c"
+      },
+      {
+       "role": "user",
+       "text": "学生说：{{#sys.query#}}\n\n工具返回：{{#feedback_http.body#}}\n\n请告诉他工单编号、当前处理状态，以及大概多久会有老师联系他。",
+       "id": "fcbbe8d1-2b1b-4e7b-ae5f-b894aad042db"
+      }
+     ],
+     "context": {
+      "enabled": false,
+      "variable_selector": []
+     },
+     "vision": {
+      "enabled": false
+     },
+     "memory": null,
+     "reasoning_format": "separated",
+     "selected": false
+    },
+    "position": {
+     "x": 1120,
+     "y": 780
+    },
+    "positionAbsolute": {
+     "x": 1120,
+     "y": 780
+    },
+    "targetPosition": "left",
+    "sourcePosition": "right",
+    "width": 241,
+    "height": 87,
+    "selected": false
+   },
+   {
+    "id": "feedback_ans",
+    "type": "custom",
+    "data": {
+     "type": "answer",
+     "title": "反馈回复",
+     "desc": "",
+     "answer": "{{#feedback_llm.text#}}",
+     "variables": [],
+     "selected": false
+    },
+    "position": {
+     "x": 1460,
+     "y": 780
+    },
+    "positionAbsolute": {
+     "x": 1460,
+     "y": 780
+    },
+    "targetPosition": "left",
+    "sourcePosition": "right",
+    "width": 241,
+    "height": 102,
+    "selected": false
+   },
+   {
+    "id": "score_http",
+    "type": "custom",
+    "data": {
+     "type": "http-request",
+     "title": "查询成绩",
+     "desc": "",
+     "method": "get",
+     "url": "http://host.docker.internal:8000/api/agent/score-list?student_id={{#start.user_id#}}",
+     "authorization": {
+      "type": "no-auth",
+      "config": null
+     },
+     "headers": "Content-Type:application/json",
+     "params": "",
+     "body": {
+      "type": "none",
+      "data": []
+     },
+     "timeout": {
+      "connect": 10,
+      "read": 30,
+      "write": 10
+     },
+     "retry_config": {
+      "retry_enabled": true,
+      "max_retries": 2,
+      "retry_interval": 500
+     },
+     "ssl_verify": true,
+     "variables": [],
+     "selected": false
+    },
+    "position": {
+     "x": 780,
+     "y": 1020
+    },
+    "positionAbsolute": {
+     "x": 780,
+     "y": 1020
+    },
+    "targetPosition": "left",
+    "sourcePosition": "right",
+    "width": 241,
+    "height": 155,
+    "selected": false
+   },
+   {
+    "id": "score_llm",
+    "type": "custom",
+    "data": {
+     "type": "llm",
+     "title": "成绩播报",
+     "desc": "",
+     "model": {
+      "provider": "langgenius/tongyi/tongyi",
+      "name": "qwen-plus",
+      "mode": "chat",
+      "completion_params": {
+       "temperature": 0.3,
+       "max_tokens": 2000
+      }
+     },
+     "prompt_template": [
+      {
+       "role": "system",
+       "text": "你是「粤教服务」的留学生智能管家，负责在读留学生的请假、情绪关怀、售后反馈、成绩查询和升学咨询。\n学生要查成绩。\n【铁律】\n1. 业务数据只能来自「工具返回」里的 data 字段，不许自己编造姓名、时间、分数、单号、名额。\n2. 工具返回 code 不为 0，或出现 detail / msg 里带\"未找到\"\"不存在\"\"已满\"\"非法\"等字眼时，如实转述原因，并给出一个下一步建议。\n3. 用中文口语回答，不要输出 JSON、不要暴露接口路径、不要提\"工具\"\"节点\"\"API\"这些词。\n4. 回答控制在 4 句话以内，需要罗列信息时用简短列表。",
+       "id": "c20c7b38-f4de-4e28-b69e-b28763200b7c"
+      },
+      {
+       "role": "user",
+       "text": "学生说：{{#sys.query#}}\n\n工具返回：{{#score_http.body#}}\n\n请用列表列出课程名、分数、学期，并顺带说一句平均分。",
+       "id": "5b5bfa61-d637-416d-be77-e9122563c387"
+      }
+     ],
+     "context": {
+      "enabled": false,
+      "variable_selector": []
+     },
+     "vision": {
+      "enabled": false
+     },
+     "memory": null,
+     "reasoning_format": "separated",
+     "selected": false
+    },
+    "position": {
+     "x": 1120,
+     "y": 1020
+    },
+    "positionAbsolute": {
+     "x": 1120,
+     "y": 1020
+    },
+    "targetPosition": "left",
+    "sourcePosition": "right",
+    "width": 241,
+    "height": 87,
+    "selected": false
+   },
+   {
+    "id": "score_ans",
+    "type": "custom",
+    "data": {
+     "type": "answer",
+     "title": "成绩回复",
+     "desc": "",
+     "answer": "{{#score_llm.text#}}",
+     "variables": [],
+     "selected": false
+    },
+    "position": {
+     "x": 1460,
+     "y": 1020
+    },
+    "positionAbsolute": {
+     "x": 1460,
+     "y": 1020
+    },
+    "targetPosition": "left",
+    "sourcePosition": "right",
+    "width": 241,
+    "height": 102,
+    "selected": false
+   },
+   {
+    "id": "kb_retrieval",
+    "type": "custom",
+    "data": {
+     "type": "knowledge-retrieval",
+     "title": "知识检索",
+     "desc": "",
+     "query_variable_selector": [
+      "start",
+      "sys.query"
+     ],
+     "dataset_ids": [
+      "af4371ce-4934-4468-971a-e61e3dc9d849",
+      "fdd91978-5c55-4e1d-85d0-45b16f9f72ea"
+     ],
+     "retrieval_mode": "multiple",
+     "multiple_retrieval_config": {
+      "top_k": 4,
+      "score_threshold": 0.3,
+      "score_threshold_enabled": true,
+      "reranking_mode": "reranking_model",
+      "reranking_enable": false,
+      "reranking_model": {
+       "provider": "langgenius/tongyi/tongyi",
+       "model": "qwen3-vl-rerank"
+      }
+     },
+     "selected": false
+    },
+    "position": {
+     "x": 780,
+     "y": 1260
+    },
+    "positionAbsolute": {
+     "x": 780,
+     "y": 1260
+    },
+    "targetPosition": "left",
+    "sourcePosition": "right",
+    "width": 241,
+    "height": 117,
+    "selected": false
+   },
+   {
+    "id": "kb_llm",
+    "type": "custom",
+    "data": {
+     "type": "llm",
+     "title": "知识库问答",
+     "desc": "",
+     "model": {
+      "provider": "langgenius/tongyi/tongyi",
+      "name": "qwen-plus",
+      "mode": "chat",
+      "completion_params": {
+       "temperature": 0.3,
+       "max_tokens": 2000
+      }
+     },
+     "prompt_template": [
+      {
+       "role": "system",
+       "text": "你是「粤教服务」的留学政策顾问，回答学生关于政策、费用、院校、申请材料的问题。\n只依据检索到的资料回答；资料里没有的就说「这个我不确定，建议你联系顾问老师确认」，不要编造。\n回答用中文，控制在 5 句话以内。",
+       "id": "690c611c-fcdd-4429-948d-2848471514e8"
+      },
+      {
+       "role": "user",
+       "text": "学生问：{{#sys.query#}}\n\n参考资料：{{#context#}}",
+       "id": "33b8d92c-871b-421a-ad80-209f6e446bd9"
+      }
+     ],
+     "context": {
+      "enabled": true,
+      "variable_selector": [
+       "kb_retrieval",
+       "result"
+      ]
+     },
+     "vision": {
+      "enabled": false
+     },
+     "memory": null,
+     "reasoning_format": "separated",
+     "selected": false
+    },
+    "position": {
+     "x": 1120,
+     "y": 1260
+    },
+    "positionAbsolute": {
+     "x": 1120,
+     "y": 1260
+    },
+    "targetPosition": "left",
+    "sourcePosition": "right",
+    "width": 241,
+    "height": 87,
+    "selected": false
+   },
+   {
+    "id": "kb_ans",
+    "type": "custom",
+    "data": {
+     "type": "answer",
+     "title": "咨询回复",
+     "desc": "",
+     "answer": "{{#kb_llm.text#}}",
+     "variables": [],
+     "selected": false
+    },
+    "position": {
+     "x": 1460,
+     "y": 1260
+    },
+    "positionAbsolute": {
+     "x": 1460,
+     "y": 1260
+    },
+    "targetPosition": "left",
+    "sourcePosition": "right",
+    "width": 241,
+    "height": 102,
+    "selected": false
+   }
+  ],
+  "edges": [
+   {
+    "id": "start-source-classifier-target",
+    "type": "custom",
+    "source": "start",
+    "sourceHandle": "source",
+    "target": "classifier",
+    "targetHandle": "target",
+    "data": {
+     "sourceType": "start",
+     "targetType": "question-classifier",
+     "isInIteration": false,
+     "isInLoop": false
+    },
+    "zIndex": 0
+   },
+   {
+    "id": "classifier-c_leave_apply-leave_apply_http-target",
+    "type": "custom",
+    "source": "classifier",
+    "sourceHandle": "c_leave_apply",
+    "target": "leave_apply_http",
+    "targetHandle": "target",
+    "data": {
+     "sourceType": "question-classifier",
+     "targetType": "http-request",
+     "isInIteration": false,
+     "isInLoop": false
+    },
+    "zIndex": 0
+   },
+   {
+    "id": "leave_apply_http-source-leave_apply_llm-target",
+    "type": "custom",
+    "source": "leave_apply_http",
+    "sourceHandle": "source",
+    "target": "leave_apply_llm",
+    "targetHandle": "target",
+    "data": {
+     "sourceType": "http-request",
+     "targetType": "llm",
+     "isInIteration": false,
+     "isInLoop": false
+    },
+    "zIndex": 0
+   },
+   {
+    "id": "leave_apply_llm-source-leave_apply_ans-target",
+    "type": "custom",
+    "source": "leave_apply_llm",
+    "sourceHandle": "source",
+    "target": "leave_apply_ans",
+    "targetHandle": "target",
+    "data": {
+     "sourceType": "llm",
+     "targetType": "answer",
+     "isInIteration": false,
+     "isInLoop": false
+    },
+    "zIndex": 0
+   },
+   {
+    "id": "classifier-c_leave_query-leave_query_http-target",
+    "type": "custom",
+    "source": "classifier",
+    "sourceHandle": "c_leave_query",
+    "target": "leave_query_http",
+    "targetHandle": "target",
+    "data": {
+     "sourceType": "question-classifier",
+     "targetType": "http-request",
+     "isInIteration": false,
+     "isInLoop": false
+    },
+    "zIndex": 0
+   },
+   {
+    "id": "leave_query_http-source-leave_query_llm-target",
+    "type": "custom",
+    "source": "leave_query_http",
+    "sourceHandle": "source",
+    "target": "leave_query_llm",
+    "targetHandle": "target",
+    "data": {
+     "sourceType": "http-request",
+     "targetType": "llm",
+     "isInIteration": false,
+     "isInLoop": false
+    },
+    "zIndex": 0
+   },
+   {
+    "id": "leave_query_llm-source-leave_query_ans-target",
+    "type": "custom",
+    "source": "leave_query_llm",
+    "sourceHandle": "source",
+    "target": "leave_query_ans",
+    "targetHandle": "target",
+    "data": {
+     "sourceType": "llm",
+     "targetType": "answer",
+     "isInIteration": false,
+     "isInLoop": false
+    },
+    "zIndex": 0
+   },
+   {
+    "id": "classifier-c_emotion-emotion_http-target",
+    "type": "custom",
+    "source": "classifier",
+    "sourceHandle": "c_emotion",
+    "target": "emotion_http",
+    "targetHandle": "target",
+    "data": {
+     "sourceType": "question-classifier",
+     "targetType": "http-request",
+     "isInIteration": false,
+     "isInLoop": false
+    },
+    "zIndex": 0
+   },
+   {
+    "id": "emotion_http-source-emotion_llm-target",
+    "type": "custom",
+    "source": "emotion_http",
+    "sourceHandle": "source",
+    "target": "emotion_llm",
+    "targetHandle": "target",
+    "data": {
+     "sourceType": "http-request",
+     "targetType": "llm",
+     "isInIteration": false,
+     "isInLoop": false
+    },
+    "zIndex": 0
+   },
+   {
+    "id": "emotion_llm-source-emotion_ans-target",
+    "type": "custom",
+    "source": "emotion_llm",
+    "sourceHandle": "source",
+    "target": "emotion_ans",
+    "targetHandle": "target",
+    "data": {
+     "sourceType": "llm",
+     "targetType": "answer",
+     "isInIteration": false,
+     "isInLoop": false
+    },
+    "zIndex": 0
+   },
+   {
+    "id": "classifier-c_feedback-feedback_http-target",
+    "type": "custom",
+    "source": "classifier",
+    "sourceHandle": "c_feedback",
+    "target": "feedback_http",
+    "targetHandle": "target",
+    "data": {
+     "sourceType": "question-classifier",
+     "targetType": "http-request",
+     "isInIteration": false,
+     "isInLoop": false
+    },
+    "zIndex": 0
+   },
+   {
+    "id": "feedback_http-source-feedback_llm-target",
+    "type": "custom",
+    "source": "feedback_http",
+    "sourceHandle": "source",
+    "target": "feedback_llm",
+    "targetHandle": "target",
+    "data": {
+     "sourceType": "http-request",
+     "targetType": "llm",
+     "isInIteration": false,
+     "isInLoop": false
+    },
+    "zIndex": 0
+   },
+   {
+    "id": "feedback_llm-source-feedback_ans-target",
+    "type": "custom",
+    "source": "feedback_llm",
+    "sourceHandle": "source",
+    "target": "feedback_ans",
+    "targetHandle": "target",
+    "data": {
+     "sourceType": "llm",
+     "targetType": "answer",
+     "isInIteration": false,
+     "isInLoop": false
+    },
+    "zIndex": 0
+   },
+   {
+    "id": "classifier-c_score-score_http-target",
+    "type": "custom",
+    "source": "classifier",
+    "sourceHandle": "c_score",
+    "target": "score_http",
+    "targetHandle": "target",
+    "data": {
+     "sourceType": "question-classifier",
+     "targetType": "http-request",
+     "isInIteration": false,
+     "isInLoop": false
+    },
+    "zIndex": 0
+   },
+   {
+    "id": "score_http-source-score_llm-target",
+    "type": "custom",
+    "source": "score_http",
+    "sourceHandle": "source",
+    "target": "score_llm",
+    "targetHandle": "target",
+    "data": {
+     "sourceType": "http-request",
+     "targetType": "llm",
+     "isInIteration": false,
+     "isInLoop": false
+    },
+    "zIndex": 0
+   },
+   {
+    "id": "score_llm-source-score_ans-target",
+    "type": "custom",
+    "source": "score_llm",
+    "sourceHandle": "source",
+    "target": "score_ans",
+    "targetHandle": "target",
+    "data": {
+     "sourceType": "llm",
+     "targetType": "answer",
+     "isInIteration": false,
+     "isInLoop": false
+    },
+    "zIndex": 0
+   },
+   {
+    "id": "classifier-c_policy-kb_retrieval-target",
+    "type": "custom",
+    "source": "classifier",
+    "sourceHandle": "c_policy",
+    "target": "kb_retrieval",
+    "targetHandle": "target",
+    "data": {
+     "sourceType": "question-classifier",
+     "targetType": "knowledge-retrieval",
+     "isInIteration": false,
+     "isInLoop": false
+    },
+    "zIndex": 0
+   },
+   {
+    "id": "kb_retrieval-source-kb_llm-target",
+    "type": "custom",
+    "source": "kb_retrieval",
+    "sourceHandle": "source",
+    "target": "kb_llm",
+    "targetHandle": "target",
+    "data": {
+     "sourceType": "knowledge-retrieval",
+     "targetType": "llm",
+     "isInIteration": false,
+     "isInLoop": false
+    },
+    "zIndex": 0
+   },
+   {
+    "id": "kb_llm-source-kb_ans-target",
+    "type": "custom",
+    "source": "kb_llm",
+    "sourceHandle": "source",
+    "target": "kb_ans",
+    "targetHandle": "target",
+    "data": {
+     "sourceType": "llm",
+     "targetType": "answer",
+     "isInIteration": false,
+     "isInLoop": false
+    },
+    "zIndex": 0
+   }
+  ],
+  "viewport": {
+   "x": -1007.0427101058642,
+   "y": -862.518294497042,
+   "zoom": 0.9094299399062394
+  }
+ },
+ "features": {
+  "opening_statement": "",
+  "suggested_questions": [],
+  "suggested_questions_after_answer": {
+   "enabled": false
+  },
+  "text_to_speech": {
+   "enabled": false,
+   "voice": "",
+   "language": ""
+  },
+  "speech_to_text": {
+   "enabled": false
+  },
+  "retriever_resource": {
+   "enabled": true
+  },
+  "sensitive_word_avoidance": {
+   "enabled": false
+  },
+  "file_upload": {
+   "image": {
+    "enabled": false,
+    "number_limits": 3,
+    "transfer_methods": [
+     "local_file",
+     "remote_url"
+    ]
+   },
+   "enabled": false,
+   "allowed_file_types": [
+    "image"
+   ],
+   "allowed_file_extensions": [
+    ".JPG",
+    ".JPEG",
+    ".PNG",
+    ".GIF",
+    ".WEBP",
+    ".SVG"
+   ],
+   "allowed_file_upload_methods": [
+    "local_file",
+    "remote_url"
+   ],
+   "number_limits": 3,
+   "fileUploadConfig": {
+    "file_size_limit": 15,
+    "batch_count_limit": 5,
+    "image_file_size_limit": 10,
+    "video_file_size_limit": 100,
+    "audio_file_size_limit": 50,
+    "workflow_file_upload_limit": 10
+   }
+  }
+ },
+ "hash": "6cc899c0d5a474f14f0332a1f002a7f3e62f6904063f161ee4e2e41a8a9531a3",
+ "version": "draft",
+ "marked_name": "",
+ "marked_comment": "",
+ "created_by": {
+  "id": "048ea528-b688-4916-b3de-a63ee15cc03e",
+  "name": "游戏测评助手",
+  "email": "723217924@qq.com"
+ },
+ "created_at": 1794882283,
+ "updated_by": {
+  "id": "048ea528-b688-4916-b3de-a63ee15cc03e",
+  "name": "游戏测评助手",
+  "email": "723217924@qq.com"
+ },
+ "updated_at": 1794924766,
+ "tool_published": false,
+ "environment_variables": [],
+ "conversation_variables": [],
+ "rag_pipeline_variables": []
+}

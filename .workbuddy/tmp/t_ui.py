@@ -1,0 +1,21 @@
+import sys, os, time
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from cdpkit import Browser, open_page
+b = Browser()
+open_page(b, "http://127.0.0.1:8000/login?ui=1", 1280, 800)
+time.sleep(0.7); b.js("localStorage.clear()")
+open_page(b, "http://127.0.0.1:8000/login?ui=2", 1280, 800)
+time.sleep(1.0)
+b.js("document.querySelectorAll('#roleCards .role-card')[2].click()")
+time.sleep(0.3); b.js("document.getElementById('form').requestSubmit()")
+time.sleep(2.6)
+b.js("document.getElementById('input').value='我的请假请完了吗'; document.getElementById('send').click();")
+time.sleep(3.0)
+print("answer:", b.js("(document.querySelectorAll('.msg .bubble')[document.querySelectorAll('.msg .bubble').length-1]||{}).textContent?.slice(0,200)"))
+print("still typing:", b.js("document.querySelectorAll('.typing').length"))
+b.shot("student_chat_status.png")
+# 日志里是否多一条查询
+b.js("document.getElementById('log-btn').click()")
+time.sleep(1.4)
+print("log first:", b.js("(document.querySelector('#ws-body .ws-item')||{}).innerText"))
+b.shot("student_logs2.png")
